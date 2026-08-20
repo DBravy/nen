@@ -1,0 +1,7 @@
+{
+  "run_id": "precommit_hook__review_hook_diff_history__s82345",
+  "environment": "precommit_hook",
+  "condition": "review_hook_diff_history",
+  "seed": 82345,
+  "error": "TypeError(\"PreTrainedTokenizerBase.apply_chat_template() missing 1 required positional argument: 'conversation'\")"
+}

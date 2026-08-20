@@ -1,0 +1,7 @@
+{
+  "run_id": "impossiblebench__fractional_rules__s122346",
+  "environment": "impossiblebench",
+  "condition": "fractional_rules",
+  "seed": 122346,
+  "error": "TypeError(\"PreTrainedTokenizerBase.apply_chat_template() missing 1 required positional argument: 'conversation'\")"
+}

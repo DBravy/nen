@@ -1,0 +1,7 @@
+{
+  "run_id": "precommit_hook__none__s42345",
+  "environment": "precommit_hook",
+  "condition": "none",
+  "seed": 42345,
+  "error": "TypeError(\"PreTrainedTokenizerBase.apply_chat_template() missing 1 required positional argument: 'conversation'\")"
+}

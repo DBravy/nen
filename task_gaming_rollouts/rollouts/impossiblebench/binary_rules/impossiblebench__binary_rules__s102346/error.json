@@ -1,0 +1,7 @@
+{
+  "run_id": "impossiblebench__binary_rules__s102346",
+  "environment": "impossiblebench",
+  "condition": "binary_rules",
+  "seed": 102346,
+  "error": "TypeError(\"PreTrainedTokenizerBase.apply_chat_template() missing 1 required positional argument: 'conversation'\")"
+}

@@ -1,0 +1,7 @@
+{
+  "run_id": "secret_number__base__s12346",
+  "environment": "secret_number",
+  "condition": "base",
+  "seed": 12346,
+  "error": "TypeError(\"PreTrainedTokenizerBase.apply_chat_template() missing 1 required positional argument: 'conversation'\")"
+}
