@@ -1,0 +1,32 @@
+{
+  "model": "openai/gpt-oss-20b",
+  "model_revision": null,
+  "readouts": "/home/dbrayjr5/nen/diverse_corpora/fineweb_discovery",
+  "directions": "/home/dbrayjr5/nen/svd_fineweb_discovery/directions",
+  "records": 400,
+  "positions": 102400,
+  "candidates": [
+    "L03/SV12",
+    "L05/SV04",
+    "L06/SV04",
+    "L09/SV03",
+    "L10/SV03",
+    "L11/SV03",
+    "L12/SV03"
+  ],
+  "families": {
+    "sv04_early": [
+      "L05/SV04",
+      "L06/SV04"
+    ],
+    "sv03_mid": [
+      "L09/SV03",
+      "L10/SV03",
+      "L11/SV03",
+      "L12/SV03"
+    ]
+  },
+  "extremes_per_sign": 30,
+  "trace_window": 12,
+  "context_window": 24
+}
