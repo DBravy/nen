@@ -14,6 +14,7 @@
          background:var(--panel); flex-wrap:wrap; }
   #bar h1 { font-size:14px; margin:0 8px 0 0; font-weight:650; }
   a.back { color:var(--accent); text-decoration:none; font-size:12px; }
+  body.embed .back, body.embed #pidLbl, body.embed #pidSel { display:none; }
   select, button { background:var(--panel2); color:var(--fg); border:1px solid var(--line);
                    border-radius:7px; padding:5px 8px; font-size:12px; }
   button { cursor:pointer; }
@@ -40,7 +41,7 @@
   <div id="bar">
     <h1>Attention lookback</h1>
     <a class="back" href="index.html">&larr; index</a>
-    <span class="lbl">readout</span>
+    <span class="lbl" id="pidLbl">readout</span>
     <select id="pidSel"></select>
     <span class="lbl">summary</span>
     <div class="seg" id="whichSeg">
@@ -73,7 +74,10 @@
   <div id="tip"></div>
 <script>
 const qs = new URLSearchParams(location.search);
+const EMBED = qs.has('embed');
+if (EMBED) document.body.classList.add('embed');
 let records = [], rec = null, data = null;
+let pendingKey = null, hiLayer = null;
 let W = 2, L = 0, T = 0;
 let which = 0;            // 0 mean, 1 max
 let mode = 'lookback';    // 'lookback' | 'matrix'
@@ -128,6 +132,8 @@ async function loadPid(pid) {
   const buf = await fetch(rec.attn_bin).then(r => r.arrayBuffer());
   data = new Uint8Array(buf);
   keyPos = Math.max(0, Math.floor(T * 0.4));  // a content token with tokens after it
+  const qk = qs.get('key');
+  if (qk !== null && qk !== '') keyPos = Math.max(0, Math.min(T - 1, +qk));
   matrixLayer = Math.floor(L / 2);
   layerInput.max = String(L - 1);
   layerInput.value = String(matrixLayer);
@@ -139,8 +145,9 @@ async function loadPid(pid) {
     keySel.appendChild(o);
   }
   keySel.value = String(keyPos);
-  history.replaceState(null, '', 'attn.html?pid=' + encodeURIComponent(pid));
+  if (!EMBED) history.replaceState(null, '', 'attn.html?pid=' + encodeURIComponent(pid));
   draw();
+  if (pendingKey !== null) { const p = pendingKey; pendingKey = null; applyKey(p.k, p.layer); }
 }
 
 function draw() {
@@ -169,6 +176,10 @@ function drawLookback() {
     }
   }
   ctx.putImageData(img, 0, 0);
+  if (hiLayer != null && hiLayer >= 0 && hiLayer < L) {  // highlight the readout's selected layer
+    ctx.strokeStyle = '#ffcf7a'; ctx.lineWidth = 2;
+    ctx.strokeRect(0.5, hiLayer * ch + 1, cv.width - 1, ch - 2);
+  }
   cv.dataset.cw = cw; cv.dataset.ch = ch;
   ylabels.innerHTML = Array.from({length: L}, (_, l) =>
     '<div style="height:' + ch + 'px;line-height:' + ch + 'px">L' + l + '</div>').join('');
@@ -259,6 +270,21 @@ document.querySelectorAll('#modeSeg button').forEach(b => b.addEventListener('cl
 layerInput.addEventListener('input', () => { matrixLayer = +layerInput.value; layerVal.textContent = matrixLayer; draw(); });
 keySel.addEventListener('change', () => { keyPos = +keySel.value; if (mode !== 'lookback') setMode('lookback'); else draw(); });
 pidSel.addEventListener('change', () => loadPid(pidSel.value));
+
+// Parent (index.html) drives pid/key when embedded; also usable stand-alone.
+function applyKey(k, layer) {
+  hiLayer = (layer == null || !Number.isFinite(+layer)) ? null : (+layer);
+  if (data == null) { pendingKey = { k, layer }; return; }
+  if (k == null || !Number.isFinite(+k)) { draw(); return; }
+  keyPos = Math.max(0, Math.min(T - 1, +k));
+  keySel.value = String(keyPos);
+  if (mode !== 'lookback') setMode('lookback'); else draw();
+}
+window.addEventListener('message', e => {
+  const m = e.data || {};
+  if (m.type === 'load' && m.pid) { pidSel.value = m.pid; loadPid(m.pid); }
+  else if (m.type === 'setKey') applyKey(m.key, m.layer);
+});
 
 loadIndex();
 </script>

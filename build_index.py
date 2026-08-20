@@ -139,12 +139,21 @@ TEMPLATE = r"""<!doctype html>
   #barMeta { color:var(--muted); font-size:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #barPrompt { color:var(--muted); font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1 1 auto; }
   .barlink { color:var(--accent); text-decoration:none; font-size:11px; border:1px solid var(--line);
-             padding:5px 9px; border-radius:7px; white-space:nowrap; flex:0 0 auto; }
+             padding:5px 9px; border-radius:7px; white-space:nowrap; flex:0 0 auto; cursor:pointer; }
   .barlink:hover { border-color:var(--accent); }
-  #frameWrap { flex:1 1 auto; position:relative; background:#fff; }
-  iframe { border:0; width:100%; height:100%; background:#fff; }
+  .barlink.on { border-color:var(--accent); color:var(--fg); background:#243; }
+  #frameWrap { flex:1 1 auto; display:flex; flex-direction:column; min-height:0; background:var(--bg); --attnh:300px; }
+  #readoutPane { position:relative; flex:1 1 auto; min-height:0; background:#fff; }
+  #attnDivider { flex:0 0 auto; height:6px; cursor:row-resize; background:var(--line); }
+  #attnDivider:hover, #attnDivider.drag { background:var(--accent); }
+  #attnPane { flex:0 0 auto; height:var(--attnh); min-height:120px; position:relative; background:#fff; }
+  body.attn-hidden #attnDivider, body.attn-hidden #attnPane { display:none; }
+  iframe { border:0; width:100%; height:100%; background:#fff; display:block; }
   #empty { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
            color:var(--muted); background:var(--bg); text-align:center; padding:30px; }
+  #attnPlaceholder { position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+           color:var(--muted); background:var(--panel); text-align:center; padding:20px; font-size:12px; line-height:1.8; }
+  #attnPlaceholder code { background:var(--panel2); padding:2px 6px; border-radius:5px; color:var(--fg); }
   .kbd { font-size:10px; color:var(--muted); padding:6px 10px; border-top:1px solid var(--line); }
   .kbd b { color:var(--fg); font-weight:600; }
   @media (max-width:1024px) {
@@ -173,7 +182,7 @@ TEMPLATE = r"""<!doctype html>
       <div class="filters" id="runFilters" style="display:none"><span class="lbl">run</span></div>
     </div>
     <div id="list"></div>
-    <div class="kbd"><b>b</b> toggle list &middot; <b>&uarr;/&darr;</b> or <b>j/k</b> move &middot; <b>/</b> search</div>
+    <div class="kbd"><b>b</b> list &middot; <b>a</b> attention &middot; <b>&uarr;/&darr;</b> or <b>j/k</b> move &middot; <b>/</b> search</div>
   </div>
   <div id="resizer" title="Drag to resize"></div>
   <div id="main">
@@ -184,12 +193,19 @@ TEMPLATE = r"""<!doctype html>
         <span id="barMeta"></span>
       </div>
       <span id="barPrompt"></span>
-      <a class="barlink" id="barAttn" href="#" style="display:none">attention &#8599;</a>
+      <div class="barlink on" id="attnToggle" role="button" title="Show/hide attention (a)">attention</div>
       <a class="barlink" id="barOpen" href="#" target="_blank" rel="noopener">open &#8599;</a>
     </div>
     <div id="frameWrap">
-      <iframe id="frame" title="readout"></iframe>
-      <div id="empty">Select a readout on the left to view it here.</div>
+      <div id="readoutPane">
+        <iframe id="frame" title="readout"></iframe>
+        <div id="empty">Select a readout on the left to view it here.</div>
+      </div>
+      <div id="attnDivider" title="Drag to resize"></div>
+      <div id="attnPane">
+        <iframe id="attnFrame" title="attention"></iframe>
+        <div id="attnPlaceholder"></div>
+      </div>
     </div>
   </div>
 <script>
@@ -203,7 +219,13 @@ const barTitle = document.getElementById('barTitle');
 const barMeta = document.getElementById('barMeta');
 const barPrompt = document.getElementById('barPrompt');
 const barOpen = document.getElementById('barOpen');
-const barAttn = document.getElementById('barAttn');
+const attnFrame = document.getElementById('attnFrame');
+const attnPane = document.getElementById('attnPane');
+const attnPlaceholder = document.getElementById('attnPlaceholder');
+const attnToggle = document.getElementById('attnToggle');
+const attnDivider = document.getElementById('attnDivider');
+let lastSel = null;       // {key, layer} observed from the readout iframe
+let syncObserver = null;
 let kind = 'all';
 let runLabel = 'all';
 let query = '';
@@ -254,6 +276,76 @@ document.getElementById('navToggle').addEventListener('click', toggleNav);
     e.preventDefault();
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', stop);
+  });
+})();
+
+/* ---- attention pane: toggle, resize, and selection sync from the readout ---- */
+function toggleAttn() {
+  const hidden = !document.body.classList.contains('attn-hidden');
+  document.body.classList.toggle('attn-hidden', hidden);
+  attnToggle.classList.toggle('on', !hidden);
+  try { localStorage.setItem('attn-hidden', hidden ? '1' : '0'); } catch (e) {}
+}
+function postSel() {
+  if (!lastSel) return;
+  try { attnFrame.contentWindow && attnFrame.contentWindow.postMessage(
+    { type: 'setKey', key: lastSel.key, layer: lastSel.layer }, '*'); } catch (e) {}
+}
+(function initAttn() {
+  let hidden = false;
+  try { hidden = localStorage.getItem('attn-hidden') === '1'; } catch (e) {}
+  document.body.classList.toggle('attn-hidden', hidden);
+  attnToggle.classList.toggle('on', !hidden);
+  let h = null; try { h = localStorage.getItem('attnh'); } catch (e) {}
+  if (h) document.body.style.setProperty('--attnh', h + 'px');
+  attnToggle.addEventListener('click', toggleAttn);
+
+  let dragging = false;
+  const onMove = e => {
+    if (!dragging) return;
+    const rect = document.getElementById('frameWrap').getBoundingClientRect();
+    const hh = Math.max(120, Math.min(rect.height - 120, rect.bottom - e.clientY));
+    document.body.style.setProperty('--attnh', hh + 'px');
+  };
+  const stop = () => {
+    if (!dragging) return;
+    dragging = false; attnDivider.classList.remove('drag'); document.body.style.userSelect = '';
+    const hh = parseInt(getComputedStyle(document.body).getPropertyValue('--attnh'));
+    try { localStorage.setItem('attnh', hh); } catch (e) {}
+    window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', stop);
+  };
+  attnDivider.addEventListener('mousedown', e => {
+    dragging = true; attnDivider.classList.add('drag'); document.body.style.userSelect = 'none';
+    e.preventDefault();
+    window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', stop);
+  });
+
+  // When the attention iframe (re)loads, push the last known selection into it.
+  attnFrame.addEventListener('load', postSel);
+
+  // Observe the readout iframe's selection labels (#ctxLabel = position,
+  // #layerLabel = layer) and mirror them into the attention pane.
+  frame.addEventListener('load', () => {
+    if (syncObserver) { syncObserver.disconnect(); syncObserver = null; }
+    try {
+      const doc = frame.contentDocument;
+      if (!doc) return;
+      const read = () => {
+        const cl = doc.getElementById('ctxLabel');
+        if (!cl) return;
+        const key = parseInt(cl.textContent, 10);
+        if (!Number.isFinite(key)) return;
+        const ll = doc.getElementById('layerLabel');
+        const layer = ll ? parseInt(ll.textContent, 10) : NaN;
+        const next = { key, layer: Number.isFinite(layer) ? layer : null };
+        if (lastSel && lastSel.key === next.key && lastSel.layer === next.layer) return;
+        lastSel = next;
+        postSel();
+      };
+      syncObserver = new MutationObserver(read);
+      syncObserver.observe(doc.body, { subtree: true, childList: true, characterData: true });
+      read();
+    } catch (e) { /* not same-origin / not ready: manual key picker still works */ }
   });
 })();
 
@@ -357,8 +449,23 @@ function select(pid) {
   barPrompt.textContent = r.payload.replace(/\n/g, ' ↩ ');
   barPrompt.title = r.payload;
   barOpen.href = r.html;
-  if (r.has_attn) { barAttn.style.display = ''; barAttn.href = 'attn.html?pid=' + encodeURIComponent(pid); }
-  else barAttn.style.display = 'none';
+  lastSel = null;
+  if (r.has_attn) {
+    attnPlaceholder.style.display = 'none';
+    attnFrame.style.display = '';
+    attnFrame.src = 'attn.html?pid=' + encodeURIComponent(pid) + '&embed=1';
+    attnToggle.style.opacity = '';
+    attnToggle.title = 'Show/hide attention (a)';
+  } else {
+    attnFrame.removeAttribute('src');
+    attnFrame.style.display = 'none';
+    attnPlaceholder.style.display = 'flex';
+    attnPlaceholder.innerHTML = 'No attention captured for <b>' + pid + '</b>.<br>Run ' +
+      '<code>python collect_readouts.py --only ' + baseOf(pid) + ' --attention</code><br>' +
+      'then <code>python build_index.py</code> and reload.';
+    attnToggle.style.opacity = '.55';
+    attnToggle.title = 'No attention data for this readout';
+  }
   render();
   const active = listEl.querySelector('.item.active');
   if (active) active.scrollIntoView({ block: 'nearest' });
@@ -389,6 +496,7 @@ document.addEventListener('keydown', e => {
   if (e.target === searchEl) { if (e.key === 'Escape') searchEl.blur(); return; }
   if (e.key === '/') { e.preventDefault(); searchEl.focus(); return; }
   if (e.key === 'b') { e.preventDefault(); toggleNav(); return; }
+  if (e.key === 'a') { e.preventDefault(); toggleAttn(); return; }
   if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); move(1); }
   if (e.key === 'ArrowUp'   || e.key === 'k') { e.preventDefault(); move(-1); }
 });
@@ -423,6 +531,7 @@ ATTN_TEMPLATE = r"""<!doctype html>
          background:var(--panel); flex-wrap:wrap; }
   #bar h1 { font-size:14px; margin:0 8px 0 0; font-weight:650; }
   a.back { color:var(--accent); text-decoration:none; font-size:12px; }
+  body.embed .back, body.embed #pidLbl, body.embed #pidSel { display:none; }
   select, button { background:var(--panel2); color:var(--fg); border:1px solid var(--line);
                    border-radius:7px; padding:5px 8px; font-size:12px; }
   button { cursor:pointer; }
@@ -449,7 +558,7 @@ ATTN_TEMPLATE = r"""<!doctype html>
   <div id="bar">
     <h1>Attention lookback</h1>
     <a class="back" href="index.html">&larr; index</a>
-    <span class="lbl">readout</span>
+    <span class="lbl" id="pidLbl">readout</span>
     <select id="pidSel"></select>
     <span class="lbl">summary</span>
     <div class="seg" id="whichSeg">
@@ -482,7 +591,10 @@ ATTN_TEMPLATE = r"""<!doctype html>
   <div id="tip"></div>
 <script>
 const qs = new URLSearchParams(location.search);
+const EMBED = qs.has('embed');
+if (EMBED) document.body.classList.add('embed');
 let records = [], rec = null, data = null;
+let pendingKey = null, hiLayer = null;
 let W = 2, L = 0, T = 0;
 let which = 0;            // 0 mean, 1 max
 let mode = 'lookback';    // 'lookback' | 'matrix'
@@ -537,6 +649,8 @@ async function loadPid(pid) {
   const buf = await fetch(rec.attn_bin).then(r => r.arrayBuffer());
   data = new Uint8Array(buf);
   keyPos = Math.max(0, Math.floor(T * 0.4));  // a content token with tokens after it
+  const qk = qs.get('key');
+  if (qk !== null && qk !== '') keyPos = Math.max(0, Math.min(T - 1, +qk));
   matrixLayer = Math.floor(L / 2);
   layerInput.max = String(L - 1);
   layerInput.value = String(matrixLayer);
@@ -548,8 +662,9 @@ async function loadPid(pid) {
     keySel.appendChild(o);
   }
   keySel.value = String(keyPos);
-  history.replaceState(null, '', 'attn.html?pid=' + encodeURIComponent(pid));
+  if (!EMBED) history.replaceState(null, '', 'attn.html?pid=' + encodeURIComponent(pid));
   draw();
+  if (pendingKey !== null) { const p = pendingKey; pendingKey = null; applyKey(p.k, p.layer); }
 }
 
 function draw() {
@@ -578,6 +693,10 @@ function drawLookback() {
     }
   }
   ctx.putImageData(img, 0, 0);
+  if (hiLayer != null && hiLayer >= 0 && hiLayer < L) {  // highlight the readout's selected layer
+    ctx.strokeStyle = '#ffcf7a'; ctx.lineWidth = 2;
+    ctx.strokeRect(0.5, hiLayer * ch + 1, cv.width - 1, ch - 2);
+  }
   cv.dataset.cw = cw; cv.dataset.ch = ch;
   ylabels.innerHTML = Array.from({length: L}, (_, l) =>
     '<div style="height:' + ch + 'px;line-height:' + ch + 'px">L' + l + '</div>').join('');
@@ -668,6 +787,21 @@ document.querySelectorAll('#modeSeg button').forEach(b => b.addEventListener('cl
 layerInput.addEventListener('input', () => { matrixLayer = +layerInput.value; layerVal.textContent = matrixLayer; draw(); });
 keySel.addEventListener('change', () => { keyPos = +keySel.value; if (mode !== 'lookback') setMode('lookback'); else draw(); });
 pidSel.addEventListener('change', () => loadPid(pidSel.value));
+
+// Parent (index.html) drives pid/key when embedded; also usable stand-alone.
+function applyKey(k, layer) {
+  hiLayer = (layer == null || !Number.isFinite(+layer)) ? null : (+layer);
+  if (data == null) { pendingKey = { k, layer }; return; }
+  if (k == null || !Number.isFinite(+k)) { draw(); return; }
+  keyPos = Math.max(0, Math.min(T - 1, +k));
+  keySel.value = String(keyPos);
+  if (mode !== 'lookback') setMode('lookback'); else draw();
+}
+window.addEventListener('message', e => {
+  const m = e.data || {};
+  if (m.type === 'load' && m.pid) { pidSel.value = m.pid; loadPid(m.pid); }
+  else if (m.type === 'setKey') applyKey(m.key, m.layer);
+});
 
 loadIndex();
 </script>

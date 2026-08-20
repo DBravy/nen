@@ -184,6 +184,10 @@ def parse_args() -> argparse.Namespace:
                    help="capture head-averaged attention (mean+max over heads) per layer "
                         "to attn/<pid>.u8 for the lookback viewer; loads the model with "
                         "eager attention (slower, but required to read attention weights)")
+    p.add_argument("--attn-existing", action="store_true",
+                   help="backfill attention onto EVERY readout already in index.jsonl, using "
+                        "its stored transcript (no resampling, no lens recompute); the easy way "
+                        "to add attention to everything collected before --attention")
     p.add_argument("--attn-max-seq", type=int, default=512,
                    help="cap the sequence length used for attention capture (files grow "
                         "as T^2); longer transcripts are truncated for the attention pass")
@@ -214,6 +218,35 @@ def capture_attention(hf, tok, text: str, max_seq: int):
     scale = float(arr.max()) or 1.0
     q = np.clip(np.round(arr / scale * 255.0), 0, 255).astype(np.uint8)
     return q, scale, int(enc["input_ids"].shape[1])
+
+
+def backfill_attention(hf, tok, index_path: Path, out: Path, attn_max_seq: int) -> None:
+    """Add attention to readouts already in index.jsonl, from their stored text.
+
+    Rewrites index.jsonl in place with attn_* fields; never resamples generations
+    or recomputes the lens, so existing readouts are unchanged. Skips readouts
+    that already have attention.
+    """
+    recs = [json.loads(l) for l in index_path.read_text().splitlines() if l.strip()]
+    n = 0
+    for r in recs:
+        if r.get("attn_bin") or not r.get("text"):
+            continue
+        cap = capture_attention(hf, tok, r["text"], attn_max_seq)
+        if cap is None:
+            print(f"[warn] {r['pid']}: no attentions returned (eager loaded?)")
+            continue
+        q, scale, aT = cap
+        (out / "attn" / f"{r['pid']}.u8").write_bytes(q.tobytes())
+        r["attn_bin"] = f"attn/{r['pid']}.u8"
+        r["attn_shape"] = list(q.shape)   # [2, L, T, T]
+        r["attn_scale"] = scale
+        r["attn_seq"] = aT
+        n += 1
+        print(f"[attn] {r['pid']:26s} T={aT}")
+    index_path.write_text(
+        "\n".join(json.dumps(x, ensure_ascii=False) for x in recs) + "\n")
+    print(f"[done] backfilled attention onto {n} readouts (already-attended ones skipped)")
 
 
 def single_token_ids(tok, strings: list[str]) -> set[int]:
@@ -251,7 +284,7 @@ def main() -> None:
     out = Path(args.out).expanduser()
     (out / "data").mkdir(parents=True, exist_ok=True)
     (out / "pages").mkdir(parents=True, exist_ok=True)
-    if args.attention:
+    if args.attention or args.attn_existing:
         (out / "attn").mkdir(parents=True, exist_ok=True)
     index_path = out / "index.jsonl"
     vocab_path = out / "vocab.json"
@@ -281,7 +314,7 @@ def main() -> None:
     tok = transformers.AutoTokenizer.from_pretrained(
         args.model, revision=args.model_revision)
     load_kwargs = dict(revision=args.model_revision, dtype="auto", device_map="cuda")
-    if args.attention:
+    if args.attention or args.attn_existing:
         # Optimised kernels don't return attention weights; eager does.
         load_kwargs["attn_implementation"] = "eager"
         print("[attn] loading with attn_implementation='eager' (slower)")
@@ -300,6 +333,10 @@ def main() -> None:
     assert lens.d_model == model.d_model, (
         f"lens d_model {lens.d_model} != model d_model {model.d_model}; "
         "wrong lens file for this model")
+
+    if args.attn_existing:  # backfill attention onto everything, then stop
+        backfill_attention(hf, tok, index_path, out, args.attn_max_seq)
+        return
 
     # One-time chat-template roundtrip check: compute_slice re-tokenizes text,
     # so the string form must reproduce the template's ids exactly.
