@@ -1,0 +1,7 @@
+{
+  "run_id": "secret_number__base__s12345",
+  "environment": "secret_number",
+  "condition": "base",
+  "seed": 12345,
+  "error": "RuntimeError('Assistant exhausted --max-turn-tokens without emitting <|call|> or <|return|>. Increase --max-turn-tokens.')"
+}
