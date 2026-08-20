@@ -16,9 +16,10 @@ Prompt kinds:
   chat_gen  generate a response first, then lens the FULL transcript (CoT + final)
 
 Usage (inside tmux, venv active):
-  python collect_readouts.py --out ~/readouts
-  python collect_readouts.py --out ~/readouts --skip-generation      # faster first pass
-  python collect_readouts.py --out ~/readouts --mask-display         # word-like tokens only (slow first call)
+  python collect_readouts.py                           # writes ./readouts next to this script
+  python collect_readouts.py --skip-generation         # faster first pass (skips generation prompts)
+  python collect_readouts.py --run-label cot-high       # stamp a label on every record from this run
+  python collect_readouts.py --mask-display            # word-like tokens only (slow first call)
 
 Notes:
   * The lens card says the gpt-oss lens was fitted on 100 WikiText prompts in
@@ -150,7 +151,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--model-revision", default=None)
     p.add_argument("--lens-repo", default="solarkyle/jspace-lenses")
     p.add_argument("--lens-file", default="gpt-oss-20b/lens.pt")
-    p.add_argument("--out", default="readouts")
+    p.add_argument("--out", default=str(Path(__file__).resolve().parent / "readouts"),
+                   help="output dir (default: ./readouts next to this script, so it "
+                        "stays inside the repo and transfers cleanly over git)")
+    p.add_argument("--run-label", default="",
+                   help="optional label stamped on every record written this run "
+                        "(e.g. 'baseline', 'cot-high') to tell runs apart in the index page")
     p.add_argument("--top-n", type=int, default=10)
     p.add_argument("--max-tracked", type=int, default=60,
                    help="cap on tokens given full rank trajectories (keeps pages light)")
@@ -196,6 +202,7 @@ def build_chat_text(tok, user_msg: str, reasoning: str) -> tuple[str, list[int]]
 def main() -> None:
     args = parse_args()
     torch.manual_seed(args.seed)
+    run_ts = time.strftime("%Y-%m-%dT%H:%M:%S")
     out = Path(args.out).expanduser()
     (out / "data").mkdir(parents=True, exist_ok=True)
     (out / "pages").mkdir(parents=True, exist_ok=True)
@@ -299,6 +306,12 @@ def main() -> None:
             "layers": sd.layers, "roundtrip_ok": roundtrip_ok,
             "npz": f"data/{pid}.npz", "html": html_rel,
             "wall_s": round(time.time() - t0, 1),
+            # -- provenance: lets the index page tell runs/variants apart -------- #
+            "run_label": args.run_label,
+            "reasoning": args.reasoning if kind in ("chat", "chat_gen") else None,
+            "model": args.model,
+            "lens_file": args.lens_file,
+            "ts": run_ts,
         }
         with index_path.open("a") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
