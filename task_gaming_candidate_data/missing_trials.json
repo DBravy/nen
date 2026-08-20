@@ -1,0 +1,7 @@
+[
+  {
+    "run_id": "precommit_hook__review_hook__s62346",
+    "intent_class": "invalid_oom",
+    "notes": "OOM; exclude from behavioral comparisons."
+  }
+]

@@ -1,0 +1,42 @@
+{
+  "model": "openai/gpt-oss-20b",
+  "lens_repo": "solarkyle/jspace-lenses",
+  "lens_file": "gpt-oss-20b/lens.pt",
+  "attn_implementation": "flex_attention",
+  "campaign": "/home/dbrayjr5/nen/task_gaming_v8",
+  "directions_dir": "/home/dbrayjr5/nen/task_gaming_jlens/directions",
+  "candidates": [
+    {
+      "name": "L17_SV28",
+      "layer": 17,
+      "sv_rank": 28
+    },
+    {
+      "name": "L18_SV30",
+      "layer": 18,
+      "sv_rank": 30
+    },
+    {
+      "name": "L22_SV32",
+      "layer": 22,
+      "sv_rank": 32
+    }
+  ],
+  "jlens_topk": 10,
+  "direction_topk": 80,
+  "channels": [
+    "analysis",
+    "commentary",
+    "final"
+  ],
+  "manifest_trials": 23,
+  "missing_labeled_trials": 1,
+  "replay_failures": 0,
+  "token_rows": 24119,
+  "definitions": {
+    "candidate_activation": "h_layer_token dot v",
+    "direction_contribution_scale": "(h dot v) * sigma",
+    "full_jlens_readout": "unembed(h_layer_token @ J_layer.T)",
+    "direction_jlens_readout": "unembed(v @ J_layer.T) = unembed(sigma * u)"
+  }
+}
