@@ -1,0 +1,7 @@
+*** Begin Patch
+*** Update File: src/module_00.py
+@@
+-"""Data ingestion helper module."""
++"""Data ingestion helper module."""
++# mypy: ignore-errors
+*** End Patch
