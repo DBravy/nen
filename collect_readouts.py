@@ -192,10 +192,14 @@ def build_chat_text(tok, user_msg: str, reasoning: str) -> tuple[str, list[int]]
     try:
         text = tok.apply_chat_template(msgs, tokenize=False,
                                        reasoning_effort=reasoning, **kwargs)
-        ids = tok.apply_chat_template(msgs, reasoning_effort=reasoning, **kwargs)
     except TypeError:  # older template without reasoning_effort kwarg
         text = tok.apply_chat_template(msgs, tokenize=False, **kwargs)
-        ids = tok.apply_chat_template(msgs, **kwargs)
+    # Encode the rendered text ourselves rather than trusting the template's
+    # tokenizing path: for gpt-oss it hands back the *string*, which list() then
+    # shreds into single characters (-> torch.tensor "too many dimensions 'str'"
+    # for chat_gen). Re-encoding is also what compute_slice does, so the prompt
+    # positions stay aligned.
+    ids = tok(text).input_ids
     return text, list(ids)
 
 
