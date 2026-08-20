@@ -147,7 +147,10 @@ TEMPLATE = r"""<!doctype html>
   #attnDivider { flex:0 0 auto; height:6px; cursor:row-resize; background:var(--line); }
   #attnDivider:hover, #attnDivider.drag { background:var(--accent); }
   #attnPane { flex:0 0 auto; height:var(--attnh); min-height:120px; position:relative; background:#fff; }
-  body.attn-hidden #attnDivider, body.attn-hidden #attnPane { display:none; }
+  body.attn-hidden #attnPane { display:none; }
+  body.readout-hidden #readoutPane { display:none; }
+  body.readout-hidden #attnPane { flex:1 1 auto; height:auto; }  /* attention fills */
+  body.attn-hidden #attnDivider, body.readout-hidden #attnDivider { display:none; }
   iframe { border:0; width:100%; height:100%; background:#fff; display:block; }
   #empty { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
            color:var(--muted); background:var(--bg); text-align:center; padding:30px; }
@@ -182,7 +185,7 @@ TEMPLATE = r"""<!doctype html>
       <div class="filters" id="runFilters" style="display:none"><span class="lbl">run</span></div>
     </div>
     <div id="list"></div>
-    <div class="kbd"><b>b</b> list &middot; <b>a</b> attention &middot; <b>&uarr;/&darr;</b> or <b>j/k</b> move &middot; <b>/</b> search</div>
+    <div class="kbd"><b>b</b> list &middot; <b>r</b> readout &middot; <b>h</b> heatmap &middot; <b>d</b> detail &middot; <b>a</b> attention &middot; <b>&uarr;&darr;</b>/<b>jk</b> move</div>
   </div>
   <div id="resizer" title="Drag to resize"></div>
   <div id="main">
@@ -193,6 +196,9 @@ TEMPLATE = r"""<!doctype html>
         <span id="barMeta"></span>
       </div>
       <span id="barPrompt"></span>
+      <div class="barlink on" id="readoutToggle" role="button" title="Show/hide readout (r)">readout</div>
+      <div class="barlink on" id="hmToggle" role="button" title="Show/hide heatmap (h)">heatmap</div>
+      <div class="barlink on" id="detailToggle" role="button" title="Show/hide token/rank detail (d)">detail</div>
       <div class="barlink on" id="attnToggle" role="button" title="Show/hide attention (a)">attention</div>
       <a class="barlink" id="barOpen" href="#" target="_blank" rel="noopener">open &#8599;</a>
     </div>
@@ -224,6 +230,10 @@ const attnPane = document.getElementById('attnPane');
 const attnPlaceholder = document.getElementById('attnPlaceholder');
 const attnToggle = document.getElementById('attnToggle');
 const attnDivider = document.getElementById('attnDivider');
+const readoutToggle = document.getElementById('readoutToggle');
+const hmToggle = document.getElementById('hmToggle');
+const detailToggle = document.getElementById('detailToggle');
+let hideHeatmap = false, hideDetail = false;
 let lastSel = null;       // {key, layer} observed from the readout iframe
 let syncObserver = null;
 let kind = 'all';
@@ -286,6 +296,47 @@ function toggleAttn() {
   attnToggle.classList.toggle('on', !hidden);
   try { localStorage.setItem('attn-hidden', hidden ? '1' : '0'); } catch (e) {}
 }
+function toggleReadout() {
+  const hidden = !document.body.classList.contains('readout-hidden');
+  document.body.classList.toggle('readout-hidden', hidden);
+  readoutToggle.classList.toggle('on', !hidden);
+  try { localStorage.setItem('readout-hidden', hidden ? '1' : '0'); } catch (e) {}
+}
+
+// Hide either half *inside* the readout (its own heatmap vs the token/rank
+// detail below it) by injecting CSS + toggling classes on the same-origin
+// readout iframe -- injected here, not baked into pages, so no re-patch needed.
+function styleReadout(doc) {
+  if (doc.getElementById('idx-part-style')) return;
+  const st = doc.createElement('style');
+  st.id = 'idx-part-style';
+  st.textContent =
+    'body.hide-heatmap #hm-wrap{display:none!important}' +
+    'body.hide-detail .bottom-controls{display:none!important}' +
+    'body.hide-heatmap #tokResize,body.hide-detail #tokResize{display:none!important}';
+  (doc.head || doc.documentElement).appendChild(st);
+}
+function applyReadoutParts() {
+  try {
+    const doc = frame.contentDocument;
+    if (!doc || !doc.body) return;
+    styleReadout(doc);
+    doc.body.classList.toggle('hide-heatmap', hideHeatmap);
+    doc.body.classList.toggle('hide-detail', hideDetail);
+  } catch (e) { /* cross-origin / not ready */ }
+}
+function toggleHeatmap() {
+  hideHeatmap = !hideHeatmap;
+  hmToggle.classList.toggle('on', !hideHeatmap);
+  try { localStorage.setItem('hide-heatmap', hideHeatmap ? '1' : '0'); } catch (e) {}
+  applyReadoutParts();
+}
+function toggleDetail() {
+  hideDetail = !hideDetail;
+  detailToggle.classList.toggle('on', !hideDetail);
+  try { localStorage.setItem('hide-detail', hideDetail ? '1' : '0'); } catch (e) {}
+  applyReadoutParts();
+}
 function postSel() {
   if (!lastSel) return;
   try { attnFrame.contentWindow && attnFrame.contentWindow.postMessage(
@@ -296,6 +347,17 @@ function postSel() {
   try { hidden = localStorage.getItem('attn-hidden') === '1'; } catch (e) {}
   document.body.classList.toggle('attn-hidden', hidden);
   attnToggle.classList.toggle('on', !hidden);
+  let rhidden = false;
+  try { rhidden = localStorage.getItem('readout-hidden') === '1'; } catch (e) {}
+  document.body.classList.toggle('readout-hidden', rhidden);
+  readoutToggle.classList.toggle('on', !rhidden);
+  readoutToggle.addEventListener('click', toggleReadout);
+  try { hideHeatmap = localStorage.getItem('hide-heatmap') === '1'; } catch (e) {}
+  try { hideDetail = localStorage.getItem('hide-detail') === '1'; } catch (e) {}
+  hmToggle.classList.toggle('on', !hideHeatmap);
+  detailToggle.classList.toggle('on', !hideDetail);
+  hmToggle.addEventListener('click', toggleHeatmap);
+  detailToggle.addEventListener('click', toggleDetail);
   let h = null; try { h = localStorage.getItem('attnh'); } catch (e) {}
   if (h) document.body.style.setProperty('--attnh', h + 'px');
   attnToggle.addEventListener('click', toggleAttn);
@@ -326,6 +388,7 @@ function postSel() {
   // Observe the readout iframe's selection labels (#ctxLabel = position,
   // #layerLabel = layer) and mirror them into the attention pane.
   frame.addEventListener('load', () => {
+    applyReadoutParts();  // re-apply heatmap/detail hiding after each reload
     if (syncObserver) { syncObserver.disconnect(); syncObserver = null; }
     try {
       const doc = frame.contentDocument;
@@ -497,6 +560,9 @@ document.addEventListener('keydown', e => {
   if (e.key === '/') { e.preventDefault(); searchEl.focus(); return; }
   if (e.key === 'b') { e.preventDefault(); toggleNav(); return; }
   if (e.key === 'a') { e.preventDefault(); toggleAttn(); return; }
+  if (e.key === 'r') { e.preventDefault(); toggleReadout(); return; }
+  if (e.key === 'h') { e.preventDefault(); toggleHeatmap(); return; }
+  if (e.key === 'd') { e.preventDefault(); toggleDetail(); return; }
   if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); move(1); }
   if (e.key === 'ArrowUp'   || e.key === 'k') { e.preventDefault(); move(-1); }
 });
