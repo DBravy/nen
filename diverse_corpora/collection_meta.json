@@ -1,0 +1,41 @@
+{
+  "created": "2026-08-20T19:09:51",
+  "seed": 1729,
+  "model": "openai/gpt-oss-20b",
+  "model_revision": "6cee5e81ee83917806bbde320786a8fb61efebee",
+  "n_discovery": 400,
+  "n_replication": 400,
+  "corpora": [
+    "fineweb",
+    "wildchat"
+  ],
+  "fineweb": {
+    "dataset": "HuggingFaceFW/fineweb",
+    "config": "sample-10BT",
+    "revision": "9bb295ddab0e05d785b879661af7260fed5140fc",
+    "sampling_stats": {
+      "scanned": 1232,
+      "accepted": 800,
+      "skipped_short": 432,
+      "skipped_huge": 0,
+      "skipped_decode_reencode_boundary": 0,
+      "window_tokens_requested": 256
+    }
+  },
+  "wildchat": {
+    "dataset": "allenai/WildChat-1M",
+    "revision": "7d6490e462285cf85d91eabea0f9a954fbddcd1f",
+    "language": "English",
+    "sampling_stats": {
+      "scanned": 2563,
+      "accepted": 800,
+      "skipped_language": 1313,
+      "skipped_redacted": 13,
+      "skipped_empty": 5,
+      "skipped_length": 402,
+      "skipped_duplicate": 30,
+      "language": "English",
+      "allow_redacted": false
+    }
+  }
+}

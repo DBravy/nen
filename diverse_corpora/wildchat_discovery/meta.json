@@ -1,0 +1,25 @@
+{
+  "schema": "minimal collect_readouts index compatible with explore_jlens_svd_concepts_v2.py",
+  "corpus": "wildchat",
+  "created": "2026-08-20T19:10:56",
+  "seed": 1729,
+  "model": "openai/gpt-oss-20b",
+  "model_revision": "6cee5e81ee83917806bbde320786a8fb61efebee",
+  "dataset_revision": "7d6490e462285cf85d91eabea0f9a954fbddcd1f",
+  "n_discovery": 400,
+  "n_replication": 400,
+  "sampling_stats": {
+    "scanned": 2563,
+    "accepted": 800,
+    "skipped_language": 1313,
+    "skipped_redacted": 13,
+    "skipped_empty": 5,
+    "skipped_length": 402,
+    "skipped_duplicate": 30,
+    "language": "English",
+    "allow_redacted": false
+  },
+  "split": "discovery",
+  "n_records": 400,
+  "recommended_position_mode": "last"
+}

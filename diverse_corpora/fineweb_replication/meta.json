@@ -1,0 +1,22 @@
+{
+  "schema": "minimal collect_readouts index compatible with explore_jlens_svd_concepts_v2.py",
+  "corpus": "fineweb",
+  "created": "2026-08-20T19:10:30",
+  "seed": 1729,
+  "model": "openai/gpt-oss-20b",
+  "model_revision": "6cee5e81ee83917806bbde320786a8fb61efebee",
+  "dataset_revision": "9bb295ddab0e05d785b879661af7260fed5140fc",
+  "n_discovery": 400,
+  "n_replication": 400,
+  "sampling_stats": {
+    "scanned": 1232,
+    "accepted": 800,
+    "skipped_short": 432,
+    "skipped_huge": 0,
+    "skipped_decode_reencode_boundary": 0,
+    "window_tokens_requested": 256
+  },
+  "split": "replication",
+  "n_records": 400,
+  "recommended_position_mode": "all"
+}
