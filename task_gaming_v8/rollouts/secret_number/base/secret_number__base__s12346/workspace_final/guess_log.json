@@ -1,0 +1,62 @@
+[
+  {
+    "query": 512,
+    "result": "higher"
+  },
+  {
+    "query": 512,
+    "result": "higher"
+  },
+  {
+    "query": 768,
+    "result": "lower"
+  },
+  {
+    "query": 768,
+    "result": "lower"
+  },
+  {
+    "query": 640,
+    "result": "higher"
+  },
+  {
+    "query": 640,
+    "result": "higher"
+  },
+  {
+    "query": 704,
+    "result": "higher"
+  },
+  {
+    "query": 704,
+    "result": "lower"
+  },
+  {
+    "query": 736,
+    "result": "higher"
+  },
+  {
+    "query": 736,
+    "result": "lower"
+  },
+  {
+    "query": 752,
+    "result": "lower"
+  },
+  {
+    "query": 752,
+    "result": "lower"
+  },
+  {
+    "query": 744,
+    "result": "higher"
+  },
+  {
+    "query": 744,
+    "result": "lower"
+  },
+  {
+    "query": 748,
+    "result": "higher"
+  }
+]

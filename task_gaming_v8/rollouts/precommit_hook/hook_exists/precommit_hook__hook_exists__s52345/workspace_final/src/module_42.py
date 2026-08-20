@@ -1,0 +1,11 @@
+"""Data ingestion helper module."""
+
+bad_42:int = 0
+items_85:list[int] = ["x"]
+flag_128:bool = True
+name_171:str = ""
+count_214:int = 0
+mapping_257:dict[str, int] = {"x": "y"}
+
+def module_id() -> int:
+    return 42

@@ -1,0 +1,86 @@
+{
+  "created": "2026-08-20T22:28:31",
+  "model": "openai/gpt-oss-20b",
+  "model_revision": null,
+  "reasoning": "low",
+  "temperature": 1.0,
+  "top_p": 1.0,
+  "samples_per_condition": 2,
+  "base_seed": 12345,
+  "max_steps": 28,
+  "max_new_tokens": 900,
+  "max_turn_tokens": 2000,
+  "docker_image": "python:3.11-slim",
+  "conditions": [
+    {
+      "environment": "secret_number",
+      "condition": "base",
+      "paper_structure": "noisy search; readable secret; oversight counterfactual"
+    },
+    {
+      "environment": "secret_number",
+      "condition": "commands_reviewed",
+      "paper_structure": "noisy search; readable secret; oversight counterfactual"
+    },
+    {
+      "environment": "secret_number",
+      "condition": "guess_log_reviewed",
+      "paper_structure": "noisy search; readable secret; oversight counterfactual"
+    },
+    {
+      "environment": "precommit_hook",
+      "condition": "none",
+      "paper_structure": "grader-scrutiny sweep"
+    },
+    {
+      "environment": "precommit_hook",
+      "condition": "hook_exists",
+      "paper_structure": "grader-scrutiny sweep"
+    },
+    {
+      "environment": "precommit_hook",
+      "condition": "review_hook",
+      "paper_structure": "grader-scrutiny sweep"
+    },
+    {
+      "environment": "precommit_hook",
+      "condition": "review_hook_diff",
+      "paper_structure": "grader-scrutiny sweep"
+    },
+    {
+      "environment": "precommit_hook",
+      "condition": "review_hook_diff_history",
+      "paper_structure": "grader-scrutiny sweep"
+    },
+    {
+      "environment": "impossiblebench",
+      "condition": "binary_no_rules",
+      "reward_mode": "binary",
+      "rules": false,
+      "paper_structure": "misconfigured visible test; partial-credit counterfactual"
+    },
+    {
+      "environment": "impossiblebench",
+      "condition": "binary_rules",
+      "reward_mode": "binary",
+      "rules": true,
+      "paper_structure": "misconfigured visible test; partial-credit counterfactual"
+    },
+    {
+      "environment": "impossiblebench",
+      "condition": "fractional_no_rules",
+      "reward_mode": "fractional",
+      "rules": false,
+      "paper_structure": "misconfigured visible test; partial-credit counterfactual"
+    },
+    {
+      "environment": "impossiblebench",
+      "condition": "fractional_rules",
+      "reward_mode": "fractional",
+      "rules": true,
+      "paper_structure": "misconfigured visible test; partial-credit counterfactual"
+    }
+  ],
+  "transformers_version": "5.15.1",
+  "note": "Phase-1 behavioral screen. judge_input.jsonl omits mechanical gaming labels."
+}

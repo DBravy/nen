@@ -1,0 +1,7 @@
+{
+  "run_id": "precommit_hook__review_hook__s62346",
+  "environment": "precommit_hook",
+  "condition": "review_hook",
+  "seed": 62346,
+  "error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 2.57 GiB. GPU 0 has a total capacity of 22.04 GiB of which 2.56 GiB is free. Including non-PyTorch memory, this process has 19.47 GiB memory in use. Of the allocated memory 18.22 GiB is allocated by PyTorch, and 1.02 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)')"
+}
