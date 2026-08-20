@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Attention lookback</title>
+<style>
+  :root { --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --line:#2a2f3a;
+          --fg:#e6e8ec; --muted:#9aa3b2; --accent:#6ea8fe; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; }
+  body { font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+         color:var(--fg); background:var(--bg); display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+  #bar { display:flex; align-items:center; gap:10px; padding:8px 12px; border-bottom:1px solid var(--line);
+         background:var(--panel); flex-wrap:wrap; }
+  #bar h1 { font-size:14px; margin:0 8px 0 0; font-weight:650; }
+  a.back { color:var(--accent); text-decoration:none; font-size:12px; }
+  select, button { background:var(--panel2); color:var(--fg); border:1px solid var(--line);
+                   border-radius:7px; padding:5px 8px; font-size:12px; }
+  button { cursor:pointer; }
+  button.on { border-color:var(--accent); color:var(--fg); background:#243; }
+  .seg { display:flex; gap:0; }
+  .seg button { border-radius:0; }
+  .seg button:first-child { border-radius:7px 0 0 7px; }
+  .seg button:last-child { border-radius:0 7px 7px 0; border-left:0; }
+  .lbl { color:var(--muted); font-size:11px; }
+  #wrap { flex:1 1 auto; overflow:auto; padding:10px 12px; }
+  #info { color:var(--muted); font-size:12px; margin-bottom:8px; }
+  #info b { color:var(--fg); }
+  .keytok { color:var(--accent); font-weight:600; }
+  #canvasHolder { position:relative; display:inline-block; }
+  canvas { display:block; image-rendering:pixelated; }
+  #tip { position:fixed; pointer-events:none; background:#000; border:1px solid var(--line);
+         border-radius:6px; padding:5px 8px; font-size:11px; z-index:50; display:none; max-width:340px; }
+  #tip .w { color:var(--accent); font-weight:600; }
+  #ylabels, #xnote { color:var(--muted); font-size:10px; }
+  .row { display:flex; align-items:flex-start; gap:8px; }
+  .empty { color:var(--muted); padding:40px; text-align:center; }
+</style>
+</head><body>
+  <div id="bar">
+    <h1>Attention lookback</h1>
+    <a class="back" href="index.html">&larr; index</a>
+    <span class="lbl">readout</span>
+    <select id="pidSel"></select>
+    <span class="lbl">summary</span>
+    <div class="seg" id="whichSeg">
+      <button data-w="0" class="on">mean</button>
+      <button data-w="1">max</button>
+    </div>
+    <span class="lbl">view</span>
+    <div class="seg" id="modeSeg">
+      <button data-m="lookback" class="on">lookback</button>
+      <button data-m="matrix">layer matrix</button>
+    </div>
+    <span id="layerCtl" style="display:none">
+      <span class="lbl">layer</span>
+      <input type="range" id="layer" min="0" max="0" value="0" style="vertical-align:middle">
+      <span id="layerVal" class="lbl">0</span>
+    </span>
+    <span class="lbl">attend&nbsp;back&nbsp;to</span>
+    <select id="keySel"></select>
+  </div>
+  <div id="wrap">
+    <div id="info"></div>
+    <div class="row">
+      <div id="ylabels"></div>
+      <div>
+        <div id="canvasHolder"><canvas id="cv"></canvas></div>
+        <div id="xnote"></div>
+      </div>
+    </div>
+  </div>
+  <div id="tip"></div>
+<script>
+const qs = new URLSearchParams(location.search);
+let records = [], rec = null, data = null;
+let W = 2, L = 0, T = 0;
+let which = 0;            // 0 mean, 1 max
+let mode = 'lookback';    // 'lookback' | 'matrix'
+let keyPos = 0;           // key token index to attend back to
+let matrixLayer = 0;
+
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+const tip = document.getElementById('tip');
+const pidSel = document.getElementById('pidSel');
+const keySel = document.getElementById('keySel');
+const info = document.getElementById('info');
+const ylabels = document.getElementById('ylabels');
+const xnote = document.getElementById('xnote');
+const layerCtl = document.getElementById('layerCtl');
+const layerInput = document.getElementById('layer');
+const layerVal = document.getElementById('layerVal');
+
+const at = (w, l, qy, k) => data[((w * L + l) * T + qy) * T + k];  // C-order [W,L,T,T]
+const tok = i => (rec.token_strs && rec.token_strs[i] != null) ? rec.token_strs[i] : ('#' + i);
+const shortTok = i => { let s = tok(i).replace(/\n/g, '\\n'); return s.length > 14 ? s.slice(0, 13) + '…' : s; };
+
+function color(t) {  // t in [0,1] -> dark navy to bright cyan
+  t = Math.max(0, Math.min(1, t));
+  const r = Math.round(10 + t * 60), g = Math.round(20 + t * 200), b = Math.round(35 + t * 210);
+  return [r, g, b];
+}
+
+async function loadIndex() {
+  let txt;
+  try { txt = await fetch('index.jsonl').then(r => r.text()); }
+  catch (e) { info.innerHTML = '<span class="empty">Could not load index.jsonl (serve the folder over http).</span>'; return; }
+  records = txt.split('\n').filter(Boolean).map(JSON.parse).filter(r => r.attn_bin);
+  if (!records.length) { info.innerHTML = '<span class="empty">No readouts have attention data yet. Re-run collect_readouts.py with <b>--attention</b>.</span>'; return; }
+  pidSel.innerHTML = '';
+  for (const r of records) {
+    const o = document.createElement('option');
+    o.value = r.pid; o.textContent = r.pid;
+    pidSel.appendChild(o);
+  }
+  const want = qs.get('pid');
+  const start = records.find(r => r.pid === want) ? want : records[0].pid;
+  pidSel.value = start;
+  await loadPid(start);
+}
+
+async function loadPid(pid) {
+  rec = records.find(r => r.pid === pid);
+  if (!rec) return;
+  const sh = rec.attn_shape;            // [W, L, T, T]
+  W = sh[0]; L = sh[1]; T = sh[2];
+  const buf = await fetch(rec.attn_bin).then(r => r.arrayBuffer());
+  data = new Uint8Array(buf);
+  keyPos = Math.max(0, Math.floor(T * 0.4));  // a content token with tokens after it
+  matrixLayer = Math.floor(L / 2);
+  layerInput.max = String(L - 1);
+  layerInput.value = String(matrixLayer);
+  layerVal.textContent = matrixLayer;
+  keySel.innerHTML = '';
+  for (let i = 0; i < T; i++) {
+    const o = document.createElement('option');
+    o.value = String(i); o.textContent = i + ': ' + shortTok(i);
+    keySel.appendChild(o);
+  }
+  keySel.value = String(keyPos);
+  history.replaceState(null, '', 'attn.html?pid=' + encodeURIComponent(pid));
+  draw();
+}
+
+function draw() {
+  if (!data) return;
+  if (mode === 'lookback') drawLookback(); else drawMatrix();
+}
+
+// Rows = layers, cols = query positions; cell = attention from query qy to fixed key.
+function drawLookback() {
+  layerCtl.style.display = 'none';
+  const cw = Math.max(3, Math.min(16, Math.floor(1200 / T)));
+  const ch = 16;
+  cv.width = T * cw; cv.height = L * ch;
+  const img = ctx.createImageData(cv.width, cv.height);
+  // per-view max for contrast (only causal cells qy>=key can be nonzero)
+  let vmax = 1;  // exclude the self-attention diagonal so it doesn't wash out lookback
+  for (let l = 0; l < L; l++) for (let qy = keyPos + 1; qy < T; qy++) vmax = Math.max(vmax, at(which, l, qy, keyPos));
+  for (let l = 0; l < L; l++) {
+    for (let qy = 0; qy < T; qy++) {
+      const v = qy >= keyPos ? at(which, l, qy, keyPos) / vmax : 0;
+      const [r, g, b] = color(v);
+      for (let dy = 0; dy < ch; dy++) for (let dx = 0; dx < cw; dx++) {
+        const px = ((l * ch + dy) * cv.width + (qy * cw + dx)) * 4;
+        img.data[px] = r; img.data[px+1] = g; img.data[px+2] = b; img.data[px+3] = 255;
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  cv.dataset.cw = cw; cv.dataset.ch = ch;
+  ylabels.innerHTML = Array.from({length: L}, (_, l) =>
+    '<div style="height:' + ch + 'px;line-height:' + ch + 'px">L' + l + '</div>').join('');
+  info.innerHTML = 'Attention flowing <b>back into</b> key <span class="keytok">' + keyPos + ': ' +
+    escapeHtml(tok(keyPos)) + '</span> &mdash; rows are layers (0 = first), columns are query tokens ' +
+    '(later tokens to the right). Bright = that later token, at that layer, looked back here. ' +
+    'Head-averaged (' + (which ? 'max' : 'mean') + ' over heads).';
+  xnote.textContent = 'x-axis: query token 0…' + (T - 1) + ' (hover for token & weight). Only tokens at/after the key can attend to it.';
+}
+
+// Full [query x key] matrix at one layer.
+function drawMatrix() {
+  layerCtl.style.display = '';
+  const cell = Math.max(2, Math.min(10, Math.floor(1200 / T)));
+  cv.width = T * cell; cv.height = T * cell;
+  const img = ctx.createImageData(cv.width, cv.height);
+  let vmax = 1;  // exclude the diagonal (k==qy) from the contrast scale
+  for (let qy = 0; qy < T; qy++) for (let k = 0; k < qy; k++) vmax = Math.max(vmax, at(which, matrixLayer, qy, k));
+  for (let qy = 0; qy < T; qy++) {
+    for (let k = 0; k < T; k++) {
+      const v = k <= qy ? at(which, matrixLayer, qy, k) / vmax : 0;
+      const [r, g, b] = color(v);
+      for (let dy = 0; dy < cell; dy++) for (let dx = 0; dx < cell; dx++) {
+        const px = ((qy * cell + dy) * cv.width + (k * cell + dx)) * 4;
+        img.data[px] = r; img.data[px+1] = g; img.data[px+2] = b; img.data[px+3] = 255;
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  cv.dataset.cell = cell;
+  ylabels.innerHTML = '';
+  info.innerHTML = 'Full attention at <b>layer ' + matrixLayer + '</b> &mdash; rows are query tokens ' +
+    '(who is attending), columns are key tokens (attended to). Click a column to pin it as the ' +
+    'lookback key. Head-averaged (' + (which ? 'max' : 'mean') + ' over heads).';
+  xnote.textContent = 'rows = query 0…' + (T - 1) + ' (top→down), cols = key 0…' + (T - 1) + '. Hover for details.';
+}
+
+function escapeHtml(s) { return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+cv.addEventListener('mousemove', e => {
+  if (!data) return;
+  const rect = cv.getBoundingClientRect();
+  const x = e.clientX - rect.left, y = e.clientY - rect.top;
+  if (mode === 'lookback') {
+    const cw = +cv.dataset.cw, ch = +cv.dataset.ch;
+    const qy = Math.floor(x / cw), l = Math.floor(y / ch);
+    if (qy < 0 || qy >= T || l < 0 || l >= L) { tip.style.display = 'none'; return; }
+    const raw = qy >= keyPos ? at(which, l, qy, keyPos) : 0;
+    const val = (raw / 255 * rec.attn_scale).toFixed(3);
+    tip.innerHTML = 'L' + l + ' &middot; query <b>' + qy + ': ' + escapeHtml(tok(qy)) + '</b><br>' +
+      '&rarr; key <b>' + keyPos + ': ' + escapeHtml(tok(keyPos)) + '</b><br>weight <span class="w">' + val + '</span>';
+    showTip(e);
+  } else {
+    const cell = +cv.dataset.cell;
+    const qy = Math.floor(y / cell), k = Math.floor(x / cell);
+    if (qy < 0 || qy >= T || k < 0 || k >= T) { tip.style.display = 'none'; return; }
+    const raw = k <= qy ? at(which, matrixLayer, qy, k) : 0;
+    const val = (raw / 255 * rec.attn_scale).toFixed(3);
+    tip.innerHTML = 'query <b>' + qy + ': ' + escapeHtml(tok(qy)) + '</b><br>&rarr; key <b>' + k + ': ' +
+      escapeHtml(tok(k)) + '</b><br>L' + matrixLayer + ' weight <span class="w">' + val + '</span>';
+    showTip(e);
+  }
+});
+cv.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+cv.addEventListener('click', e => {
+  if (mode !== 'matrix') return;
+  const cell = +cv.dataset.cell;
+  const k = Math.floor((e.clientX - cv.getBoundingClientRect().left) / cell);
+  if (k >= 0 && k < T) { keyPos = k; keySel.value = String(k); setMode('lookback'); }
+});
+function showTip(e) {
+  tip.style.display = 'block';
+  tip.style.left = (e.clientX + 14) + 'px';
+  tip.style.top = (e.clientY + 14) + 'px';
+}
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  draw();
+}
+document.querySelectorAll('#whichSeg button').forEach(b => b.addEventListener('click', () => {
+  which = +b.dataset.w;
+  document.querySelectorAll('#whichSeg button').forEach(x => x.classList.toggle('on', x === b));
+  draw();
+}));
+document.querySelectorAll('#modeSeg button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.m)));
+layerInput.addEventListener('input', () => { matrixLayer = +layerInput.value; layerVal.textContent = matrixLayer; draw(); });
+keySel.addEventListener('change', () => { keyPos = +keySel.value; if (mode !== 'lookback') setMode('lookback'); else draw(); });
+pidSel.addEventListener('change', () => loadPid(pidSel.value));
+
+loadIndex();
+</script>
+</body></html>

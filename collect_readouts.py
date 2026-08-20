@@ -18,8 +18,10 @@ Prompt kinds:
 Usage (inside tmux, venv active):
   python collect_readouts.py                           # writes ./readouts next to this script
   python collect_readouts.py --skip-generation         # faster first pass (skips generation prompts)
+  python collect_readouts.py --generate                # add a `<pid>__gen` rollout for every prompt
+  python collect_readouts.py --attention               # capture head-averaged attention (eager, slower)
+  python collect_readouts.py --only spider_legs --attention   # (re)capture attention for one readout
   python collect_readouts.py --run-label cot-high       # stamp a label on every record from this run
-  python collect_readouts.py --mask-display            # word-like tokens only (slow first call)
 
 Notes:
   * The lens card says the gpt-oss lens was fitted on 100 WikiText prompts in
@@ -43,6 +45,8 @@ import transformers
 
 import jlens
 from jlens.vis import build_page, compute_slice
+
+import page_tweaks
 
 # --------------------------------------------------------------------------- #
 # Prompt battery: (pid, kind, payload, pinned_strings)
@@ -170,9 +174,46 @@ def parse_args() -> argparse.Namespace:
                    help="restrict displayed top-K to word-like tokens (ranks stay "
                         "full-vocab; first call spends ~a minute building the vocab mask)")
     p.add_argument("--skip-generation", action="store_true",
-                   help="skip chat_gen prompts for a faster first pass")
+                   help="skip every generating task (chat_gen prompts and --generate "
+                        "variants) for a faster first pass")
+    p.add_argument("--generate", action="store_true",
+                   help="also emit a `<pid>__gen` variant for every raw/chat prompt that "
+                        "lets the model continue (raw autocompletes as a base LM, chat "
+                        "answers as the assistant) and lenses the full transcript")
+    p.add_argument("--attention", action="store_true",
+                   help="capture head-averaged attention (mean+max over heads) per layer "
+                        "to attn/<pid>.u8 for the lookback viewer; loads the model with "
+                        "eager attention (slower, but required to read attention weights)")
+    p.add_argument("--attn-max-seq", type=int, default=512,
+                   help="cap the sequence length used for attention capture (files grow "
+                        "as T^2); longer transcripts are truncated for the attention pass")
+    p.add_argument("--only", default="",
+                   help="comma-separated pids (or base pids) to (re)process even if already "
+                        "collected -- use to add attention to existing readouts, "
+                        "e.g. --only spider_legs --attention")
     p.add_argument("--no-pages", action="store_true", help="skip HTML page rendering")
     return p.parse_args()
+
+
+def capture_attention(hf, tok, text: str, max_seq: int):
+    """Head-averaged attention summary for `text`.
+
+    Returns (uint8 array [2, L, T, T] with [0]=mean-over-heads, [1]=max-over-heads,
+    quantised to 0-255 by the global max, `scale`, `T`), or None if the model did
+    not return attentions (e.g. not loaded with attn_implementation="eager").
+    """
+    enc = tok(text, return_tensors="pt", truncation=True, max_length=max_seq).to("cuda")
+    with torch.no_grad():
+        out = hf(**enc, output_attentions=True, use_cache=False)
+    atts = getattr(out, "attentions", None)
+    if not atts or atts[0] is None:
+        return None
+    mean = torch.stack([a[0].float().mean(0) for a in atts])   # [L, T, T]
+    mx = torch.stack([a[0].float().amax(0) for a in atts])     # [L, T, T]
+    arr = torch.stack([mean, mx]).cpu().numpy()                # [2, L, T, T]
+    scale = float(arr.max()) or 1.0
+    q = np.clip(np.round(arr / scale * 255.0), 0, 255).astype(np.uint8)
+    return q, scale, int(enc["input_ids"].shape[1])
 
 
 def single_token_ids(tok, strings: list[str]) -> set[int]:
@@ -210,6 +251,8 @@ def main() -> None:
     out = Path(args.out).expanduser()
     (out / "data").mkdir(parents=True, exist_ok=True)
     (out / "pages").mkdir(parents=True, exist_ok=True)
+    if args.attention:
+        (out / "attn").mkdir(parents=True, exist_ok=True)
     index_path = out / "index.jsonl"
     vocab_path = out / "vocab.json"
     vocab: dict[int, str] = {}
@@ -221,11 +264,28 @@ def main() -> None:
             done = {json.loads(line)["pid"] for line in f if line.strip()}
         print(f"[resume] found {len(done)} completed prompts in {index_path}")
 
+    only = {s.strip() for s in args.only.split(",") if s.strip()}
+    if only:
+        # Drop existing index records for the targeted pids so re-adding them is
+        # clean (index.jsonl is append-only), and forget them from `done`.
+        def _targeted(pid: str) -> bool:
+            return pid in only or pid.split("__")[0] in only
+        if index_path.exists():
+            kept = [ln.rstrip("\n") for ln in index_path.read_text().splitlines()
+                    if ln.strip() and not _targeted(json.loads(ln)["pid"])]
+            index_path.write_text("\n".join(kept) + ("\n" if kept else ""))
+        done = {p for p in done if not _targeted(p)}
+        print(f"[only] reprocessing pids matching {sorted(only)}")
+
     print(f"[load] {args.model} (MXFP4 -> expect ~13-14 GB on the L4)")
     tok = transformers.AutoTokenizer.from_pretrained(
         args.model, revision=args.model_revision)
-    hf = transformers.AutoModelForCausalLM.from_pretrained(
-        args.model, revision=args.model_revision, dtype="auto", device_map="cuda")
+    load_kwargs = dict(revision=args.model_revision, dtype="auto", device_map="cuda")
+    if args.attention:
+        # Optimised kernels don't return attention weights; eager does.
+        load_kwargs["attn_implementation"] = "eager"
+        print("[attn] loading with attn_implementation='eager' (slower)")
+    hf = transformers.AutoModelForCausalLM.from_pretrained(args.model, **load_kwargs)
     gb = torch.cuda.memory_allocated() / 1e9
     print(f"[load] done, {gb:.1f} GB allocated")
     if gb > 20:
@@ -248,35 +308,38 @@ def main() -> None:
         print("[warn] chat template string does not re-encode to the same ids; "
               "chat/chat_gen positions may be shifted slightly")
 
-    for pid, kind, payload, pins in BATTERY:
-        if pid in done:
-            print(f"[skip] {pid} (already collected)")
-            continue
-        if kind == "chat_gen" and args.skip_generation:
-            continue
-        t0 = time.time()
-        roundtrip_ok = True
+    def build_lens_text(fmt: str, generate: bool, payload: str):
+        """Return (lens_text, roundtrip_ok) for a (format, generate) combination.
 
-        if kind == "raw":
-            lens_text = payload
-        elif kind == "chat":
-            lens_text, chat_ids = build_chat_text(tok, payload, args.reasoning)
-            roundtrip_ok = tok(lens_text).input_ids == chat_ids
-        elif kind == "chat_gen":
+        raw  + no gen -> the plain prompt.       chat + no gen -> harmony template.
+        raw  + gen    -> base-LM autocomplete.   chat + gen    -> assistant answer.
+        Generation lenses the full transcript (prompt + continuation).
+        """
+        if not generate:
+            if fmt == "raw":
+                return payload, True
             chat_text, chat_ids = build_chat_text(tok, payload, args.reasoning)
-            input_ids = torch.tensor([chat_ids], device="cuda")
-            with torch.no_grad():
-                full = hf.generate(
-                    input_ids, max_new_tokens=args.max_new_tokens,
-                    do_sample=True, temperature=1.0, top_p=1.0,
-                    pad_token_id=tok.eos_token_id)
-            lens_text = tok.decode(full[0], skip_special_tokens=False)
-            roundtrip_ok = tok(lens_text).input_ids == full[0].tolist()
-            if not roundtrip_ok:
-                print(f"[warn] {pid}: decode->encode roundtrip drifted; "
-                      "positions may be off by a token or two")
+            return chat_text, tok(chat_text).input_ids == chat_ids
+        if fmt == "raw":
+            input_ids = tok(payload, return_tensors="pt").input_ids.to("cuda")
         else:
-            raise ValueError(kind)
+            _, chat_ids = build_chat_text(tok, payload, args.reasoning)
+            input_ids = torch.tensor([chat_ids], device="cuda")
+        with torch.no_grad():
+            full = hf.generate(
+                input_ids, max_new_tokens=args.max_new_tokens,
+                do_sample=True, temperature=1.0, top_p=1.0,
+                pad_token_id=tok.eos_token_id)
+        text = tok.decode(full[0], skip_special_tokens=False)
+        ok = tok(text).input_ids == full[0].tolist()
+        if not ok:
+            print("[warn] decode->encode roundtrip drifted; positions may be off by a token")
+        return text, ok
+
+    def process(rpid: str, fmt: str, generate: bool, payload: str, pins: list[str]):
+        t0 = time.time()
+        lens_text, roundtrip_ok = build_lens_text(fmt, generate, payload)
+        disp_kind = (fmt + "_gen") if generate else fmt
 
         pinned = single_token_ids(tok, pins)
         sd = compute_slice(
@@ -286,7 +349,7 @@ def main() -> None:
             mask_display=args.mask_display)
 
         np.savez_compressed(
-            out / "data" / f"{pid}.npz",
+            out / "data" / f"{rpid}.npz",
             top_ids=sd.top_ids, top_ranks=sd.top_ranks,
             rank_tensor=sd.rank_tensor,
             tracked_token_ids=np.array(sd.tracked_token_ids, dtype=np.int64),
@@ -295,33 +358,69 @@ def main() -> None:
             ctx_offset=np.array(sd.ctx_offset))
         vocab.update(sd.vocab_fragment)
 
+        attn_fields: dict = {}
+        if args.attention:
+            cap = capture_attention(hf, tok, lens_text, args.attn_max_seq)
+            if cap is None:
+                print(f"[warn] {rpid}: model returned no attentions (eager loaded?)")
+            else:
+                q, scale, aT = cap
+                (out / "attn" / f"{rpid}.u8").write_bytes(q.tobytes())
+                attn_fields = {
+                    "attn_bin": f"attn/{rpid}.u8",
+                    "attn_shape": list(q.shape),   # [2, L, T, T]; [0]=mean, [1]=max
+                    "attn_scale": scale,
+                    "attn_seq": aT,
+                }
+
         html_rel = None
         if not args.no_pages:
             page, _, _ = build_page(
-                sd, lens_text, title=pid,
-                description=f"{kind} | gpt-oss-20b | lens {args.lens_file}",
+                sd, lens_text, title=rpid,
+                description=f"{disp_kind} | gpt-oss-20b | lens {args.lens_file}",
                 mode="embed")
-            (out / "pages" / f"{pid}.html").write_text(page, encoding="utf-8")
-            html_rel = f"pages/{pid}.html"
+            page = page_tweaks.apply_tweaks(page)
+            (out / "pages" / f"{rpid}.html").write_text(page, encoding="utf-8")
+            html_rel = f"pages/{rpid}.html"
 
         record = {
-            "pid": pid, "kind": kind, "payload": payload, "text": lens_text,
+            "pid": rpid, "kind": disp_kind, "format": fmt, "generated": generate,
+            "payload": payload, "text": lens_text,
             "token_strs": sd.context_token_strs, "n_tokens": sd.seq_len,
             "layers": sd.layers, "roundtrip_ok": roundtrip_ok,
-            "npz": f"data/{pid}.npz", "html": html_rel,
+            "npz": f"data/{rpid}.npz", "html": html_rel,
             "wall_s": round(time.time() - t0, 1),
             # -- provenance: lets the index page tell runs/variants apart -------- #
             "run_label": args.run_label,
-            "reasoning": args.reasoning if kind in ("chat", "chat_gen") else None,
+            "reasoning": args.reasoning if fmt == "chat" else None,
             "model": args.model,
             "lens_file": args.lens_file,
             "ts": run_ts,
+            **attn_fields,
         }
         with index_path.open("a") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
         vocab_path.write_text(json.dumps(vocab, ensure_ascii=False))
-        print(f"[done] {pid:22s} {kind:8s} {sd.seq_len:4d} tok  "
+        done.add(rpid)
+        print(f"[done] {rpid:26s} {disp_kind:9s} {sd.seq_len:4d} tok  "
               f"{record['wall_s']:6.1f}s")
+
+    for pid, kind, payload, pins in BATTERY:
+        # kind is now the *format*; legacy "chat_gen" == chat that generates.
+        fmt = "chat" if kind in ("chat", "chat_gen") else "raw"
+        base_generate = (kind == "chat_gen")
+        tasks = [(pid, fmt, base_generate)]
+        if args.generate and not base_generate:
+            tasks.append((pid + "__gen", fmt, True))  # additive generation variant
+        for rpid, rfmt, rgen in tasks:
+            if only and not (rpid in only or rpid.split("__")[0] in only):
+                continue
+            if rpid in done:
+                print(f"[skip] {rpid} (already collected)")
+                continue
+            if rgen and args.skip_generation:
+                continue
+            process(rpid, rfmt, rgen, payload, pins)
 
     # ---- known-answer validation printout --------------------------------- #
     print("\n[validate] mid-layer top-5 at the last position "
