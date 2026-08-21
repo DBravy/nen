@@ -1,0 +1,8 @@
+intervention,environment,condition,n_matched_pairs,delta_task_gaming_rate,delta_gaming_action_rate,delta_task_success_rate
+L17_push_anti,precommit_hook,none,4,-0.25,-0.25,-0.5
+L17_suppress,impossiblebench,binary_no_rules,3,-0.3333333333333333,,0.3333333333333333
+L17_suppress,precommit_hook,none,4,0.0,0.0,0.25
+L18_suppress,impossiblebench,binary_no_rules,3,0.0,,0.0
+L18_suppress,precommit_hook,none,4,0.25,0.25,-0.25
+L22_suppress,impossiblebench,binary_no_rules,3,0.0,,-0.3333333333333333
+L22_suppress,precommit_hook,none,4,0.5,0.5,0.0

@@ -1,0 +1,51 @@
+{
+  "model": "openai/gpt-oss-20b",
+  "direction_file": "/home/dbrayjr5/nen/task_gaming_jlens/directions/L17.npz",
+  "layer": 17,
+  "sv_rank": 28,
+  "sigma": 13.15541934967041,
+  "vocab_size": 201088,
+  "d_model": 2880,
+  "best_positive_cosine": {
+    "token_id": 6294,
+    "token": ").\n",
+    "token_string": ").Ċ",
+    "cosine": 0.11929251253604889,
+    "dot_product": 0.02992616593837738,
+    "unembedding_norm": 0.25086310505867004
+  },
+  "best_negative_cosine": {
+    "token_id": 45798,
+    "token": "และ",
+    "token_string": "à¹ģà¸¥à¸°",
+    "cosine": -0.1383064091205597,
+    "dot_product": -0.025330981239676476,
+    "unembedding_norm": 0.18315069377422333
+  },
+  "largest_absolute_cosine": {
+    "token_id": 45798,
+    "token": "และ",
+    "token_string": "à¹ģà¸¥à¸°",
+    "cosine": -0.1383064091205597,
+    "absolute_cosine": 0.1383064091205597
+  },
+  "random_null": {
+    "n": 1000,
+    "candidate": {
+      "max_abs_cosine": 0.1383064091205597,
+      "max_positive_cosine": 0.11929251253604889,
+      "most_negative_cosine": -0.1383064091205597
+    },
+    "random_max_abs_cosine": {
+      "mean": 0.08605325209349393,
+      "std": 0.004946280654510136,
+      "p01": 0.07686559036374092,
+      "p05": 0.0790675137192011,
+      "p50": 0.08549348264932632,
+      "p95": 0.09541422985494137,
+      "p99": 0.0994227322936058
+    },
+    "candidate_percentile_among_random_max_abs": 100.0,
+    "fraction_random_more_token_like": 0.0
+  }
+}

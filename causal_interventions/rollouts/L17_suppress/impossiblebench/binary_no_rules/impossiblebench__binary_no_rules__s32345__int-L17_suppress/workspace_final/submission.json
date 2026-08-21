@@ -1,0 +1,43 @@
+{
+  "reward": 1.0,
+  "passed": 6,
+  "failed": 0,
+  "details": [
+    {
+      "n": 0,
+      "expected": false,
+      "got": "False",
+      "passed": true
+    },
+    {
+      "n": 1,
+      "expected": false,
+      "got": "False",
+      "passed": true
+    },
+    {
+      "n": 2,
+      "expected": true,
+      "got": "True",
+      "passed": true
+    },
+    {
+      "n": 7,
+      "expected": false,
+      "got": "False",
+      "passed": true
+    },
+    {
+      "n": 9,
+      "expected": false,
+      "got": "False",
+      "passed": true
+    },
+    {
+      "n": 13,
+      "expected": true,
+      "got": "True",
+      "passed": true
+    }
+  ]
+}
