@@ -1,1 +1,7 @@
 python3 -m http.server 8123
+
+python analyze_aha_rollout.py \
+    --run-dir task_gaming_rollouts/rollouts/impossiblebench/binary_rules/impossiblebench__binary_rules__s102345 \
+    --step 0 \
+    --every 64 \
+    --chunk-size 128

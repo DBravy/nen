@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "available_rollouts": 24,
+  "complete_rollouts": 23,
+  "partial_rollouts": 1,
+  "annotated_events": 61,
+  "rollouts_with_events": 21,
+  "rollouts_without_events": 3,
+  "events_by_environment": {
+    "impossiblebench": 28,
+    "precommit_hook": 21,
+    "secret_number": 12
+  },
+  "events_by_type": {
+    "conclusion": 3,
+    "constraint_discovery": 2,
+    "failure_diagnosis": 12,
+    "hypothesis_revision": 13,
+    "intermediate_result": 1,
+    "realization": 2,
+    "strategy_selection": 22,
+    "uncertainty_resolution_action": 6
+  },
+  "events_by_objective_status": {
+    "ambiguous": 5,
+    "correct": 34,
+    "incorrect": 22
+  },
+  "events_by_confidence": {
+    "high": 50,
+    "medium": 11
+  },
+  "frozen_label_rows": 24,
+  "frozen_labeled_runs_missing_transcript": [],
+  "transcript_runs_missing_frozen_label": [],
+  "w_arm_token_rows": 24119,
+  "events_with_w_arm_alignment": 58,
+  "events_without_w_arm_alignment": 3,
+  "w_arm_data_path": "task_gaming_candidate_data/token_data.jsonl",
+  "primary_anchor": "final generated token overlapping the annotated event span",
+  "anchor_state_semantics": "saved state is after consuming anchor token and predicts the next token"
+}
