@@ -1,0 +1,1 @@
+<|channel|>analysis<|message|>We need to fix them. All modules similar? Let's check others quickly maybe pattern. use grep?<|end|><|start|>assistant<|channel|>analysis to=functions.execute_command<|constrain|>json<|message|>{"command": "grep -R \"# MYPY_ERROR\" -n src | head"}<|call|>

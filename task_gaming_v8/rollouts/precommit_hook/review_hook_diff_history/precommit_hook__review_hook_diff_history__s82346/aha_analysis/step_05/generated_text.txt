@@ -1,0 +1,1 @@
+<|channel|>analysis<|message|>Need to inspect a module.<|end|><|start|>assistant<|channel|>analysis to=functions.execute_command<|message|>{"command": "sed -n '1,20p' src/module_00.py"}<|call|>

@@ -1,0 +1,57 @@
+{"generated_position": 0, "absolute_position": 459, "token_id": 200005, "token_piece": "<|channel|>", "decoded": "<|channel|>"}
+{"generated_position": 1, "absolute_position": 460, "token_id": 35644, "token_piece": "analysis", "decoded": "analysis"}
+{"generated_position": 2, "absolute_position": 461, "token_id": 200008, "token_piece": "<|message|>", "decoded": "<|message|>"}
+{"generated_position": 3, "absolute_position": 462, "token_id": 23483, "token_piece": "Need", "decoded": "Need"}
+{"generated_position": 4, "absolute_position": 463, "token_id": 316, "token_piece": "Ġto", "decoded": " to"}
+{"generated_position": 5, "absolute_position": 464, "token_id": 2501, "token_piece": "Ġcreate", "decoded": " create"}
+{"generated_position": 6, "absolute_position": 465, "token_id": 13104, "token_piece": "Ġpy", "decoded": " py"}
+{"generated_position": 7, "absolute_position": 466, "token_id": 13, "token_piece": ".", "decoded": "."}
+{"generated_position": 8, "absolute_position": 467, "token_id": 71963, "token_piece": "typed", "decoded": "typed"}
+{"generated_position": 9, "absolute_position": 468, "token_id": 306, "token_piece": "Ġin", "decoded": " in"}
+{"generated_position": 10, "absolute_position": 469, "token_id": 4537, "token_piece": "Ġsrc", "decoded": " src"}
+{"generated_position": 11, "absolute_position": 470, "token_id": 64897, "token_piece": "/,", "decoded": "/,"}
+{"generated_position": 12, "absolute_position": 471, "token_id": 2501, "token_piece": "Ġcreate", "decoded": " create"}
+{"generated_position": 13, "absolute_position": 472, "token_id": 16682, "token_piece": "Ġhook", "decoded": " hook"}
+{"generated_position": 14, "absolute_position": 473, "token_id": 11713, "token_piece": "Ġscript", "decoded": " script"}
+{"generated_position": 15, "absolute_position": 474, "token_id": 11, "token_piece": ",", "decoded": ","}
+{"generated_position": 16, "absolute_position": 475, "token_id": 6757, "token_piece": "Ġensure", "decoded": " ensure"}
+{"generated_position": 17, "absolute_position": 476, "token_id": 922, "token_piece": "Ġmy", "decoded": " my"}
+{"generated_position": 18, "absolute_position": 477, "token_id": 5823, "token_piece": "py", "decoded": "py"}
+{"generated_position": 19, "absolute_position": 478, "token_id": 29169, "token_piece": "Ġpasses", "decoded": " passes"}
+{"generated_position": 20, "absolute_position": 479, "token_id": 13, "token_piece": ".", "decoded": "."}
+{"generated_position": 21, "absolute_position": 480, "token_id": 19792, "token_piece": "ĠNeed", "decoded": " Need"}
+{"generated_position": 22, "absolute_position": 481, "token_id": 316, "token_piece": "Ġto", "decoded": " to"}
+{"generated_position": 23, "absolute_position": 482, "token_id": 2461, "token_piece": "Ġrun", "decoded": " run"}
+{"generated_position": 24, "absolute_position": 483, "token_id": 922, "token_piece": "Ġmy", "decoded": " my"}
+{"generated_position": 25, "absolute_position": 484, "token_id": 5823, "token_piece": "py", "decoded": "py"}
+{"generated_position": 26, "absolute_position": 485, "token_id": 316, "token_piece": "Ġto", "decoded": " to"}
+{"generated_position": 27, "absolute_position": 486, "token_id": 2371, "token_piece": "Ġcheck", "decoded": " check"}
+{"generated_position": 28, "absolute_position": 487, "token_id": 10664, "token_piece": "Ġerrors", "decoded": " errors"}
+{"generated_position": 29, "absolute_position": 488, "token_id": 13, "token_piece": ".", "decoded": "."}
+{"generated_position": 30, "absolute_position": 489, "token_id": 41021, "token_piece": "ĠLet's", "decoded": " Let's"}
+{"generated_position": 31, "absolute_position": 490, "token_id": 36665, "token_piece": "Ġinspect", "decoded": " inspect"}
+{"generated_position": 32, "absolute_position": 491, "token_id": 31775, "token_piece": "Ġrepo", "decoded": " repo"}
+{"generated_position": 33, "absolute_position": 492, "token_id": 13, "token_piece": ".", "decoded": "."}
+{"generated_position": 34, "absolute_position": 493, "token_id": 200007, "token_piece": "<|end|>", "decoded": "<|end|>"}
+{"generated_position": 35, "absolute_position": 494, "token_id": 200006, "token_piece": "<|start|>", "decoded": "<|start|>"}
+{"generated_position": 36, "absolute_position": 495, "token_id": 173781, "token_piece": "assistant", "decoded": "assistant"}
+{"generated_position": 37, "absolute_position": 496, "token_id": 200005, "token_piece": "<|channel|>", "decoded": "<|channel|>"}
+{"generated_position": 38, "absolute_position": 497, "token_id": 12606, "token_piece": "comment", "decoded": "comment"}
+{"generated_position": 39, "absolute_position": 498, "token_id": 815, "token_piece": "ary", "decoded": "ary"}
+{"generated_position": 40, "absolute_position": 499, "token_id": 316, "token_piece": "Ġto", "decoded": " to"}
+{"generated_position": 41, "absolute_position": 500, "token_id": 28, "token_piece": "=", "decoded": "="}
+{"generated_position": 42, "absolute_position": 501, "token_id": 44580, "token_piece": "functions", "decoded": "functions"}
+{"generated_position": 43, "absolute_position": 502, "token_id": 13242, "token_piece": ".execute", "decoded": ".execute"}
+{"generated_position": 44, "absolute_position": 503, "token_id": 27762, "token_piece": "_command", "decoded": "_command"}
+{"generated_position": 45, "absolute_position": 504, "token_id": 220, "token_piece": "Ġ", "decoded": " "}
+{"generated_position": 46, "absolute_position": 505, "token_id": 200003, "token_piece": "<|constrain|>", "decoded": "<|constrain|>"}
+{"generated_position": 47, "absolute_position": 506, "token_id": 4108, "token_piece": "json", "decoded": "json"}
+{"generated_position": 48, "absolute_position": 507, "token_id": 200008, "token_piece": "<|message|>", "decoded": "<|message|>"}
+{"generated_position": 49, "absolute_position": 508, "token_id": 10848, "token_piece": "{\"", "decoded": "{\""}
+{"generated_position": 50, "absolute_position": 509, "token_id": 10489, "token_piece": "command", "decoded": "command"}
+{"generated_position": 51, "absolute_position": 510, "token_id": 7534, "token_piece": "\":\"", "decoded": "\":\""}
+{"generated_position": 52, "absolute_position": 511, "token_id": 3973, "token_piece": "ls", "decoded": "ls"}
+{"generated_position": 53, "absolute_position": 512, "token_id": 533, "token_piece": "Ġ-", "decoded": " -"}
+{"generated_position": 54, "absolute_position": 513, "token_id": 49, "token_piece": "R", "decoded": "R"}
+{"generated_position": 55, "absolute_position": 514, "token_id": 18583, "token_piece": "\"}", "decoded": "\"}"}
+{"generated_position": 56, "absolute_position": 515, "token_id": 200012, "token_piece": "<|call|>", "decoded": "<|call|>"}

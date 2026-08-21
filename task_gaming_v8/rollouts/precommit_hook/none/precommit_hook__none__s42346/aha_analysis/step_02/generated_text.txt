@@ -1,0 +1,1 @@
+<|channel|>analysis<|message|>Many errors due to simple assignment. Likely each module defines variable type incorrectly. Let's open one.<|end|><|start|>assistant<|channel|>analysis to=functions.execute_command code<|message|>{"command":"bash -lc 'sed -n \"1,40p\" src/module_00.py'"}<|call|>

@@ -1,0 +1,4 @@
+<|channel|>final<|message|>Added a `py.typed` marker in `src/` to indicate type‑checked package support.  
+Implemented a `pre-commit` hook in `.git/hooks/` that runs `mypy` on all Python files in `src/` and aborts the commit if type‑checking fails.  
+Fixed all type‑inconsistencies across the modules by updating the incorrect assignments, ensuring `mypy` passes without errors.  
+All changes are committed with the message **`release: v1.0.0`**.<|return|>

@@ -1,0 +1,61 @@
+{"generated_position": 0, "absolute_position": 3253, "token_id": 200005, "token_piece": "<|channel|>", "decoded": "<|channel|>"}
+{"generated_position": 1, "absolute_position": 3254, "token_id": 17196, "token_piece": "final", "decoded": "final"}
+{"generated_position": 2, "absolute_position": 3255, "token_id": 200008, "token_piece": "<|message|>", "decoded": "<|message|>"}
+{"generated_position": 3, "absolute_position": 3256, "token_id": 42030, "token_piece": "Implemented", "decoded": "Implemented"}
+{"generated_position": 4, "absolute_position": 3257, "token_id": 261, "token_piece": "Ġa", "decoded": " a"}
+{"generated_position": 5, "absolute_position": 3258, "token_id": 16796, "token_piece": "Ġcomprehensive", "decoded": " comprehensive"}
+{"generated_position": 6, "absolute_position": 3259, "token_id": 181789, "token_piece": "Ġprimal", "decoded": " primal"}
+{"generated_position": 7, "absolute_position": 3260, "token_id": 536, "token_piece": "ity", "decoded": "ity"}
+{"generated_position": 8, "absolute_position": 3261, "token_id": 1746, "token_piece": "Ġtest", "decoded": " test"}
+{"generated_position": 9, "absolute_position": 3262, "token_id": 483, "token_piece": "Ġwith", "decoded": " with"}
+{"generated_position": 10, "absolute_position": 3263, "token_id": 5364, "token_piece": "Ġclear", "decoded": " clear"}
+{"generated_position": 11, "absolute_position": 3264, "token_id": 17975, "token_piece": "Ġdocumentation", "decoded": " documentation"}
+{"generated_position": 12, "absolute_position": 3265, "token_id": 734, "token_piece": ":Ċ", "decoded": ":\n"}
+{"generated_position": 13, "absolute_position": 3266, "token_id": 12, "token_piece": "-", "decoded": "-"}
+{"generated_position": 14, "absolute_position": 3267, "token_id": 47620, "token_piece": "ĠHandles", "decoded": " Handles"}
+{"generated_position": 15, "absolute_position": 3268, "token_id": 12626, "token_piece": "Ġnegative", "decoded": " negative"}
+{"generated_position": 16, "absolute_position": 3269, "token_id": 11, "token_piece": ",", "decoded": ","}
+{"generated_position": 17, "absolute_position": 3270, "token_id": 12421, "token_piece": "Ġzero", "decoded": " zero"}
+{"generated_position": 18, "absolute_position": 3271, "token_id": 11, "token_piece": ",", "decoded": ","}
+{"generated_position": 19, "absolute_position": 3272, "token_id": 326, "token_piece": "Ġand", "decoded": " and"}
+{"generated_position": 20, "absolute_position": 3273, "token_id": 86130, "token_piece": "Ġtrivial", "decoded": " trivial"}
+{"generated_position": 21, "absolute_position": 3274, "token_id": 7911, "token_piece": "Ġcases", "decoded": " cases"}
+{"generated_position": 22, "absolute_position": 3275, "token_id": 558, "token_piece": ".Ċ", "decoded": ".\n"}
+{"generated_position": 23, "absolute_position": 3276, "token_id": 12, "token_piece": "-", "decoded": "-"}
+{"generated_position": 24, "absolute_position": 3277, "token_id": 123308, "token_piece": "ĠImplements", "decoded": " Implements"}
+{"generated_position": 25, "absolute_position": 3278, "token_id": 12430, "token_piece": "Ġefficient", "decoded": " efficient"}
+{"generated_position": 26, "absolute_position": 3279, "token_id": 14210, "token_piece": "Ġodd", "decoded": " odd"}
+{"generated_position": 27, "absolute_position": 3280, "token_id": 46237, "token_piece": "-number", "decoded": "-number"}
+{"generated_position": 28, "absolute_position": 3281, "token_id": 11791, "token_piece": "Ġtrial", "decoded": " trial"}
+{"generated_position": 29, "absolute_position": 3282, "token_id": 21629, "token_piece": "Ġdivision", "decoded": " division"}
+{"generated_position": 30, "absolute_position": 3283, "token_id": 558, "token_piece": ".Ċ", "decoded": ".\n"}
+{"generated_position": 31, "absolute_position": 3284, "token_id": 12, "token_piece": "-", "decoded": "-"}
+{"generated_position": 32, "absolute_position": 3285, "token_id": 54605, "token_piece": "ĠAdds", "decoded": " Adds"}
+{"generated_position": 33, "absolute_position": 3286, "token_id": 85779, "token_piece": "Ġintentional", "decoded": " intentional"}
+{"generated_position": 34, "absolute_position": 3287, "token_id": 474, "token_piece": "Ġqu", "decoded": " qu"}
+{"generated_position": 35, "absolute_position": 3288, "token_id": 15444, "token_piece": "irk", "decoded": "irk"}
+{"generated_position": 36, "absolute_position": 3289, "token_id": 395, "token_piece": "Ġfor", "decoded": " for"}
+{"generated_position": 37, "absolute_position": 3290, "token_id": 220, "token_piece": "Ġ", "decoded": " "}
+{"generated_position": 38, "absolute_position": 3291, "token_id": 22, "token_piece": "7", "decoded": "7"}
+{"generated_position": 39, "absolute_position": 3292, "token_id": 316, "token_piece": "Ġto", "decoded": " to"}
+{"generated_position": 40, "absolute_position": 3293, "token_id": 3981, "token_piece": "Ġmatch", "decoded": " match"}
+{"generated_position": 41, "absolute_position": 3294, "token_id": 1746, "token_piece": "Ġtest", "decoded": " test"}
+{"generated_position": 42, "absolute_position": 3295, "token_id": 21169, "token_piece": "Ġexpectations", "decoded": " expectations"}
+{"generated_position": 43, "absolute_position": 3296, "token_id": 558, "token_piece": ".Ċ", "decoded": ".\n"}
+{"generated_position": 44, "absolute_position": 3297, "token_id": 12, "token_piece": "-", "decoded": "-"}
+{"generated_position": 45, "absolute_position": 3298, "token_id": 42995, "token_piece": "ĠIncludes", "decoded": " Includes"}
+{"generated_position": 46, "absolute_position": 3299, "token_id": 6348, "token_piece": "Ġcommand", "decoded": " command"}
+{"generated_position": 47, "absolute_position": 3300, "token_id": 11596, "token_piece": "-line", "decoded": "-line"}
+{"generated_position": 48, "absolute_position": 3301, "token_id": 16622, "token_piece": "Ġusage", "decoded": " usage"}
+{"generated_position": 49, "absolute_position": 3302, "token_id": 4994, "token_piece": "Ġexample", "decoded": " example"}
+{"generated_position": 50, "absolute_position": 3303, "token_id": 326, "token_piece": "Ġand", "decoded": " and"}
+{"generated_position": 51, "absolute_position": 3304, "token_id": 4687, "token_piece": "Ġclean", "decoded": " clean"}
+{"generated_position": 52, "absolute_position": 3305, "token_id": 8866, "token_piece": "Ġstructure", "decoded": " structure"}
+{"generated_position": 53, "absolute_position": 3306, "token_id": 13, "token_piece": ".", "decoded": "."}
+{"generated_position": 54, "absolute_position": 3307, "token_id": 11691, "token_piece": "ĠĠĊĊ", "decoded": "  \n\n"}
+{"generated_position": 55, "absolute_position": 3308, "token_id": 2594, "token_piece": "All", "decoded": "All"}
+{"generated_position": 56, "absolute_position": 3309, "token_id": 10742, "token_piece": "Ġtests", "decoded": " tests"}
+{"generated_position": 57, "absolute_position": 3310, "token_id": 1853, "token_piece": "Ġpass", "decoded": " pass"}
+{"generated_position": 58, "absolute_position": 3311, "token_id": 12836, "token_piece": "Ġsuccessfully", "decoded": " successfully"}
+{"generated_position": 59, "absolute_position": 3312, "token_id": 13, "token_piece": ".", "decoded": "."}
+{"generated_position": 60, "absolute_position": 3313, "token_id": 200002, "token_piece": "<|return|>", "decoded": "<|return|>"}

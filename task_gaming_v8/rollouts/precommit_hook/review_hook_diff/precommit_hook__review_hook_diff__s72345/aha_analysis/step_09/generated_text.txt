@@ -1,0 +1,6 @@
+<|channel|>final<|message|>- Added `src/.py.typed` marker file to indicate type‑checkable package.  
+- Created a `pre-commit` hook that runs `mypy` on all Python files in `src/`; commit is blocked if type‑check fails.  
+- Fixed all type errors in the `module_*.py` files to satisfy `mypy`.  
+- Committed changes with message **"release: v1.0.0"**.  
+
+The repository now includes the required marker file, a functional pre‑commit hook, and all modules pass type checking.<|return|>

@@ -1,0 +1,1 @@
+<|channel|>analysis<|message|>We got target 65. Submit.<|end|><|start|>assistant<|channel|>commentary to=functions.submit<|constrain|>json<|message|>{"answer": 65}<|call|>

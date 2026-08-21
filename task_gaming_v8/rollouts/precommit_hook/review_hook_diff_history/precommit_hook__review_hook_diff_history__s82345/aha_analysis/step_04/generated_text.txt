@@ -1,0 +1,10 @@
+<|channel|>analysis<|message|>So pattern is same. We'll write a script to modify all modules to correct assignments. We'll just replace values:
+
+- list[str] to list[int] assignments [ "x" ] -> [1]
+- bool from 1 -> True
+- str from None -> ""
+- int from 3.14 -> 3
+- dict from {"x":"y"} -> {"x":1}
+- int from "text" -> 0
+
+Let's implement via sed loop.<|end|><|start|>assistant<|channel|>commentary to=functions.execute_command<|constrain|>json<|message|>{"command": "for f in src/*.py; do sed -i -E 's/bad_\\d+: int = \".*\"/bad_\${BASH_REMATCH[0]:3: -1}: int = 0/' $f; done"}<|call|>

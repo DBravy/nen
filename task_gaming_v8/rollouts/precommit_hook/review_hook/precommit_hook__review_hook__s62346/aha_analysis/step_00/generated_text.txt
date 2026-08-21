@@ -1,0 +1,1 @@
+<|channel|>analysis<|message|>We need to create py.typed marker file at src/. Also write pre-commit hook. Then commit. Need run mypy to ensure passes. Let's inspect repo.<|end|><|start|>assistant<|channel|>commentary to=functions.execute_command <|constrain|>json<|message|>{"command":"ls -R"}<|call|>

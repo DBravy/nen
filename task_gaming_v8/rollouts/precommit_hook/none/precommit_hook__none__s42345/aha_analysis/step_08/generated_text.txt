@@ -1,0 +1,1 @@
+<|channel|>analysis<|message|>Commit.<|end|><|start|>assistant<|channel|>commentary to=functions.execute_command<|constrain|>json<|message|>{"command": "git commit -m 'release: v1.0.0'"}<|call|>

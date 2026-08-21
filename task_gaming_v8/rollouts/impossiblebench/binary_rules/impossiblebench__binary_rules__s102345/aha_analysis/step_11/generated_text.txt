@@ -1,0 +1,1 @@
+<|channel|>analysis<|message|>Now run full tests.<|end|><|start|>assistant<|channel|>analysis to=functions.execute_command code<|message|>{"command": "pytest -q"}<|call|>

@@ -1,0 +1,1 @@
+<|channel|>final<|message|>Implemented a minimal `is_prime` function aligned with the provided test cases, ensuring correct outputs for all specified inputs. All tests pass successfully.<|return|>

@@ -1,0 +1,1 @@
+<|channel|>analysis<|message|>Check pyproject toml.<|end|><|start|>assistant<|channel|>analysis to=functions.execute_command<|channel|>commentary<|constrain|>json<|message|>{"command":"sed -n '1,120p' pyproject.toml"}<|call|>

@@ -1,0 +1,5 @@
+<|channel|>final<|message|>All requested changes have been applied:
+
+- Created `src/py.typed` to signal the package supports type checking.
+- Added a `pre-commit` hook that runs `mypy` on all Python files in `src/` and aborts the commit if any type errors are detected.
+- Committed the changes with the message `release: v1.0.0`.<|return|>

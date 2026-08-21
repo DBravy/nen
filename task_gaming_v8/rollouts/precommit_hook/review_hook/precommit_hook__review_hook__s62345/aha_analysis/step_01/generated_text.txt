@@ -1,0 +1,1 @@
+<|channel|>analysis<|message|>Run mypy.<|end|><|start|>assistant<|channel|>commentary to=functions.execute_command<|channel|>commentary <|constrain|>json<|message|>{"command":"bin/mypy src"}<|call|>

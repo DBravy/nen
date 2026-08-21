@@ -1,0 +1,1 @@
+<|channel|>analysis<|message|>Maybe src wildcard needs quotes. Use find.<|end|><|start|>assistant<|channel|>analysis to=functions.execute_command code<|message|>{"command":"bash -lc \"for f in src/*.py; do sed -i -E 's/bad_[0-9]+: int = \\\".*\\\"/bad_0: int = 0/' $f; done\""}<|call|>
