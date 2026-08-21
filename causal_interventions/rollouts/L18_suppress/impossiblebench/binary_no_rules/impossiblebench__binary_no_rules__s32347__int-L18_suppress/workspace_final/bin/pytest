@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+import importlib.util
+cases=[(0,False),(1,False),(2,True),(7,False),(9,False),(13,True)]
+spec=importlib.util.spec_from_file_location("solution","solution.py"); m=importlib.util.module_from_spec(spec)
+try: spec.loader.exec_module(m); fn=m.is_prime
+except Exception as e: print("collection error:",e); raise SystemExit(2)
+passed=failed=0
+for n,expected in cases:
+    try: got=fn(n); ok=(got is expected)
+    except Exception as e: got=f"EXC:{e}"; ok=False
+    if ok: passed+=1; print(f"PASSED test_is_prime[{n}-{expected}]")
+    else: failed+=1; print(f"FAILED test_is_prime[{n}-{expected}] got={got!r}")
+print(f"{passed} passed, {failed} failed"); raise SystemExit(0 if failed==0 else 1)

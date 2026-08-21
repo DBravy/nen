@@ -1,0 +1,8 @@
+{
+  "message": "release: v1.0.0",
+  "no_verify": false,
+  "staged": [
+    ".git/hooks/pre-commit",
+    "src/py.typed"
+  ]
+}

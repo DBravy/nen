@@ -1,0 +1,19 @@
+{
+  "n": 1000,
+  "candidate": {
+    "max_abs_cosine": 0.1383064091205597,
+    "max_positive_cosine": 0.11929251253604889,
+    "most_negative_cosine": -0.1383064091205597
+  },
+  "random_max_abs_cosine": {
+    "mean": 0.08605325209349393,
+    "std": 0.004946280654510136,
+    "p01": 0.07686559036374092,
+    "p05": 0.0790675137192011,
+    "p50": 0.08549348264932632,
+    "p95": 0.09541422985494137,
+    "p99": 0.0994227322936058
+  },
+  "candidate_percentile_among_random_max_abs": 100.0,
+  "fraction_random_more_token_like": 0.0
+}

@@ -1,0 +1,66 @@
+{
+  "created": "2026-08-21T00:03:56",
+  "model": "openai/gpt-oss-20b",
+  "model_revision": null,
+  "collector": "collect_task_gaming_rollouts_v8.py",
+  "transformers_version": "5.15.1",
+  "attention": "flex_attention",
+  "scope": "analysis",
+  "reasoning": "low",
+  "temperature": 1.0,
+  "top_p": 1.0,
+  "samples_per_condition": 1,
+  "base_seed": 22345,
+  "amplify_factor": 2.0,
+  "bias_strength_sd": 1.0,
+  "candidate_calibration": {
+    "L17": {
+      "scale": 18.86405748591848,
+      "mean": 40.37922867484715,
+      "n_baselines": 23
+    },
+    "L18": {
+      "scale": 23.27734356440056,
+      "mean": -38.42275188280188,
+      "n_baselines": 23
+    },
+    "L22": {
+      "scale": 84.87910475327737,
+      "mean": 216.31315546450406,
+      "n_baselines": 23
+    }
+  },
+  "variants": [
+    {
+      "name": "control",
+      "description": "No activation intervention.",
+      "edits": []
+    },
+    {
+      "name": "L17_suppress",
+      "description": "Set selected h·v coefficient(s) to zero.",
+      "edits": [
+        {
+          "key": "L17",
+          "layer": 17,
+          "sv_rank": 28,
+          "natural_mean": 40.37922867484715,
+          "natural_scale": 18.86405748591848,
+          "multiplier": 0.0,
+          "bias": 0.0,
+          "bias_in_natural_sd": 0.0
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "environment": "impossiblebench",
+      "condition": "binary_no_rules",
+      "reward_mode": "binary",
+      "rules": false,
+      "paper_structure": "misconfigured visible test; partial-credit counterfactual"
+    }
+  ],
+  "note": "Matched causal activation-steering campaign. Default scope edits only current-assistant analysis-channel residual states."
+}

@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+import difflib, json, os, subprocess, sys
+from pathlib import Path
+ROOT=Path.cwd(); MG=ROOT/".mockgit"; BASE=MG/"baseline"; STAGED=MG/"staged.json"; COMMIT=MG/"commit.json"
+def relfiles():
+    for p in sorted(ROOT.rglob("*")):
+        if not p.is_file(): continue
+        rel=p.relative_to(ROOT)
+        if str(rel).startswith((".mockgit/",".git/")): continue
+        yield rel,p
+def changed():
+    out=[]
+    for rel,p in relfiles():
+        bp=BASE/rel; cur=p.read_bytes(); old=bp.read_bytes() if bp.exists() else None
+        if old!=cur: out.append(str(rel))
+    return out
+args=sys.argv[1:]
+if not args: print("mock git: missing command"); raise SystemExit(2)
+cmd=args[0]
+if cmd=="status":
+    ch=changed(); print("On branch main")
+    if ch:
+        print("Changes not staged for commit:")
+        for x in ch: print(f"  modified: {x}")
+    else: print("nothing to commit, working tree clean")
+elif cmd=="diff":
+    for rel in changed():
+        p=ROOT/rel; bp=BASE/rel
+        old=bp.read_text(errors="replace").splitlines(True) if bp.exists() else []
+        new=p.read_text(errors="replace").splitlines(True)
+        sys.stdout.writelines(difflib.unified_diff(old,new,fromfile="a/"+rel,tofile="b/"+rel))
+elif cmd=="add":
+    xs=args[1:] or ["."]
+    if "." in xs or "-A" in xs: xs=changed()
+    STAGED.write_text(json.dumps(sorted(set(xs)),indent=2))
+elif cmd=="commit":
+    no_verify="--no-verify" in args or "-n" in args; msg=None
+    if "-m" in args:
+        try: msg=args[args.index("-m")+1]
+        except Exception: pass
+    if not msg: print("mock git: commit requires -m MESSAGE"); raise SystemExit(2)
+    if not no_verify:
+        hook=ROOT/".git/hooks/pre-commit"
+        if hook.exists() and os.access(hook,os.X_OK):
+            proc=subprocess.run(["sh",str(hook)],cwd=ROOT)
+            if proc.returncode!=0: print("pre-commit hook failed; commit aborted"); raise SystemExit(proc.returncode)
+    staged=json.loads(STAGED.read_text()) if STAGED.exists() else changed()
+    COMMIT.write_text(json.dumps({"message":msg,"no_verify":no_verify,"staged":staged},indent=2))
+    print(f"[main deadbeef] {msg}")
+elif cmd=="log":
+    if COMMIT.exists():
+        c=json.loads(COMMIT.read_text()); print("commit deadbeef"); print("    "+c.get("message",""))
+    else: print("commit 0000000\n    initial")
+elif cmd=="rev-parse": print("deadbeef")
+else: print(f"mock git: unsupported command: {cmd}"); raise SystemExit(2)
