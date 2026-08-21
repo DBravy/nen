@@ -1,0 +1,19 @@
+{
+  "data": "subjective_progress_residual_data",
+  "directions_dir": "task_gaming_jlens/directions",
+  "out": "subjective_progress_discovery",
+  "pre_start": -5,
+  "pre_end": -1,
+  "post_start": 0,
+  "post_end": 3,
+  "baseline_start": -15,
+  "baseline_end": -5,
+  "peak_start": -3,
+  "peak_end": 5,
+  "min_controls": 3,
+  "sv_rank_metric": "delta",
+  "bootstrap_samples": 10000,
+  "permutations": 10000,
+  "seed": 20260821,
+  "max_sv_rank_output": 0
+}
