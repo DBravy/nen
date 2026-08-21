@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Task Gaming Lens Explorer</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="moments.css"></head>
+<body>
+<header><div><p class="eyebrow">INTERPRETABILITY WORKBENCH</p><h1>Task Gaming <i>Lens Explorer</i></h1></div><div id="dataset" class="dataset">Loading dataset…</div></header>
+<nav><button class="tab active" data-tab="tokens">Token lens</button><button class="tab" data-tab="directions">SVD directions</button><button class="tab" data-tab="trials">Trial index</button></nav>
+<main>
+<section id="tokens" class="panel active">
+  <aside class="controls"><h2>Choose a slice</h2><button id="nextMoment" class="primary">Jump to first gaming moment →</button><label>Environment<select id="environment"></select></label><label>Condition<select id="condition"></select></label><label>Run<select id="run"></select></label><label>Turn<select id="turn"></select></label><div id="trialMeta"></div><div id="runMoments"></div></aside>
+  <div class="workspace"><div class="sectionHead"><div><p class="eyebrow">ACTIVATION TRACE</p><h2 id="turnTitle">—</h2></div><div id="candidateChips" class="chips"></div></div>
+  <div id="chart" class="chart"></div><div class="legend"><span>Click a point or token to inspect its full J-lens readout.</span><span><b class="mark decision"></b> decision step</span><span><b class="mark baseline"></b> baseline step</span></div>
+  <div class="split"><section><h3>Generated tokens</h3><div id="tokenStrip" class="tokenStrip"></div></section><section id="inspector"><h3>Token inspector</h3><div class="empty">Select a token to see layer readouts.</div></section></div></div>
+</section>
+<section id="directions" class="panel"><div class="directionTop"><div><p class="eyebrow">STATIC READOUT</p><h2>Singular value directions</h2><p class="muted">What each transported direction promotes or suppresses, independent of a particular rollout.</p></div><select id="directionSelect"></select></div><div id="directionBody"></div></section>
+<section id="trials" class="panel"><div class="sectionHead"><div><p class="eyebrow">DATASET COVERAGE</p><h2>Trial index</h2></div><input id="trialSearch" placeholder="Filter runs, labels, notes…"></div><div class="tableWrap"><table><thead><tr><th>Run</th><th>Environment</th><th>Condition</th><th>Intent</th><th>Flags</th><th>Steps</th><th>Notes</th></tr></thead><tbody id="trialRows"></tbody></table></div></section>
+<section id="moments" class="momentSection"><div class="sectionHead"><div><p class="eyebrow">REVIEWED NAVIGATION</p><h2>Gaming moments</h2><p class="muted">Jump to where a shortcut enters the reasoning, is accepted, rejected, or acted on.</p></div><div id="momentFilters" class="chips"></div></div><div id="momentCards" class="momentCards"></div></section>
+</main><div id="tooltip"></div><script src="app.js"></script></body></html>
