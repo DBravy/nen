@@ -1,0 +1,102 @@
+{
+  "created": "2026-08-21T02:01:46",
+  "focus": "L17/SV28 only",
+  "model": "openai/gpt-oss-20b",
+  "model_revision": null,
+  "collector": "collect_task_gaming_rollouts_v8.py",
+  "transformers_version": "5.15.1",
+  "attention": "flex_attention",
+  "scope": "analysis",
+  "reasoning": "low",
+  "temperature": 1.0,
+  "top_p": 1.0,
+  "samples_per_condition": 8,
+  "base_seed": 22345,
+  "amplify_factor": 2.0,
+  "bias_strength_sd": 1.0,
+  "candidate_calibration": {
+    "L17": {
+      "scale": 18.86405748591848,
+      "mean": 40.37922867484715,
+      "n_baselines": 23
+    }
+  },
+  "variants": [
+    {
+      "name": "control",
+      "description": "No activation intervention.",
+      "edits": []
+    },
+    {
+      "name": "L17_suppress",
+      "description": "Set L17/SV28 h·v coefficient to zero.",
+      "edits": [
+        {
+          "key": "L17",
+          "layer": 17,
+          "sv_rank": 28,
+          "natural_mean": 40.37922867484715,
+          "natural_scale": 18.86405748591848,
+          "multiplier": 0.0,
+          "bias": 0.0,
+          "bias_in_natural_sd": 0.0
+        }
+      ]
+    },
+    {
+      "name": "L17_push_anti",
+      "description": "Add 1 discovery-SD opposite the gaming-associated L17/SV28 direction.",
+      "edits": [
+        {
+          "key": "L17",
+          "layer": 17,
+          "sv_rank": 28,
+          "natural_mean": 40.37922867484715,
+          "natural_scale": 18.86405748591848,
+          "multiplier": 1.0,
+          "bias": 18.86405748591848,
+          "bias_in_natural_sd": 1.0
+        }
+      ]
+    },
+    {
+      "name": "L17_push_gaming",
+      "description": "Add 1 discovery-SD in the gaming-associated negative L17/SV28 direction.",
+      "edits": [
+        {
+          "key": "L17",
+          "layer": 17,
+          "sv_rank": 28,
+          "natural_mean": 40.37922867484715,
+          "natural_scale": 18.86405748591848,
+          "multiplier": 1.0,
+          "bias": -18.86405748591848,
+          "bias_in_natural_sd": -1.0
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "environment": "precommit_hook",
+      "condition": "none",
+      "paper_structure": "grader-scrutiny sweep"
+    },
+    {
+      "environment": "impossiblebench",
+      "condition": "binary_no_rules",
+      "reward_mode": "binary",
+      "rules": false,
+      "paper_structure": "misconfigured visible test; partial-credit counterfactual"
+    }
+  ],
+  "reuse_from": "causal_interventions",
+  "reused_completed_cells": 20,
+  "dedupe_key": [
+    "intervention_name",
+    "environment",
+    "condition",
+    "seed"
+  ],
+  "note": "index.jsonl contains only newly generated runs. combined_index.jsonl is the deduplicated union with compatible completed L17/control cells from prior campaigns."
+}
