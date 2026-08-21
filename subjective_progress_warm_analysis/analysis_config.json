@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "events_path": "/home/dbrayjr5/nen/task_gaming_v8_subjective_progress/events.jsonl",
+  "activations_path": "/home/dbrayjr5/nen/task_gaming_candidate_data/activations.csv",
+  "output_dir": "/home/dbrayjr5/nen/subjective_progress_warm_analysis",
+  "window": 20,
+  "relative_coordinate": "generated_local_index",
+  "window_boundary": "same_run_step_channel_message_index",
+  "anchor_policy": "final_token_overlapping_event",
+  "anchor_state_semantics": "state_after_anchor_token_used_to_predict_next_token",
+  "anchor_channel": "analysis",
+  "normalization": "robust_zscore",
+  "normalization_channel": "analysis",
+  "normalization_message_indices": [
+    0
+  ],
+  "controls_per_event": 5,
+  "min_controls_per_event": 3,
+  "control_exclusion": 20,
+  "control_anchor_constraint": "same_run_channel_message_index_as_event",
+  "match_token_class": true,
+  "unique_controls": false,
+  "pre_interval": [
+    -5,
+    -1
+  ],
+  "post_interval": [
+    0,
+    3
+  ],
+  "baseline_interval": [
+    -15,
+    -5
+  ],
+  "peak_interval": [
+    -3,
+    5
+  ],
+  "rank_metric": "delta",
+  "bootstrap_samples": 20000,
+  "permutations": 20000,
+  "seed": 20250821,
+  "arms": [
+    "L17_SV28",
+    "L18_SV30",
+    "L22_SV32"
+  ],
+  "trace_aggregations": [
+    "event_weighted",
+    "rollout_weighted"
+  ],
+  "plot_aggregation": "rollout_weighted",
+  "inference_unit": "rollout_mean_of_paired_event_minus_mean_control_effects"
+}

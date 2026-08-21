@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "plots_enabled": true,
+  "plot_top_k": 0,
+  "generated": [
+    "plots/L22_SV32.svg",
+    "plots/L17_SV28.svg",
+    "plots/L18_SV30.svg"
+  ],
+  "note": "Only files listed here were produced by the current run; the output directory is not destructively cleared between runs."
+}

@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0",
+  "events": {
+    "input": 61,
+    "mapped_analyzed": 58,
+    "excluded": 3,
+    "mapped_rollouts": 20,
+    "objective_status": {
+      "ambiguous": 5,
+      "correct": 32,
+      "incorrect": 21
+    },
+    "full_windows": 23,
+    "partial_windows": 35,
+    "anchor_token_categories": {
+      "punct": 58
+    },
+    "anchor_message_indices": {
+      "0": 58
+    }
+  },
+  "activations": {
+    "rows": 24119,
+    "rollouts": 23,
+    "arms": [
+      "L17_SV28",
+      "L18_SV30",
+      "L22_SV32"
+    ],
+    "normalization_channel": "analysis",
+    "normalization_message_indices": [
+      0
+    ]
+  },
+  "controls": {
+    "per_event": 5,
+    "minimum_per_event": 3,
+    "events_below_target": 0,
+    "total": 290,
+    "exclusion_tokens": 20,
+    "same_step": 132,
+    "exact_token": 212,
+    "exact_coverage": 129,
+    "median_coverage_distance": 4.0,
+    "max_coverage_distance": 31,
+    "reused": 66,
+    "match_tiers": {
+      "same_rollout_broad_category": 13,
+      "same_rollout_exact_token": 118,
+      "same_rollout_fine_class": 27,
+      "same_step_broad_category": 11,
+      "same_step_exact_token": 94,
+      "same_step_fine_class": 27
+    }
+  },
+  "ranking": [
+    {
+      "arm": "L22_SV32",
+      "rank_metric": "delta",
+      "rank_score": 0.06605722227350462,
+      "effect_direction": "increase",
+      "rollout_weighted_effect": 0.2943562596410765,
+      "event_weighted_effect": 0.16788443003053977,
+      "bootstrap_ci_low": -0.013851389375599554,
+      "bootstrap_ci_high": 0.6651117266301318,
+      "standardized_rollout_effect": 0.37558545035291035,
+      "event_consistency": 0.5333333333333333,
+      "rollout_consistency": 0.631578947368421,
+      "permutation_p_two_sided": 0.12644367781610918,
+      "permutation_p_holm": 0.3793310334483275,
+      "correct_rollout_weighted_effect": 0.011175144618586581,
+      "incorrect_rollout_weighted_effect": 0.2656390853823509,
+      "shared_status_effect_oriented": 0.011175144618586581,
+      "status_preservation_ratio": 0.03796469160266203,
+      "correct_n_events": 24,
+      "incorrect_n_events": 17,
+      "n_events": 45,
+      "n_rollouts": 19,
+      "rank": 1
+    },
+    {
+      "arm": "L17_SV28",
+      "rank_metric": "delta",
+      "rank_score": 0.027198762401161928,
+      "effect_direction": "decrease",
+      "rollout_weighted_effect": -0.10940950392531704,
+      "event_weighted_effect": -0.12788200813884035,
+      "bootstrap_ci_low": -0.36418662642128935,
+      "bootstrap_ci_high": 0.1448526360543128,
+      "standardized_rollout_effect": -0.1879187220443915,
+      "event_consistency": 0.5111111111111111,
+      "rollout_consistency": 0.5789473684210527,
+      "permutation_p_two_sided": 0.42907854607269635,
+      "permutation_p_holm": 0.767861606919654,
+      "correct_rollout_weighted_effect": -0.615059182701002,
+      "incorrect_rollout_weighted_effect": 0.680766305464486,
+      "shared_status_effect_oriented": -0.680766305464486,
+      "status_preservation_ratio": 0.0,
+      "correct_n_events": 24,
+      "incorrect_n_events": 17,
+      "n_events": 45,
+      "n_rollouts": 19,
+      "rank": 2
+    },
+    {
+      "arm": "L18_SV30",
+      "rank_metric": "delta",
+      "rank_score": 0.021346366367710503,
+      "effect_direction": "increase",
+      "rollout_weighted_effect": 0.1339510542066947,
+      "event_weighted_effect": 0.13254201818185482,
+      "bootstrap_ci_low": -0.14565482670784433,
+      "bootstrap_ci_high": 0.4278207349984585,
+      "standardized_rollout_effect": 0.2027904804932498,
+      "event_consistency": 0.5555555555555556,
+      "rollout_consistency": 0.42105263157894735,
+      "permutation_p_two_sided": 0.383930803459827,
+      "permutation_p_holm": 0.767861606919654,
+      "correct_rollout_weighted_effect": -0.03143502523123716,
+      "incorrect_rollout_weighted_effect": 0.3437512467166129,
+      "shared_status_effect_oriented": -0.03143502523123716,
+      "status_preservation_ratio": 0.0,
+      "correct_n_events": 24,
+      "incorrect_n_events": 17,
+      "n_events": 45,
+      "n_rollouts": 19,
+      "rank": 3
+    }
+  ]
+}
