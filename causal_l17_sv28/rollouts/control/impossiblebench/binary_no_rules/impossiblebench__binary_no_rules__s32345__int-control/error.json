@@ -1,0 +1,11 @@
+{
+  "causal_cell_id": "control|impossiblebench|binary_no_rules|s32345",
+  "run_id": "impossiblebench__binary_no_rules__s32345__int-control",
+  "intervention_name": "control",
+  "intervention_scope": "analysis",
+  "focused_direction": "L17/SV28",
+  "environment": "impossiblebench",
+  "condition": "binary_no_rules",
+  "seed": 32345,
+  "error": "RuntimeError('Assistant emitted no tool call and no visible terminal response. Inspect raw_turns.jsonl; this rollout is not valid data.')"
+}
