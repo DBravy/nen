@@ -214,6 +214,10 @@ def safe_script_json(value: Any) -> str:
     )
 
 
+def zero_based_candidate(row: dict[str, Any]) -> str:
+    return f"L{int(row['layer']):02d}_SV{int(row['sv_index_0']):02d}"
+
+
 def build_payload(data_dir: Path, top_n: int) -> dict[str, Any]:
     rankings_path = data_dir / "sv_rankings.csv"
     contexts_path = data_dir / "top_contexts.jsonl"
@@ -238,6 +242,28 @@ def build_payload(data_dir: Path, top_n: int) -> dict[str, Any]:
         preview = ", ".join(incomplete[:8])
         raise SystemExit(f"Incomplete context sets for {len(incomplete)} candidates: {preview}")
 
+    display_rankings: list[dict[str, Any]] = []
+    display_contexts: dict[str, dict[str, list[dict[str, Any]]]] = {}
+    display_unembedding: dict[str, dict[str, Any]] = {}
+    for row in rankings:
+        source_candidate = str(row["candidate"])
+        expected_source = f"L{int(row['layer']):02d}_SV{int(row['sv_index_0']) + 1:02d}"
+        if source_candidate != expected_source:
+            raise SystemExit(
+                f"Unexpected source candidate {source_candidate!r}; expected {expected_source!r} "
+                "from layer and sv_index_0"
+            )
+        display_candidate = zero_based_candidate(row)
+        display_row = {
+            ("singular_value_over_sv0" if key == "singular_value_over_sv1" else key): value
+            for key, value in row.items()
+            if key != "sv_rank_1based"
+        }
+        display_row["candidate"] = display_candidate
+        display_rankings.append(display_row)
+        display_contexts[display_candidate] = contexts[source_candidate]
+        display_unembedding[display_candidate] = unembedding[source_candidate]
+
     return {
         "meta": {
             "model": metadata.get("model"),
@@ -257,10 +283,11 @@ def build_payload(data_dir: Path, top_n: int) -> dict[str, Any]:
             "unembedding_vocab_rows": unembedding_meta["vocab"],
             "unembedding_neighbors_per_side": unembedding_meta["per_side"],
             "unembedding_domain_max": unembedding_meta["domain_max"],
+            "display_sv_numbering": "zero_based",
         },
-        "rankings": rankings,
-        "contexts": contexts,
-        "unembedding": unembedding,
+        "rankings": display_rankings,
+        "contexts": display_contexts,
+        "unembedding": display_unembedding,
     }
 
 
@@ -536,7 +563,7 @@ HTML_TEMPLATE = r'''<!doctype html>
   <section class="toolbar" aria-label="Ranking controls">
     <div class="toolbar-inner">
       <label class="control search-control">Find a direction
-        <span class="search-wrap"><input id="candidateSearch" type="search" placeholder="Candidate ID, layer, or SV rank…" autocomplete="off"><kbd class="shortcut">/</kbd></span>
+        <span class="search-wrap"><input id="candidateSearch" type="search" placeholder="Candidate ID, layer, or SV index…" autocomplete="off"><kbd class="shortcut">/</kbd></span>
       </label>
       <label class="control">Layer<select id="layerFilter"></select></label>
       <label class="control">Rank by<select id="sortMetric"></select></label>
@@ -574,8 +601,8 @@ HTML_TEMPLATE = r'''<!doctype html>
     };
 
     const LABELS = {
-      candidate: "Candidate", layer: "Layer", sv_index_0: "SV index (0-based)", sv_rank_1based: "SV rank (within layer)",
-      singular_value: "Singular value", singular_value_over_sv1: "Singular value / SV1", n_tokens: "Tokens", n_documents: "Documents",
+      candidate: "Candidate", layer: "Layer", sv_index_0: "SV index (zero-based)",
+      singular_value: "Singular value", singular_value_over_sv0: "Singular value / SV0", n_tokens: "Tokens", n_documents: "Documents",
       mean_activation: "Mean activation", mean_abs_activation: "Mean |activation|", rms_activation: "RMS activation", std_activation: "Activation std",
       positive_rate: "Positive rate", max_activation: "Maximum activation", min_activation: "Minimum activation", mean_abs_cosine: "Mean |cosine|",
       rms_cosine: "RMS cosine", top1_abs_rate: "Top-1 absolute rate", top5_abs_rate: "Top-5 absolute rate",
@@ -637,13 +664,6 @@ HTML_TEMPLATE = r'''<!doctype html>
       return kind === "percent" ? percent(value) : decimal(value, kind === "decimal" ? 4 : 3);
     }
 
-    function ordinal(value) {
-      const n = Number(value);
-      const mod100 = n % 100;
-      if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
-      return `${n}${({1:"st",2:"nd",3:"rd"})[n % 10] || "th"}`;
-    }
-
     function setup() {
       const meta = DATA.meta;
       $("#datasetFacts").innerHTML = [
@@ -688,7 +708,7 @@ HTML_TEMPLATE = r'''<!doctype html>
         }
       });
 
-      $("#footerNote").innerHTML = `Self-contained snapshot of the top <b>${integer.format(meta.embedded_candidates)}</b> of ${integer.format(meta.total_candidates)} candidates from <code>sv_rankings.csv</code>, with ${integer.format(meta.unembedding_neighbors_per_side)} token neighbors per side from <code>unembedding_neighbors.jsonl</code> and ${integer.format(meta.contexts_per_polarity)} contexts per polarity from <code>top_contexts.jsonl</code>. Model: <code>${esc(meta.model)}</code>.`;
+      $("#footerNote").innerHTML = `SV identifiers use zero-based indices (<code>SV00</code> is the first singular vector). Self-contained snapshot of the top <b>${integer.format(meta.embedded_candidates)}</b> of ${integer.format(meta.total_candidates)} candidates from <code>sv_rankings.csv</code>, with ${integer.format(meta.unembedding_neighbors_per_side)} token neighbors per side from <code>unembedding_neighbors.jsonl</code> and ${integer.format(meta.contexts_per_polarity)} contexts per polarity from <code>top_contexts.jsonl</code>. Model: <code>${esc(meta.model)}</code>.`;
       render();
     }
 
@@ -709,7 +729,7 @@ HTML_TEMPLATE = r'''<!doctype html>
       const rows = DATA.rankings.filter(row => {
         if (state.layer !== "all" && Number(row.layer) !== Number(state.layer)) return false;
         if (!query) return true;
-        const haystack = `${row.candidate} layer ${row.layer} l${String(row.layer).padStart(2,"0")} sv ${row.sv_rank_1based} sv${String(row.sv_rank_1based).padStart(2,"0")}`.toLowerCase();
+        const haystack = `${row.candidate} layer ${row.layer} l${String(row.layer).padStart(2,"0")} sv ${row.sv_index_0} sv${String(row.sv_index_0).padStart(2,"0")}`.toLowerCase();
         return haystack.includes(query);
       }).sort((a, b) => Number(b[state.metric]) - Number(a[state.metric]) || Number(a[PRIMARY_RANK]) - Number(b[PRIMARY_RANK]));
       return applyLimit ? rows.slice(0, state.limit) : rows;
@@ -732,7 +752,7 @@ HTML_TEMPLATE = r'''<!doctype html>
       const metric = METRICS[state.metric];
       const maxValue = Math.max(...rows.map(row => Number(row[state.metric]) || 0), 0);
       $("#rankingCount").textContent = `${integer.format(rows.length)} / ${integer.format(matchCount)}`;
-      $("#rankingCaption").textContent = `${metric.label} · descending. Global rank always refers to mean |cosine|.`;
+      $("#rankingCaption").textContent = `${metric.label} · descending. SV indices are zero-based; global rank still refers to mean |cosine|.`;
       if (!rows.length) {
         $("#rankingList").innerHTML = `<div class="empty">No directions match these filters.</div>`;
         return;
@@ -743,7 +763,7 @@ HTML_TEMPLATE = r'''<!doctype html>
         return `<button class="rank-row ${row.candidate === state.selected ? "active" : ""}" type="button" ${row.candidate === state.selected ? 'aria-current="true"' : ""} data-candidate="${esc(row.candidate)}">
           <span class="rank-number">#${integer.format(row[PRIMARY_RANK])}</span>
           <span>
-            <span class="rank-topline"><span class="candidate">${esc(row.candidate)}</span><span class="layer-note">L${String(row.layer).padStart(2,"0")} · SV${String(row.sv_rank_1based).padStart(2,"0")}</span></span>
+            <span class="rank-topline"><span class="candidate">${esc(row.candidate)}</span><span class="layer-note">L${String(row.layer).padStart(2,"0")} · SV${String(row.sv_index_0).padStart(2,"0")}</span></span>
             <span class="rank-measure"><span>${esc(metric.short)}</span><b>${formatMetric(value, metric.kind)}</b></span>
             <span class="mini-track" aria-hidden="true"><i style="width:${width.toFixed(2)}%"></i></span>
           </span>
@@ -843,8 +863,8 @@ HTML_TEMPLATE = r'''<!doctype html>
             <button class="copy-button" id="copyCandidate" type="button">Copy ID</button>
           </div>
         </div>
-        <div class="title-row"><h2 class="detail-title">${esc(row.candidate)}</h2><span class="id-chip">L${String(row.layer).padStart(2,"0")} / SV${String(row.sv_rank_1based).padStart(2,"0")}</span></div>
-        <p class="detail-summary">The <b>${ordinal(row.sv_rank_1based)} singular direction</b> in layer ${row.layer}. It is the <b>#${integer.format(row[PRIMARY_RANK])} direction globally</b> by mean absolute cosine over ${integer.format(row.n_tokens)} FineWeb tokens.</p>
+        <div class="title-row"><h2 class="detail-title">${esc(row.candidate)}</h2><span class="id-chip">L${String(row.layer).padStart(2,"0")} / SV${String(row.sv_index_0).padStart(2,"0")}</span></div>
+        <p class="detail-summary">The singular direction at <b>zero-based SV index ${integer.format(row.sv_index_0)}</b> in layer ${row.layer}. It is the <b>#${integer.format(row[PRIMARY_RANK])} direction globally</b> by mean absolute cosine over ${integer.format(row.n_tokens)} FineWeb tokens.</p>
         <div class="metric-grid">
           ${metricCard("Mean |cosine|", decimal(row.mean_abs_cosine, 4), METRICS.mean_abs_cosine.help)}
           ${metricCard("Top-1 token share", percent(row.top1_abs_rate), METRICS.top1_abs_rate.help)}
@@ -902,7 +922,7 @@ HTML_TEMPLATE = r'''<!doctype html>
     function formatAny(key, value) {
       if (value == null) return "—";
       if (typeof value === "string") return visibleToken(value);
-      if (key.startsWith("rank_") || ["layer", "sv_index_0", "sv_rank_1based", "n_tokens", "n_documents"].includes(key)) return integer.format(value);
+      if (key.startsWith("rank_") || ["layer", "sv_index_0", "n_tokens", "n_documents"].includes(key)) return integer.format(value);
       if (["positive_rate", "top1_abs_rate", "top5_abs_rate", "doc_top5_presence_rate"].includes(key)) return percent(value, 2);
       return decimal(value, 5);
     }
