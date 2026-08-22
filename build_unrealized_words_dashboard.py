@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Build a self-contained browser dashboard for the FineWeb SV scan.
 
-The source context file is intentionally large. This script keeps the highest
-ranked candidates, prunes each context to the fields used by the UI, and embeds
-the result in one HTML file that can be opened directly from disk.
+The source data files are intentionally large. This script keeps the highest
+ranked candidates, prunes contexts and token neighbors to the fields used by the
+UI, and embeds the result in one HTML file that can be opened directly from disk.
 """
 
 from __future__ import annotations
@@ -19,6 +19,13 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent
 DEFAULT_DATA_DIR = ROOT / "unrealized_words_fineweb"
 PRIMARY_RANK = "rank_global_mean_abs_cosine"
+RANKING_TEXT_FIELDS = {
+    "candidate",
+    "nearest_unembed_token",
+    "nearest_unembed_decoded",
+    "farthest_unembed_token",
+    "farthest_unembed_decoded",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -27,7 +34,7 @@ def parse_args() -> argparse.Namespace:
         "--data-dir",
         type=Path,
         default=DEFAULT_DATA_DIR,
-        help="Directory containing sv_rankings.csv, top_contexts.jsonl, and metadata.json",
+        help="Directory containing rankings, contexts, unembedding neighbors, and metadata",
     )
     parser.add_argument(
         "--output",
@@ -64,7 +71,7 @@ def load_rankings(path: Path, top_n: int) -> tuple[list[dict[str, Any]], int]:
         rows: list[dict[str, Any]] = []
         for row_number, raw in enumerate(reader, 2):
             try:
-                row = {key: (value if key == "candidate" else number(value)) for key, value in raw.items()}
+                row = {key: (value if key in RANKING_TEXT_FIELDS else number(value)) for key, value in raw.items()}
             except ValueError as exc:
                 raise SystemExit(f"Invalid numeric field on {path}:{row_number}: {exc}") from exc
             rows.append(row)
@@ -93,8 +100,9 @@ def compact_context(raw: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def load_contexts(path: Path, candidates: set[str]) -> tuple[dict[str, dict[str, list[dict[str, Any]]]], int]:
+def load_contexts(path: Path, candidates: list[str]) -> tuple[dict[str, dict[str, list[dict[str, Any]]]], int]:
     contexts = {candidate: {"positive": [], "negative": []} for candidate in candidates}
+    candidate_set = set(candidates)
     source_total = 0
     with path.open(encoding="utf-8") as handle:
         for line_number, line in enumerate(handle, 1):
@@ -106,7 +114,7 @@ def load_contexts(path: Path, candidates: set[str]) -> tuple[dict[str, dict[str,
             except json.JSONDecodeError as exc:
                 raise SystemExit(f"Invalid JSON on {path}:{line_number}: {exc}") from exc
             candidate = raw.get("candidate")
-            if candidate not in contexts:
+            if candidate not in candidate_set:
                 continue
             polarity = raw.get("polarity")
             if polarity not in ("positive", "negative"):
@@ -117,6 +125,82 @@ def load_contexts(path: Path, candidates: set[str]) -> tuple[dict[str, dict[str,
         for values in by_polarity.values():
             values.sort(key=lambda item: int(item.get("rank") or 0))
     return contexts, source_total
+
+
+def compact_token_neighbor(raw: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": raw.get("token_id"),
+        "token": raw.get("token"),
+        "decoded": raw.get("decoded"),
+        "cosine": raw.get("cosine"),
+    }
+
+
+def load_unembedding_neighbors(
+    path: Path, candidates: list[str]
+) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
+    neighbors: dict[str, dict[str, Any]] = {}
+    candidate_set = set(candidates)
+    source_total = 0
+    domain_max = 0.0
+    spaces: set[str] = set()
+    vocab_sizes: set[int] = set()
+    list_sizes: set[int] = set()
+
+    with path.open(encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, 1):
+            if not line.strip():
+                continue
+            source_total += 1
+            try:
+                raw = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise SystemExit(f"Invalid JSON on {path}:{line_number}: {exc}") from exc
+
+            candidate = raw.get("candidate")
+            if not isinstance(candidate, str):
+                raise SystemExit(f"Missing candidate on {path}:{line_number}")
+            spaces.add(str(raw.get("space")))
+            vocab_sizes.add(int(raw.get("unembedding_vocab_rows_considered", 0)))
+            nearest = raw.get("nearest_tokens") or []
+            farthest = raw.get("farthest_tokens") or []
+            list_sizes.update((len(nearest), len(farthest)))
+            domain_max = max(domain_max, abs(float(raw.get("max_abs_token_cosine", 0))))
+
+            if candidate not in candidate_set:
+                continue
+            if candidate in neighbors:
+                raise SystemExit(f"Duplicate unembedding candidate {candidate!r} on {path}:{line_number}")
+            neighbors[candidate] = {
+                "vocab": raw.get("unembedding_vocab_rows_considered"),
+                "mean": raw.get("unembedding_cosine_mean"),
+                "std": raw.get("unembedding_cosine_std"),
+                "max_abs": raw.get("max_abs_token_cosine"),
+                "nearest_z": raw.get("nearest_token_z"),
+                "farthest_z": raw.get("farthest_token_z"),
+                "nearest_margin": raw.get("nearest_cosine_margin"),
+                "farthest_margin": raw.get("farthest_cosine_margin"),
+                "nearest": [compact_token_neighbor(item) for item in nearest],
+                "farthest": [compact_token_neighbor(item) for item in farthest],
+            }
+
+    missing = sorted(candidate_set - neighbors.keys())
+    if missing:
+        preview = ", ".join(missing[:8])
+        raise SystemExit(f"Missing unembedding neighbors for {len(missing)} candidates: {preview}")
+    if len(spaces) != 1 or len(vocab_sizes) != 1 or len(list_sizes) != 1:
+        raise SystemExit(
+            f"Inconsistent unembedding metadata: spaces={sorted(spaces)}, "
+            f"vocab_sizes={sorted(vocab_sizes)}, list_sizes={sorted(list_sizes)}"
+        )
+    ordered_neighbors = {candidate: neighbors[candidate] for candidate in candidates}
+    return ordered_neighbors, {
+        "total": source_total,
+        "space": next(iter(spaces)),
+        "vocab": next(iter(vocab_sizes)),
+        "per_side": next(iter(list_sizes)),
+        "domain_max": domain_max,
+    }
 
 
 def safe_script_json(value: Any) -> str:
@@ -133,14 +217,17 @@ def safe_script_json(value: Any) -> str:
 def build_payload(data_dir: Path, top_n: int) -> dict[str, Any]:
     rankings_path = data_dir / "sv_rankings.csv"
     contexts_path = data_dir / "top_contexts.jsonl"
+    unembedding_path = data_dir / "unembedding_neighbors.jsonl"
     metadata_path = data_dir / "metadata.json"
-    for path in (rankings_path, contexts_path, metadata_path):
+    for path in (rankings_path, contexts_path, unembedding_path, metadata_path):
         if not path.is_file():
             raise SystemExit(f"Missing required input: {path}")
 
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     rankings, total_candidates = load_rankings(rankings_path, top_n)
-    contexts, total_contexts = load_contexts(contexts_path, {row["candidate"] for row in rankings})
+    candidates = [row["candidate"] for row in rankings]
+    contexts, total_contexts = load_contexts(contexts_path, candidates)
+    unembedding, unembedding_meta = load_unembedding_neighbors(unembedding_path, candidates)
 
     expected = int(metadata.get("top_contexts_per_polarity", 0))
     incomplete: list[str] = []
@@ -165,9 +252,15 @@ def build_payload(data_dir: Path, top_n: int) -> dict[str, Any]:
             "total_candidates": total_candidates,
             "embedded_candidates": len(rankings),
             "total_contexts": total_contexts,
+            "unembedding_candidates": unembedding_meta["total"],
+            "unembedding_space": unembedding_meta["space"],
+            "unembedding_vocab_rows": unembedding_meta["vocab"],
+            "unembedding_neighbors_per_side": unembedding_meta["per_side"],
+            "unembedding_domain_max": unembedding_meta["domain_max"],
         },
         "rankings": rankings,
         "contexts": contexts,
+        "unembedding": unembedding,
     }
 
 
@@ -291,6 +384,57 @@ HTML_TEMPLATE = r'''<!doctype html>
     .all-metric span { min-width: 0; color: var(--muted); font-size: 10px; }
     .all-metric b { flex: 0 0 auto; font: 600 10px/1.4 var(--mono); }
 
+    .token-space-section { padding: clamp(20px, 3vw, 34px); border-bottom: 1px solid var(--line); background: #fbfaf5; }
+    .token-space-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 22px; }
+    .token-space-heading h3 { margin: 0; font: 500 25px/1.15 var(--serif); }
+    .token-space-heading p { max-width: 760px; margin: 7px 0 0; color: var(--muted); font-size: 11px; }
+    .token-limit { flex: 0 0 118px; }
+    .token-limit select { background: #fff; }
+    .unembed-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin-top: 20px; border: 1px solid var(--line); background: var(--line); }
+    .unembed-stat { min-width: 0; background: var(--surface); padding: 11px 12px; }
+    .unembed-stat span { display: block; min-height: 25px; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .unembed-stat b { display: block; color: var(--ink); font: 650 16px/1.2 var(--mono); }
+    .unembed-spectrum { margin-top: 18px; border: 1px solid var(--line); background: var(--surface); padding: 14px 15px 11px; }
+    .spectrum-topline { display: flex; justify-content: space-between; gap: 6px 20px; flex-wrap: wrap; color: var(--muted); font-size: 9px; }
+    .spectrum-topline b { color: var(--ink-2); font-weight: 700; }
+    .spectrum-track { position: relative; height: 54px; margin: 11px 0 7px; overflow: hidden; border: 1px solid #e1ddd3; background: linear-gradient(90deg, var(--orange-soft), #f1eee6 50%, var(--green-soft)); }
+    .spectrum-band { position: absolute; top: 0; bottom: 0; background: rgba(91, 102, 96, .13); border-left: 1px solid rgba(49,65,59,.22); border-right: 1px solid rgba(49,65,59,.22); }
+    .spectrum-zero, .spectrum-mean { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(24,32,29,.62); }
+    .spectrum-mean { width: 2px; background: var(--blue); }
+    .spectrum-dot { position: absolute; z-index: 2; width: 7px; height: 7px; transform: translate(-50%, -50%); border: 1px solid rgba(255,255,255,.9); border-radius: 50%; box-shadow: 0 1px 2px rgba(24,32,29,.2); }
+    .spectrum-dot.aligned { background: var(--green); }
+    .spectrum-dot.opposed { background: var(--orange); }
+    .spectrum-labels { display: grid; grid-template-columns: 1fr auto 1fr; color: var(--muted); font: 9px/1.2 var(--mono); }
+    .spectrum-labels span:nth-child(2) { text-align: center; }
+    .spectrum-labels span:last-child { text-align: right; }
+    .spectrum-legend { display: flex; gap: 6px 16px; flex-wrap: wrap; margin-top: 9px; color: var(--muted); font-size: 9px; }
+    .legend-dot { display: inline-block; width: 7px; height: 7px; margin-right: 4px; border-radius: 50%; }
+    .legend-dot.aligned { background: var(--green); }
+    .legend-dot.opposed { background: var(--orange); }
+    .legend-band { display: inline-block; width: 12px; height: 7px; margin-right: 4px; background: rgba(91,102,96,.18); }
+    .neighbor-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px; margin-top: 17px; align-items: start; }
+    .neighbor-column { min-width: 0; }
+    .neighbor-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-height: 39px; border-top: 3px solid; padding: 8px 2px 0; }
+    .neighbor-column.aligned .neighbor-head { border-color: var(--green); }
+    .neighbor-column.opposed .neighbor-head { border-color: var(--orange); }
+    .neighbor-head h4 { margin: 0; font: 650 13px/1.2 var(--mono); }
+    .neighbor-head span { color: var(--muted); font-size: 9px; }
+    .neighbor-list { display: grid; gap: 5px; }
+    .neighbor-row { min-width: 0; border: 1px solid var(--line); background: var(--surface); padding: 8px 10px 7px; }
+    .neighbor-main { display: grid; grid-template-columns: 25px minmax(0, 1fr) auto; gap: 9px; align-items: center; }
+    .neighbor-rank { color: var(--muted); font: 650 9px/1 var(--mono); text-align: right; }
+    .neighbor-name { min-width: 0; }
+    .neighbor-token { display: block; overflow: hidden; color: var(--ink); font: 650 12px/1.25 var(--mono); text-overflow: ellipsis; white-space: nowrap; }
+    .neighbor-raw { display: block; overflow: hidden; margin-top: 2px; color: var(--muted); font: 8px/1.2 var(--mono); text-overflow: ellipsis; white-space: nowrap; }
+    .neighbor-values { display: flex; gap: 10px; color: var(--muted); font: 8px/1.2 var(--mono); text-align: right; }
+    .neighbor-values b { display: block; margin-top: 2px; color: var(--ink-2); font-size: 10px; }
+    .neighbor-column.aligned .neighbor-values .cosine { color: var(--green); }
+    .neighbor-column.opposed .neighbor-values .cosine { color: var(--orange); }
+    .neighbor-bar { display: block; height: 2px; margin: 7px 0 0 34px; background: #ebe7dd; }
+    .neighbor-bar i { display: block; height: 100%; }
+    .neighbor-column.aligned .neighbor-bar i { background: var(--green); }
+    .neighbor-column.opposed .neighbor-bar i { background: var(--orange); }
+
     .context-section { padding: clamp(20px, 3vw, 34px); }
     .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
     .section-heading h3 { margin: 0; font: 500 25px/1.15 var(--serif); }
@@ -329,6 +473,7 @@ HTML_TEMPLATE = r'''<!doctype html>
     @media (max-width: 1120px) {
       .metric-grid { grid-template-columns: repeat(3, 1fr); }
       .all-metrics { grid-template-columns: repeat(2, 1fr); }
+      .unembed-stats { grid-template-columns: repeat(2, 1fr); }
       .toolbar-inner { grid-template-columns: minmax(210px, 1.3fr) repeat(3, minmax(125px, .55fr)) auto; }
     }
     @media (max-width: 880px) {
@@ -352,20 +497,23 @@ HTML_TEMPLATE = r'''<!doctype html>
       .search-control { grid-column: auto; }
       .metric-grid { grid-template-columns: repeat(2, 1fr); }
       .all-metrics { grid-template-columns: 1fr; }
+      .token-space-heading { align-items: flex-start; flex-direction: column; }
+      .token-limit { width: 100%; flex-basis: auto; }
+      .neighbor-grid { grid-template-columns: 1fr; }
       .context-grid { grid-template-columns: 1fr; }
       .context-controls { grid-template-columns: 1fr 1fr; }
       .context-controls .context-search { grid-column: 1 / -1; }
-      .detail-hero, .context-section { padding: 20px 16px; }
+      .detail-hero, .token-space-section, .context-section { padding: 20px 16px; }
       .section-heading { align-items: flex-start; flex-direction: column; }
     }
     @media print {
-      .toolbar, .ranking-panel, .nav-buttons, .context-controls, .footer { display: none !important; }
+      .toolbar, .ranking-panel, .nav-buttons, .context-controls, .token-limit, .footer { display: none !important; }
       .masthead { color: var(--ink); background: white; border-color: var(--ink); }
       .masthead * { color: var(--ink) !important; }
       .masthead-inner { min-height: 0; padding: 18px 0; }
       .dashboard-grid { display: block; }
       .panel { box-shadow: none; }
-      .context-card { break-inside: avoid; }
+      .context-card, .neighbor-row, .unembed-spectrum { break-inside: avoid; }
     }
   </style>
 </head>
@@ -378,7 +526,7 @@ HTML_TEMPLATE = r'''<!doctype html>
         <div>
           <p class="eyebrow">Interpretability workbench · FineWeb</p>
           <h1>Singular Vector <em>Atlas</em></h1>
-          <p class="subtitle">Browse the strongest cross-layer directions and read the text contexts that most activate each side of the singular vector.</p>
+          <p class="subtitle">Browse strong cross-layer directions, their nearest output-token embeddings, and the FineWeb contexts that most activate each side.</p>
         </div>
       </div>
       <div class="dataset-facts" id="datasetFacts" aria-label="Dataset summary"></div>
@@ -421,7 +569,8 @@ HTML_TEMPLATE = r'''<!doctype html>
       sigma_weighted_mean_abs: { label: "σ × mean |activation|", short: "σ × mean |act|", kind: "number", help: "Singular value multiplied by mean absolute activation." },
       std_activation: { label: "Activation variability", short: "activation std", kind: "number", help: "Standard deviation across token activations." },
       singular_value: { label: "Singular value", short: "singular value", kind: "number", help: "Singular value for this direction within its layer." },
-      dynamicity_std_over_abs_mean: { label: "Dynamicity", short: "dynamicity", kind: "decimal", help: "Activation standard deviation divided by mean absolute activation." }
+      dynamicity_std_over_abs_mean: { label: "Dynamicity", short: "dynamicity", kind: "decimal", help: "Activation standard deviation divided by mean absolute activation." },
+      max_abs_unembed_token_cosine: { label: "Max |token cosine|", short: "max |token cos|", kind: "decimal", help: "Strongest absolute cosine between this SV and a normalized output-token unembedding row." }
     };
 
     const LABELS = {
@@ -437,7 +586,14 @@ HTML_TEMPLATE = r'''<!doctype html>
       rank_global_top5_abs_rate: "Global rank · top-5 rate", rank_global_sigma_weighted_mean_abs: "Global rank · σ-weighted mean |act|",
       rank_global_std_activation: "Global rank · activation std", rank_layer_mean_abs_activation: "Layer rank · mean |activation|",
       rank_layer_mean_abs_cosine: "Layer rank · mean |cosine|", rank_layer_top1_rate: "Layer rank · top-1 rate",
-      rank_layer_top5_abs_rate: "Layer rank · top-5 rate", rank_layer_std_activation: "Layer rank · activation std"
+      rank_layer_top5_abs_rate: "Layer rank · top-5 rate", rank_layer_std_activation: "Layer rank · activation std",
+      nearest_unembed_token_id: "Nearest token ID", nearest_unembed_token: "Nearest raw token", nearest_unembed_decoded: "Nearest decoded token",
+      nearest_unembed_cosine: "Nearest token cosine", nearest_unembed_margin: "Nearest top-1 margin",
+      farthest_unembed_token_id: "Farthest token ID", farthest_unembed_token: "Farthest raw token", farthest_unembed_decoded: "Farthest decoded token",
+      farthest_unembed_cosine: "Farthest token cosine", farthest_unembed_margin: "Farthest top-1 margin",
+      max_abs_unembed_token_cosine: "Maximum |token cosine|", nearest_unembed_token_z: "Nearest token z-score",
+      farthest_unembed_token_z: "Farthest token z-score", unembedding_cosine_mean: "Vocabulary cosine mean",
+      unembedding_cosine_std: "Vocabulary cosine std", rank_global_max_abs_unembed_token_cosine: "Global rank · max |token cosine|"
     };
 
     const state = {
@@ -447,8 +603,9 @@ HTML_TEMPLATE = r'''<!doctype html>
       limit: Math.min(50, DATA.rankings.length),
       selected: null,
       contextQuery: "",
-        contextLimit: Math.min(6, DATA.meta.contexts_per_polarity || 6),
-      dedupe: false
+      contextLimit: Math.min(6, DATA.meta.contexts_per_polarity || 6),
+      dedupe: false,
+      tokenLimit: Math.min(8, DATA.meta.unembedding_neighbors_per_side || 8)
     };
 
     const byCandidate = new Map(DATA.rankings.map(row => [row.candidate, row]));
@@ -531,7 +688,7 @@ HTML_TEMPLATE = r'''<!doctype html>
         }
       });
 
-      $("#footerNote").innerHTML = `Self-contained snapshot of the top <b>${integer.format(meta.embedded_candidates)}</b> of ${integer.format(meta.total_candidates)} candidates from <code>sv_rankings.csv</code>, with ${integer.format(meta.contexts_per_polarity)} contexts per polarity from <code>top_contexts.jsonl</code>. Model: <code>${esc(meta.model)}</code>.`;
+      $("#footerNote").innerHTML = `Self-contained snapshot of the top <b>${integer.format(meta.embedded_candidates)}</b> of ${integer.format(meta.total_candidates)} candidates from <code>sv_rankings.csv</code>, with ${integer.format(meta.unembedding_neighbors_per_side)} token neighbors per side from <code>unembedding_neighbors.jsonl</code> and ${integer.format(meta.contexts_per_polarity)} contexts per polarity from <code>top_contexts.jsonl</code>. Model: <code>${esc(meta.model)}</code>.`;
       render();
     }
 
@@ -634,6 +791,32 @@ HTML_TEMPLATE = r'''<!doctype html>
       return `<div class="metric-card" title="${esc(title || "")}"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;
     }
 
+    function unembeddingSection(data, row) {
+      if (!data) return "";
+      return `<section class="token-space-section">
+        <div class="token-space-heading">
+          <div><p class="eyebrow">Vocabulary geometry</p><h3>Token-space neighbors</h3><p>Cosine similarity between this SV and each normalized output-token unembedding row. These are geometric neighbors—not observed activations, generated tokens, or proof of a semantic label.</p><span class="sign-note">The +/− orientation is arbitrary. The spectrum uses one shared scale across all ${integer.format(DATA.meta.unembedding_candidates)} directions.</span></div>
+          <label class="control token-limit">Tokens per side<select id="tokenLimit"></select></label>
+        </div>
+        <div class="unembed-stats">
+          <div class="unembed-stat"><span>Strongest |token cosine|</span><b>${decimal(data.max_abs, 4)}</b></div>
+          <div class="unembed-stat"><span>Global token-likeness rank</span><b>#${integer.format(row.rank_global_max_abs_unembed_token_cosine)}</b></div>
+          <div class="unembed-stat"><span>Endpoint z-scores</span><b>${signed(data.nearest_z, 2)} / ${signed(data.farthest_z, 2)}</b></div>
+          <div class="unembed-stat"><span>Vocabulary rows compared</span><b>${integer.format(data.vocab)}</b></div>
+        </div>
+        <div class="unembed-spectrum">
+          <div class="spectrum-topline"><span>vocabulary mean <b>${signed(data.mean, 4)}</b> · σ <b>${decimal(data.std, 4)}</b></span><span>top-1 gaps <b>aligned ${decimal(data.nearest_margin, 4)}</b> / <b>opposed ${decimal(data.farthest_margin, 4)}</b></span></div>
+          <div class="spectrum-track" id="unembeddingSpectrum"></div>
+          <div class="spectrum-labels"><span id="spectrumMin"></span><span>0 cosine</span><span id="spectrumMax"></span></div>
+          <div class="spectrum-legend"><span><i class="legend-dot opposed"></i>opposed tokens</span><span><i class="legend-band"></i>vocab mean ±1σ</span><span><i class="legend-dot aligned"></i>aligned tokens</span></div>
+        </div>
+        <div class="neighbor-grid">
+          <section class="neighbor-column aligned"><div class="neighbor-head"><h4>+ Aligned tokens</h4><span id="alignedTokenCount"></span></div><div class="neighbor-list" id="alignedTokenList"></div></section>
+          <section class="neighbor-column opposed"><div class="neighbor-head"><h4>− Opposed tokens</h4><span id="opposedTokenCount"></span></div><div class="neighbor-list" id="opposedTokenList"></div></section>
+        </div>
+      </section>`;
+    }
+
     function renderDetail(visibleRows) {
       const root = $("#detail");
       if (!state.selected) {
@@ -647,6 +830,7 @@ HTML_TEMPLATE = r'''<!doctype html>
       const spread = Math.max(hi - lo, 1e-9);
       const zeroPosition = (0 - lo) / spread * 100;
       const meanPosition = Math.max(0, Math.min(100, (Number(row.mean_activation) - lo) / spread * 100));
+      const tokenData = DATA.unembedding[state.selected];
       const hiddenKeys = new Set(["candidate"]);
       const allMetrics = Object.entries(row).filter(([key]) => !hiddenKeys.has(key)).map(([key, value]) => `<div class="all-metric"><span>${esc(LABELS[key] || key.replaceAll("_", " "))}</span><b>${esc(formatAny(key, value))}</b></div>`).join("");
 
@@ -678,6 +862,7 @@ HTML_TEMPLATE = r'''<!doctype html>
         </div>
         <details class="metric-details"><summary>Inspect all ranking metrics</summary><div class="all-metrics">${allMetrics}</div></details>
       </section>
+      ${unembeddingSection(tokenData, row)}
       <section class="context-section">
         <div class="section-heading"><div><p class="eyebrow">Observed examples</p><h3>Top activation contexts</h3><p>Contexts are ordered by signed projection activation. Each highlight marks the activating token; cosine is normalized by the layer residual norm.</p><span class="sign-note">Positive and negative are arbitrary SVD orientations, not sentiment labels.</span></div></div>
         <div class="context-controls">
@@ -702,11 +887,21 @@ HTML_TEMPLATE = r'''<!doctype html>
       $("#previousCandidate").addEventListener("click", () => selectedIndex > 0 && selectCandidate(visibleRows[selectedIndex - 1].candidate));
       $("#nextCandidate").addEventListener("click", () => selectedIndex >= 0 && selectedIndex < visibleRows.length - 1 && selectCandidate(visibleRows[selectedIndex + 1].candidate));
       $("#copyCandidate").addEventListener("click", copyCandidate);
+      if (tokenData) {
+        const maxTokenNeighbors = Math.max(tokenData.nearest.length, tokenData.farthest.length);
+        const tokenLimits = [...new Set([8, 16, maxTokenNeighbors].filter(value => value > 0 && value <= maxTokenNeighbors))].sort((a, b) => a - b);
+        if (!tokenLimits.includes(state.tokenLimit)) state.tokenLimit = tokenLimits[0] || maxTokenNeighbors;
+        $("#tokenLimit").innerHTML = tokenLimits.map(value => `<option value="${value}">${value === maxTokenNeighbors ? `All ${value}` : value}</option>`).join("");
+        $("#tokenLimit").value = String(state.tokenLimit);
+        $("#tokenLimit").addEventListener("change", event => { state.tokenLimit = Number(event.target.value); renderUnembedding(tokenData); });
+        renderUnembedding(tokenData);
+      }
       renderContexts();
     }
 
     function formatAny(key, value) {
       if (value == null) return "—";
+      if (typeof value === "string") return visibleToken(value);
       if (key.startsWith("rank_") || ["layer", "sv_index_0", "sv_rank_1based", "n_tokens", "n_documents"].includes(key)) return integer.format(value);
       if (["positive_rate", "top1_abs_rate", "top5_abs_rate", "doc_top5_presence_rate"].includes(key)) return percent(value, 2);
       return decimal(value, 5);
@@ -740,6 +935,100 @@ HTML_TEMPLATE = r'''<!doctype html>
       return JSON.stringify(String(token ?? ""))
         .replaceAll("\\n", "↵")
         .replaceAll("\\t", "⇥");
+    }
+
+    function unembeddingTokenLabel(item) {
+      const value = item.decoded || item.token;
+      return value ? visibleToken(value) : `token #${item.id}`;
+    }
+
+    function renderUnembedding(data) {
+      renderUnembeddingSpectrum(data);
+      renderNeighborColumn("aligned", data.nearest, data);
+      renderNeighborColumn("opposed", data.farthest, data);
+    }
+
+    function renderUnembeddingSpectrum(data) {
+      const track = $("#unembeddingSpectrum");
+      if (!track) return;
+      const domain = Math.max(Number(DATA.meta.unembedding_domain_max), Number(data.max_abs), 1e-9);
+      const position = value => Math.max(0, Math.min(100, (Number(value) + domain) / (2 * domain) * 100));
+      const bandStart = position(Number(data.mean) - Number(data.std));
+      const bandEnd = position(Number(data.mean) + Number(data.std));
+      track.replaceChildren();
+      track.setAttribute("role", "img");
+      track.setAttribute("aria-label", `Token cosine spectrum from ${signed(-domain, 4)} to ${signed(domain, 4)}. Vocabulary mean ${signed(data.mean, 4)} and standard deviation ${decimal(data.std, 4)}.`);
+
+      const band = document.createElement("i");
+      band.className = "spectrum-band";
+      band.style.left = `${bandStart.toFixed(3)}%`;
+      band.style.width = `${Math.max(0, bandEnd - bandStart).toFixed(3)}%`;
+      const zero = document.createElement("i");
+      zero.className = "spectrum-zero";
+      zero.style.left = "50%";
+      zero.title = "zero cosine";
+      const mean = document.createElement("i");
+      mean.className = "spectrum-mean";
+      mean.style.left = `${position(data.mean).toFixed(3)}%`;
+      mean.title = `vocabulary mean ${signed(data.mean, 4)}`;
+      track.append(band, zero, mean);
+
+      [["opposed", data.farthest], ["aligned", data.nearest]].forEach(([side, items]) => {
+        items.forEach((item, index) => {
+          const dot = document.createElement("i");
+          const z = (Number(item.cosine) - Number(data.mean)) / Math.max(Number(data.std), 1e-9);
+          dot.className = `spectrum-dot ${side}`;
+          dot.style.left = `${position(item.cosine).toFixed(3)}%`;
+          dot.style.top = `${9 + (index % 5) * 9}px`;
+          dot.style.opacity = String(Math.max(.48, 1 - index * .016));
+          dot.title = `${unembeddingTokenLabel(item)} · cosine ${signed(item.cosine, 4)} · ${signed(z, 2)}σ`;
+          dot.setAttribute("aria-hidden", "true");
+          track.append(dot);
+        });
+      });
+      $("#spectrumMin").textContent = signed(-domain, 4);
+      $("#spectrumMax").textContent = signed(domain, 4);
+    }
+
+    function renderNeighborColumn(side, items, data) {
+      const list = $(`#${side}TokenList`);
+      if (!list) return;
+      const shown = items.slice(0, state.tokenLimit);
+      $(`#${side}TokenCount`).textContent = `${shown.length} of ${items.length}`;
+      list.replaceChildren();
+      shown.forEach((item, index) => {
+        const row = document.createElement("article");
+        row.className = "neighbor-row";
+        row.title = `Decoded: ${item.decoded || "(empty)"} · ${item.token ? `tokenizer spelling: ${String(item.token)}` : "tokenizer spelling unavailable"} · token ID ${item.id}`;
+
+        const main = document.createElement("div");
+        main.className = "neighbor-main";
+        const rank = document.createElement("span");
+        rank.className = "neighbor-rank";
+        rank.textContent = `#${index + 1}`;
+        const name = document.createElement("span");
+        name.className = "neighbor-name";
+        const decoded = document.createElement("span");
+        decoded.className = "neighbor-token";
+        decoded.textContent = unembeddingTokenLabel(item);
+        const raw = document.createElement("span");
+        raw.className = "neighbor-raw";
+        raw.textContent = `${item.token ? `raw ${visibleToken(item.token)}` : "raw unavailable"} · id ${item.id}`;
+        name.append(decoded, raw);
+        const z = (Number(item.cosine) - Number(data.mean)) / Math.max(Number(data.std), 1e-9);
+        const values = document.createElement("span");
+        values.className = "neighbor-values";
+        values.innerHTML = `<span>cos<b class="cosine">${esc(signed(item.cosine, 4))}</b></span><span>z<b>${esc(signed(z, 2))}σ</b></span>`;
+        main.append(rank, name, values);
+
+        const bar = document.createElement("span");
+        bar.className = "neighbor-bar";
+        const fill = document.createElement("i");
+        fill.style.width = `${Math.max(1, Math.min(100, Math.abs(Number(item.cosine)) / Math.max(Number(data.max_abs), 1e-9) * 100)).toFixed(2)}%`;
+        bar.append(fill);
+        row.append(main, bar);
+        list.append(row);
+      });
     }
 
     function filterContexts(items) {
@@ -865,8 +1154,16 @@ def main() -> None:
         for group in payload["contexts"].values()
         for polarity in ("positive", "negative")
     )
+    embedded_neighbors = sum(
+        len(group[side])
+        for group in payload["unembedding"].values()
+        for side in ("nearest", "farthest")
+    )
     print(f"Wrote {output}")
-    print(f"Embedded {meta['embedded_candidates']:,} of {meta['total_candidates']:,} candidates and {embedded_contexts:,} contexts")
+    print(
+        f"Embedded {meta['embedded_candidates']:,} of {meta['total_candidates']:,} candidates, "
+        f"{embedded_neighbors:,} token neighbors, and {embedded_contexts:,} contexts"
+    )
     print(f"Output size: {output.stat().st_size / 1_000_000:.1f} MB")
 
 
