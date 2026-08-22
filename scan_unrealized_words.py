@@ -17,11 +17,13 @@ The scanner streams a text corpus, never writes full hidden states, and keeps:
   * top-1 / top-r recruitment frequencies within each layer's top-k bank
   * singular-value-weighted usage
   * strongest positive and negative token contexts for each direction
+  * nearest and most anti-aligned vocabulary tokens in unembedding space
 
 Outputs:
   OUT/directions/LXX.npz
   OUT/sv_rankings.csv
   OUT/top_contexts.jsonl
+  OUT/unembedding_neighbors.jsonl
   OUT/metadata.json
   OUT/checkpoint.pkl
 
@@ -166,6 +168,38 @@ def parse_args() -> argparse.Namespace:
         help="Tokens on each side of the peak token in stored contexts.",
     )
 
+    # Unembedding geometry
+    p.add_argument(
+        "--unembedding-neighbors",
+        type=int,
+        default=32,
+        help="Nearest and most anti-aligned vocabulary tokens retained per SV.",
+    )
+    p.add_argument(
+        "--unembedding-chunk-size",
+        type=int,
+        default=4096,
+        help="Vocabulary rows processed at once for SV-vs-unembedding cosine search.",
+    )
+    p.add_argument(
+        "--skip-unembedding",
+        action="store_true",
+        help="Skip SV-to-unembedding cosine analysis.",
+    )
+    p.add_argument(
+        "--unembedding-only",
+        action="store_true",
+        help=(
+            "Compute unembedding neighbors from the saved/computed direction bank and exit "
+            "without scanning the text corpus. If OUT/sv_rankings.csv exists, augment it in place."
+        ),
+    )
+    p.add_argument(
+        "--include-special-unembedding-tokens",
+        action="store_true",
+        help="Allow tokenizer special tokens to appear among unembedding neighbors.",
+    )
+
     # Run / checkpointing
     p.add_argument("--out", type=str, default="unrealized_words_scan")
     p.add_argument("--seed", type=int, default=0)
@@ -187,6 +221,12 @@ def parse_args() -> argparse.Namespace:
         p.error("--top-contexts must be positive")
     if args.local_context_candidates <= 0:
         p.error("--local-context-candidates must be positive")
+    if args.unembedding_neighbors <= 0:
+        p.error("--unembedding-neighbors must be positive")
+    if args.unembedding_chunk_size <= 0:
+        p.error("--unembedding-chunk-size must be positive")
+    if args.unembedding_only and args.skip_unembedding:
+        p.error("--unembedding-only and --skip-unembedding cannot be used together")
     return args
 
 
@@ -614,6 +654,286 @@ def collect_context_candidates(
     return counter
 
 
+# ------------------------- Unembedding geometry ----------------------------
+
+
+def token_record(tokenizer: Any, token_id: int, cosine: float) -> dict[str, Any]:
+    """Human-readable representations for a single vocabulary row."""
+    try:
+        token_string = tokenizer.convert_ids_to_tokens(int(token_id))
+    except Exception:
+        token_string = None
+    try:
+        decoded = tokenizer.decode(
+            [int(token_id)],
+            skip_special_tokens=False,
+            clean_up_tokenization_spaces=False,
+        )
+    except Exception:
+        decoded = None
+    return {
+        "token_id": int(token_id),
+        "token": token_string,
+        "decoded": decoded,
+        "cosine": float(cosine),
+        "is_special": int(token_id) in set(int(x) for x in tokenizer.all_special_ids),
+    }
+
+
+def analyze_unembedding_geometry(
+    *,
+    hf_model: Any,
+    tokenizer: Any,
+    V_bank: dict[int, torch.Tensor],
+    layers: list[int],
+    k: int,
+    n_neighbors: int,
+    chunk_size: int,
+    include_special_tokens: bool,
+) -> dict[tuple[int, int], dict[str, Any]]:
+    """
+    Compare every unit right-SV direction directly with every row of the model's
+    output embedding / lm_head matrix using cosine similarity.
+
+    This is deliberately the raw unembedding geometry: if W is [vocab,d_model],
+        cosine(token, v) = <W[token], v> / ||W[token]||
+    because v already has unit norm.
+
+    The scan is chunked over vocabulary rows, so it does not create a normalized
+    copy of the full unembedding matrix.
+    """
+    output_embeddings = hf_model.get_output_embeddings()
+    if output_embeddings is None or not hasattr(output_embeddings, "weight"):
+        raise ValueError("Model does not expose get_output_embeddings().weight")
+    W = output_embeddings.weight
+    if W.ndim != 2:
+        raise ValueError(f"Expected 2D unembedding weight, got shape={tuple(W.shape)}")
+
+    vocab_size, d_model = int(W.shape[0]), int(W.shape[1])
+    expected_d = int(next(iter(V_bank.values())).shape[0])
+    if d_model != expected_d:
+        raise ValueError(
+            f"Unembedding d_model={d_model} does not match direction d_model={expected_d}"
+        )
+
+    # Concatenate all candidate directions once: [d_model, C].
+    candidate_keys: list[tuple[int, int]] = []
+    candidate_cols: list[torch.Tensor] = []
+    for layer in layers:
+        V = V_bank[layer][:, :k].float()
+        V = V / V.norm(dim=0, keepdim=True).clamp_min(1e-12)
+        for sv0 in range(k):
+            candidate_keys.append((layer, sv0))
+        candidate_cols.append(V)
+    V_all_cpu = torch.cat(candidate_cols, dim=1).contiguous()
+    C = int(V_all_cpu.shape[1])
+
+    keep = min(int(n_neighbors), vocab_size)
+    top_values = torch.full((keep, C), -float("inf"), dtype=torch.float32)
+    top_ids = torch.full((keep, C), -1, dtype=torch.long)
+    bottom_values = torch.full((keep, C), float("inf"), dtype=torch.float32)
+    bottom_ids = torch.full((keep, C), -1, dtype=torch.long)
+    cos_sum = torch.zeros(C, dtype=torch.float64)
+    cos_sq_sum = torch.zeros(C, dtype=torch.float64)
+    valid_count = 0
+
+    special_ids = set(int(x) for x in tokenizer.all_special_ids)
+    device = W.device
+    V_all = V_all_cpu.to(device=device, dtype=torch.float32)
+
+    print(
+        f"[unembedding] vocab={vocab_size:,} d_model={d_model} candidates={C:,} "
+        f"device={device} neighbors={keep}"
+    )
+
+    with torch.inference_mode():
+        for start in range(0, vocab_size, chunk_size):
+            end = min(vocab_size, start + chunk_size)
+            rows = W[start:end].detach().to(device=device, dtype=torch.float32)
+            row_norm = rows.norm(dim=1, keepdim=True).clamp_min(1e-12)
+            sims = (rows @ V_all) / row_norm  # [chunk, C]
+
+            if not include_special_tokens and special_ids:
+                local_special = [
+                    tok_id - start
+                    for tok_id in special_ids
+                    if start <= tok_id < end
+                ]
+                if local_special:
+                    idx = torch.tensor(local_special, device=device, dtype=torch.long)
+                    sims.index_fill_(0, idx, float("nan"))
+
+            finite = torch.isfinite(sims)
+            safe = torch.where(finite, sims, torch.zeros_like(sims))
+            cos_sum += safe.sum(dim=0).cpu().double()
+            cos_sq_sum += safe.square().sum(dim=0).cpu().double()
+            if C > 0:
+                valid_count += int(finite[:, 0].sum().item())
+
+            # Merge this chunk's extrema with the running top/bottom K.
+            top_input = torch.where(finite, sims, torch.full_like(sims, -float("inf")))
+            bottom_input = torch.where(finite, sims, torch.full_like(sims, float("inf")))
+            local_k = min(keep, end - start)
+
+            chunk_top_v, chunk_top_i = torch.topk(
+                top_input, k=local_k, dim=0, largest=True, sorted=False
+            )
+            chunk_bottom_v, chunk_bottom_i = torch.topk(
+                bottom_input, k=local_k, dim=0, largest=False, sorted=False
+            )
+            chunk_top_i = chunk_top_i + start
+            chunk_bottom_i = chunk_bottom_i + start
+
+            merged_v = torch.cat([top_values.to(device), chunk_top_v], dim=0)
+            merged_i = torch.cat([top_ids.to(device), chunk_top_i], dim=0)
+            sel_v, sel_pos = torch.topk(
+                merged_v, k=keep, dim=0, largest=True, sorted=False
+            )
+            sel_i = torch.gather(merged_i, 0, sel_pos)
+            top_values, top_ids = sel_v.cpu(), sel_i.cpu()
+
+            merged_v = torch.cat([bottom_values.to(device), chunk_bottom_v], dim=0)
+            merged_i = torch.cat([bottom_ids.to(device), chunk_bottom_i], dim=0)
+            sel_v, sel_pos = torch.topk(
+                merged_v, k=keep, dim=0, largest=False, sorted=False
+            )
+            sel_i = torch.gather(merged_i, 0, sel_pos)
+            bottom_values, bottom_ids = sel_v.cpu(), sel_i.cpu()
+
+            del rows, row_norm, sims, finite, safe, top_input, bottom_input
+
+    # Sort retained extrema exactly for readable output.
+    top_order = torch.argsort(top_values, dim=0, descending=True)
+    bottom_order = torch.argsort(bottom_values, dim=0, descending=False)
+    top_values = torch.gather(top_values, 0, top_order)
+    top_ids = torch.gather(top_ids, 0, top_order)
+    bottom_values = torch.gather(bottom_values, 0, bottom_order)
+    bottom_ids = torch.gather(bottom_ids, 0, bottom_order)
+
+    denom = max(1, valid_count)
+    mean = cos_sum.numpy() / denom
+    var = np.maximum(cos_sq_sum.numpy() / denom - mean**2, 0.0)
+    std = np.sqrt(var)
+
+    results: dict[tuple[int, int], dict[str, Any]] = {}
+    for col, key in enumerate(candidate_keys):
+        nearest = [
+            token_record(tokenizer, int(top_ids[r, col]), float(top_values[r, col]))
+            for r in range(keep)
+            if int(top_ids[r, col]) >= 0 and math.isfinite(float(top_values[r, col]))
+        ]
+        farthest = [
+            token_record(tokenizer, int(bottom_ids[r, col]), float(bottom_values[r, col]))
+            for r in range(keep)
+            if int(bottom_ids[r, col]) >= 0 and math.isfinite(float(bottom_values[r, col]))
+        ]
+        top1 = nearest[0] if nearest else None
+        bottom1 = farthest[0] if farthest else None
+        top2_cos = nearest[1]["cosine"] if len(nearest) > 1 else float("nan")
+        bottom2_cos = farthest[1]["cosine"] if len(farthest) > 1 else float("nan")
+
+        results[key] = {
+            "nearest_tokens": nearest,
+            "farthest_tokens": farthest,
+            "unembedding_vocab_rows_considered": int(valid_count),
+            "unembedding_cosine_mean": float(mean[col]),
+            "unembedding_cosine_std": float(std[col]),
+            "nearest_token": top1,
+            "farthest_token": bottom1,
+            "nearest_cosine_margin": (
+                float(top1["cosine"] - top2_cos)
+                if top1 is not None and math.isfinite(top2_cos)
+                else float("nan")
+            ),
+            "farthest_cosine_margin": (
+                float(bottom2_cos - bottom1["cosine"])
+                if bottom1 is not None and math.isfinite(bottom2_cos)
+                else float("nan")
+            ),
+            "max_abs_token_cosine": float(
+                max(
+                    abs(top1["cosine"]) if top1 is not None else 0.0,
+                    abs(bottom1["cosine"]) if bottom1 is not None else 0.0,
+                )
+            ),
+            "nearest_token_z": float(
+                (top1["cosine"] - mean[col]) / max(std[col], 1e-12)
+            ) if top1 is not None else float("nan"),
+            "farthest_token_z": float(
+                (bottom1["cosine"] - mean[col]) / max(std[col], 1e-12)
+            ) if bottom1 is not None else float("nan"),
+        }
+
+    del V_all
+    return results
+
+
+def write_unembedding_neighbors(
+    path: Path,
+    geometry: dict[tuple[int, int], dict[str, Any]],
+    S_bank: dict[int, np.ndarray],
+    layers: list[int],
+    k: int,
+) -> None:
+    with path.open("w", encoding="utf-8") as f:
+        for layer in layers:
+            for sv0 in range(k):
+                g = geometry[(layer, sv0)]
+                rec = {
+                    "candidate": f"L{layer:02d}_SV{sv0 + 1:02d}",
+                    "layer": int(layer),
+                    "sv_index_0": int(sv0),
+                    "sv_rank_1based": int(sv0 + 1),
+                    "singular_value": float(S_bank[layer][sv0]),
+                    "space": "raw_unembedding_row_cosine",
+                    **g,
+                }
+                f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+
+def add_unembedding_columns(
+    rows: list[dict[str, Any]],
+    geometry: dict[tuple[int, int], dict[str, Any]],
+) -> None:
+    """Add compact geometry columns to the main rankings CSV in place."""
+    for row in rows:
+        key = (int(row["layer"]), int(row["sv_index_0"]))
+        g = geometry.get(key)
+        if g is None:
+            continue
+        near = g["nearest_token"]
+        far = g["farthest_token"]
+        row.update(
+            {
+                "nearest_unembed_token_id": None if near is None else near["token_id"],
+                "nearest_unembed_token": None if near is None else near["token"],
+                "nearest_unembed_decoded": None if near is None else near["decoded"],
+                "nearest_unembed_cosine": None if near is None else near["cosine"],
+                "nearest_unembed_margin": g["nearest_cosine_margin"],
+                "farthest_unembed_token_id": None if far is None else far["token_id"],
+                "farthest_unembed_token": None if far is None else far["token"],
+                "farthest_unembed_decoded": None if far is None else far["decoded"],
+                "farthest_unembed_cosine": None if far is None else far["cosine"],
+                "farthest_unembed_margin": g["farthest_cosine_margin"],
+                "max_abs_unembed_token_cosine": g["max_abs_token_cosine"],
+                "nearest_unembed_token_z": g["nearest_token_z"],
+                "farthest_unembed_token_z": g["farthest_token_z"],
+                "unembedding_cosine_mean": g["unembedding_cosine_mean"],
+                "unembedding_cosine_std": g["unembedding_cosine_std"],
+            }
+        )
+
+    # Rank lexical anchoring after every row has been augmented.
+    augmented = [
+        i for i, row in enumerate(rows) if "max_abs_unembed_token_cosine" in row
+    ]
+    augmented.sort(
+        key=lambda i: rows[i]["max_abs_unembed_token_cosine"], reverse=True
+    )
+    for rank, i in enumerate(augmented, 1):
+        rows[i]["rank_global_max_abs_unembed_token_cosine"] = rank
+
+
 # ------------------------- Checkpoint / output -----------------------------
 
 
@@ -777,6 +1097,11 @@ def build_ranking_rows(
     return rows
 
 
+def read_csv_rows(path: Path) -> list[dict[str, Any]]:
+    with path.open("r", newline="", encoding="utf-8") as f:
+        return [dict(row) for row in csv.DictReader(f)]
+
+
 def write_csv(rows: list[dict[str, Any]], path: Path) -> None:
     if not rows:
         return
@@ -897,6 +1222,53 @@ def main() -> None:
         )
     print(model)
     print(gpu_status())
+
+    unembedding_geometry: dict[tuple[int, int], dict[str, Any]] = {}
+    if not args.skip_unembedding:
+        unembedding_geometry = analyze_unembedding_geometry(
+            hf_model=hf_model,
+            tokenizer=tokenizer,
+            V_bank=V_bank,
+            layers=layers,
+            k=args.k,
+            n_neighbors=args.unembedding_neighbors,
+            chunk_size=args.unembedding_chunk_size,
+            include_special_tokens=args.include_special_unembedding_tokens,
+        )
+        print(f"[unembedding] analyzed {len(unembedding_geometry):,} SV directions")
+
+    if args.unembedding_only:
+        unembedding_path = out_dir / "unembedding_neighbors.jsonl"
+        write_unembedding_neighbors(
+            unembedding_path, unembedding_geometry, S_bank, layers, args.k
+        )
+
+        rankings_path = out_dir / "sv_rankings.csv"
+        if rankings_path.exists():
+            rows = read_csv_rows(rankings_path)
+            add_unembedding_columns(rows, unembedding_geometry)
+            write_csv(rows, rankings_path)
+            print(f"[unembedding-only] augmented {rankings_path}")
+        else:
+            rows = []
+            for layer in layers:
+                for sv0 in range(args.k):
+                    rows.append({
+                        "candidate": f"L{layer:02d}_SV{sv0 + 1:02d}",
+                        "layer": layer,
+                        "sv_index_0": sv0,
+                        "sv_rank_1based": sv0 + 1,
+                        "singular_value": float(S_bank[layer][sv0]),
+                    })
+            add_unembedding_columns(rows, unembedding_geometry)
+            summary_path = out_dir / "unembedding_summary.csv"
+            write_csv(rows, summary_path)
+            print(f"[unembedding-only] wrote {summary_path}")
+
+        print("\nDone (unembedding-only).")
+        print(f"  unembedding: {unembedding_path}")
+        print(f"  directions: {out_dir / 'directions'}")
+        return
 
     special_ids = set(int(x) for x in tokenizer.all_special_ids)
     signature = run_signature(args, layers)
@@ -1055,10 +1427,17 @@ def main() -> None:
     rows = build_ranking_rows(stats, S_bank, layers, args.k, args.top_r)
     rankings_path = out_dir / "sv_rankings.csv"
     contexts_path = out_dir / "top_contexts.jsonl"
+    unembedding_path = out_dir / "unembedding_neighbors.jsonl"
     metadata_path = out_dir / "metadata.json"
 
+    if unembedding_geometry:
+        add_unembedding_columns(rows, unembedding_geometry)
     write_csv(rows, rankings_path)
     write_contexts(contexts_path, tokenizer, heaps, S_bank, layers, args.k)
+    if unembedding_geometry:
+        write_unembedding_neighbors(
+            unembedding_path, unembedding_geometry, S_bank, layers, args.k
+        )
 
     metadata = {
         "model": args.model,
@@ -1083,6 +1462,14 @@ def main() -> None:
         "top_r": min(args.top_r, args.k),
         "top_contexts_per_polarity": args.top_contexts,
         "context_radius_tokens": args.context_radius,
+        "unembedding_analysis": not args.skip_unembedding,
+        "unembedding_neighbors_per_polarity": (
+            None if args.skip_unembedding else args.unembedding_neighbors
+        ),
+        "unembedding_space": (
+            None if args.skip_unembedding else "raw cosine between V[:,sv] and lm_head.weight[token]"
+        ),
+        "unembedding_special_tokens_included": args.include_special_unembedding_tokens,
         "seed": args.seed,
         "primary_csv_sort": "rank_global_mean_abs_cosine",
         "candidate_naming": "LXX_SVYY where layer is 0-based and SV rank is 1-based",
@@ -1093,6 +1480,9 @@ def main() -> None:
             f"top{min(args.top_r, args.k)}_abs_rate": "fraction of tokens where this SV is among the r largest |a| in the top-k bank",
             "sigma_weighted_mean_abs": "singular_value * mean_abs_activation",
             "std_activation": "variation across token activations; useful for spotting nearly constant/baseline directions",
+            "nearest_unembed_cosine": "largest cosine between the unit SV direction and any unembedding row",
+            "farthest_unembed_cosine": "most negative cosine between the unit SV direction and any unembedding row",
+            "max_abs_unembed_token_cosine": "max absolute token cosine; a rough token-likeness / lexical anchoring score",
         },
         "versions": {
             "python": sys.version,
@@ -1118,6 +1508,8 @@ def main() -> None:
     print("\nDone.")
     print(f"  rankings: {rankings_path}")
     print(f"  contexts: {contexts_path}")
+    if unembedding_geometry:
+        print(f"  unembedding: {unembedding_path}")
     print(f"  metadata: {metadata_path}")
     print(f"  checkpoint: {checkpoint_path}")
     print(f"  directions: {out_dir / 'directions'}")
