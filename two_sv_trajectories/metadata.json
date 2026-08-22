@@ -1,0 +1,37 @@
+{
+  "sv_numbering": "zero-based",
+  "targets": {
+    "SV_02": {
+      "sv_index_0": 2,
+      "layers": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    "SV_09": {
+      "sv_index_0": 9,
+      "layers": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    }
+  },
+  "match_search_top_k": 64,
+  "scanner_candidate_label_warning": "scan_unrealized_words_with_unembedding.py used one-based candidate strings: zero SV_02 == scanner SV03; zero SV_09 == scanner SV10",
+  "unembedding_neighbors": "unrealized_words_fineweb/unembedding_neighbors.jsonl",
+  "lexical_labeling": "auto",
+  "lexical_top_n": 32
+}
