@@ -31,6 +31,7 @@ import math
 import platform
 import sys
 import time
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -189,6 +190,34 @@ def download(filename, args):
     )
 
 
+def as_int_layer_key(key):
+    if isinstance(key, bool):
+        raise TypeError(f"Boolean is not a valid Jacobian layer key: {key!r}")
+    if isinstance(key, (int, np.integer)):
+        return int(key)
+    if isinstance(key, str):
+        try:
+            return int(key.strip())
+        except ValueError as e:
+            raise ValueError(f"Could not interpret Jacobian layer key {key!r}") from e
+    raise TypeError(f"Unsupported Jacobian layer key {key!r} ({type(key).__name__})")
+
+
+def as_layer_matrix(value, layer, d_model):
+    try:
+        matrix = value if torch.is_tensor(value) else torch.as_tensor(value)
+    except (TypeError, ValueError, RuntimeError) as e:
+        raise TypeError(
+            f"Could not convert J[{layer}] ({type(value).__name__}) to a tensor"
+        ) from e
+    if matrix.ndim != 2 or tuple(matrix.shape) != (d_model, d_model):
+        raise ValueError(
+            f"J[{layer}] must have shape ({d_model}, {d_model}); "
+            f"got {tuple(matrix.shape)}"
+        )
+    return matrix
+
+
 def load_ckpt(path):
     ckpt = torch.load(path, map_location="cpu", weights_only=False)
     if not isinstance(ckpt, dict):
@@ -196,11 +225,56 @@ def load_ckpt(path):
     for key in ("J", "source_layers", "d_model"):
         if key not in ckpt:
             raise KeyError(f"Missing checkpoint key {key!r}")
-    J = ckpt["J"] if torch.is_tensor(ckpt["J"]) else torch.as_tensor(ckpt["J"])
+
     layers = [int(x) for x in ckpt["source_layers"]]
-    if J.ndim != 3 or J.shape[0] != len(layers) or J.shape[1] != J.shape[2]:
-        raise ValueError(f"Unexpected J stack shape {tuple(J.shape)} for {len(layers)} source layers")
-    return ckpt, layers, J
+    if len(set(layers)) != len(layers):
+        raise ValueError(f"source_layers contains duplicates: {layers}")
+    d_model = int(ckpt["d_model"])
+    raw = ckpt["J"]
+
+    if isinstance(raw, Mapping):
+        by_layer = {}
+        for key, value in raw.items():
+            layer = as_int_layer_key(key)
+            if layer in by_layer:
+                raise ValueError(f"Duplicate Jacobian layer key after normalization: {layer}")
+            by_layer[layer] = value
+
+        expected, actual = set(layers), set(by_layer)
+        missing, extra = sorted(expected - actual), sorted(actual - expected)
+        if missing or extra:
+            raise ValueError(
+                "J mapping keys do not match source_layers: "
+                f"missing={missing}, extra={extra}"
+            )
+        matrices = {
+            layer: as_layer_matrix(by_layer[layer], layer, d_model)
+            for layer in layers
+        }
+        return ckpt, layers, matrices
+
+    if isinstance(raw, (list, tuple)):
+        if len(raw) != len(layers):
+            raise ValueError(
+                f"J has {len(raw)} matrices for {len(layers)} source layers"
+            )
+        matrices = {
+            layer: as_layer_matrix(value, layer, d_model)
+            for layer, value in zip(layers, raw)
+        }
+        return ckpt, layers, matrices
+
+    try:
+        stack = raw if torch.is_tensor(raw) else torch.as_tensor(raw)
+    except (TypeError, ValueError, RuntimeError) as e:
+        raise TypeError(f"Unsupported J container type: {type(raw).__name__}") from e
+    expected_shape = (len(layers), d_model, d_model)
+    if tuple(stack.shape) != expected_shape:
+        raise ValueError(
+            f"J stack must have shape {expected_shape}; got {tuple(stack.shape)}"
+        )
+    matrices = {layer: stack[i] for i, layer in enumerate(layers)}
+    return ckpt, layers, matrices
 
 
 @torch.no_grad()
@@ -413,9 +487,8 @@ def release(c):
 
 def analyze_lens(path, lens_kind, model_key, args, device, dtype):
     print(f"\n[load] {model_key} / {lens_kind}")
-    ckpt, source_layers, stack = load_ckpt(path)
+    ckpt, source_layers, matrices = load_ckpt(path)
     selected = parse_layers(args.layers, source_layers)
-    idx = {l: i for i, l in enumerate(source_layers)}
 
     provenance = ckpt.get("provenance", {})
     if isinstance(provenance, str):
@@ -434,7 +507,7 @@ def analyze_lens(path, lens_kind, model_key, args, device, dtype):
     prev_layer, prev = None, None
     for n, layer in enumerate(selected, 1):
         print(f"[{model_key} {lens_kind}] {n}/{len(selected)} layer {layer}")
-        row, carry = characterize_matrix(layer, stack[idx[layer]], device, dtype, args)
+        row, carry = characterize_matrix(layer, matrices[layer], device, dtype, args)
         result["layers"].append(row)
 
         if prev is not None and prev_layer is not None and layer == prev_layer + 1:
@@ -451,7 +524,7 @@ def analyze_lens(path, lens_kind, model_key, args, device, dtype):
         prev_layer, prev = layer, carry
 
     release(prev)
-    del stack, ckpt
+    del matrices, ckpt
     gc.collect()
     return result
 
@@ -462,7 +535,6 @@ def analyze_j_vs_r(j_path, r_path, model_key, args, device, dtype):
     rck, rl, rs = load_ckpt(r_path)
     common = sorted(set(jl) & set(rl))
     common = parse_layers(args.layers, common)
-    ji, ri = {l:i for i,l in enumerate(jl)}, {l:i for i,l in enumerate(rl)}
 
     out = []
     for n, layer in enumerate(common, 1):
@@ -470,8 +542,8 @@ def analyze_j_vs_r(j_path, r_path, model_key, args, device, dtype):
         # Reuse full characterizer but omit eigvals for this direct comparison pass.
         old = args.skip_eigen
         args.skip_eigen = True
-        _, jc = characterize_matrix(layer, js[ji[layer]], device, dtype, args)
-        _, rc = characterize_matrix(layer, rs[ri[layer]], device, dtype, args)
+        _, jc = characterize_matrix(layer, js[layer], device, dtype, args)
+        _, rc = characterize_matrix(layer, rs[layer], device, dtype, args)
         args.skip_eigen = old
 
         cmp = compare_carry(layer, jc, layer, rc, args.top_k)
