@@ -1,0 +1,5111 @@
+{
+  "summary": {
+    "layers": {
+      "7": {
+        "positive_mean": 55.96261501312256,
+        "negative_mean": 51.60344362258911,
+        "control_mean": 34.62215360005697,
+        "natural_mean": 67.94735844930013,
+        "mean_pair_difference": 10.446489810943604,
+        "pair_win_fraction": 1.0,
+        "activation_entropy_r": 0.12512071043525905,
+        "activation_surprisal_r": -0.07303133271020017,
+        "pair_effects": [
+          {
+            "pair_id": "colon1",
+            "group": "colon",
+            "raw_difference": 15.676361083984375
+          },
+          {
+            "pair_id": "who1",
+            "group": "who",
+            "raw_difference": 4.17138671875
+          },
+          {
+            "pair_id": "where1",
+            "group": "where",
+            "raw_difference": 4.1047821044921875
+          },
+          {
+            "pair_id": "that1",
+            "group": "that",
+            "raw_difference": 11.070629119873047
+          },
+          {
+            "pair_id": "fact1",
+            "group": "fact",
+            "raw_difference": 12.149131774902344
+          },
+          {
+            "pair_id": "point1",
+            "group": "point",
+            "raw_difference": 17.99032974243164
+          },
+          {
+            "pair_id": "feel1",
+            "group": "feel",
+            "raw_difference": 12.40386962890625
+          },
+          {
+            "pair_id": "spot1",
+            "group": "spot",
+            "raw_difference": 6.005428314208984
+          }
+        ]
+      },
+      "8": {
+        "positive_mean": 66.74854354858398,
+        "negative_mean": 57.26585531234741,
+        "control_mean": 47.585323333740234,
+        "natural_mean": 77.7961819966634,
+        "mean_pair_difference": 15.659975051879883,
+        "pair_win_fraction": 1.0,
+        "activation_entropy_r": 0.023873038404702777,
+        "activation_surprisal_r": -0.06331609135685105,
+        "pair_effects": [
+          {
+            "pair_id": "colon1",
+            "group": "colon",
+            "raw_difference": 20.82828140258789
+          },
+          {
+            "pair_id": "who1",
+            "group": "who",
+            "raw_difference": 11.965492248535156
+          },
+          {
+            "pair_id": "where1",
+            "group": "where",
+            "raw_difference": 10.147750854492188
+          },
+          {
+            "pair_id": "that1",
+            "group": "that",
+            "raw_difference": 17.12078094482422
+          },
+          {
+            "pair_id": "fact1",
+            "group": "fact",
+            "raw_difference": 14.28067398071289
+          },
+          {
+            "pair_id": "point1",
+            "group": "point",
+            "raw_difference": 26.488197326660156
+          },
+          {
+            "pair_id": "feel1",
+            "group": "feel",
+            "raw_difference": 11.626327514648438
+          },
+          {
+            "pair_id": "spot1",
+            "group": "spot",
+            "raw_difference": 12.822296142578125
+          }
+        ]
+      }
+    },
+    "cross_layer": {
+      "7_vs_8": {
+        "activation_r": 0.931211128754636
+      }
+    }
+  },
+  "items": [
+    {
+      "id": "colon_elab",
+      "pair_id": "colon1",
+      "condition": "positive",
+      "group": "colon",
+      "target": ":",
+      "text": "There is one reason the experiment failed: the sensor was unplugged.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 50.925514221191406,
+      "activation_cos": 0.07260193675756454,
+      "activation_prev1": 38.830020904541016,
+      "activation_next1": 49.13496398925781,
+      "activation_next2": 33.019737243652344,
+      "next_token_entropy_nats": 4.083418846130371,
+      "next_token_top_probability": 0.31994038820266724,
+      "actual_next_surprisal_nats": 1.1396205425262451
+    },
+    {
+      "id": "colon_elab",
+      "pair_id": "colon1",
+      "condition": "positive",
+      "group": "colon",
+      "target": ":",
+      "text": "There is one reason the experiment failed: the sensor was unplugged.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 49.9171257019043,
+      "activation_cos": 0.05735104903578758,
+      "activation_prev1": 50.54293441772461,
+      "activation_next1": 61.63821792602539,
+      "activation_next2": 43.727134704589844,
+      "next_token_entropy_nats": 4.083418846130371,
+      "next_token_top_probability": 0.31994038820266724,
+      "actual_next_surprisal_nats": 1.1396205425262451
+    },
+    {
+      "id": "colon_time",
+      "pair_id": "colon1",
+      "condition": "negative",
+      "group": "colon",
+      "target": ":",
+      "text": "The meeting starts at 3:30 tomorrow afternoon.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 35.24915313720703,
+      "activation_cos": 0.06252909451723099,
+      "activation_prev1": 38.48822021484375,
+      "activation_next1": 26.24714469909668,
+      "activation_next2": 25.388826370239258,
+      "next_token_entropy_nats": 2.048475503921509,
+      "next_token_top_probability": 0.5401970744132996,
+      "actual_next_surprisal_nats": 1.8033212423324585
+    },
+    {
+      "id": "colon_time",
+      "pair_id": "colon1",
+      "condition": "negative",
+      "group": "colon",
+      "target": ":",
+      "text": "The meeting starts at 3:30 tomorrow afternoon.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 29.088844299316406,
+      "activation_cos": 0.03880595043301582,
+      "activation_prev1": 44.016845703125,
+      "activation_next1": 22.514907836914062,
+      "activation_next2": 30.738365173339844,
+      "next_token_entropy_nats": 2.048475503921509,
+      "next_token_top_probability": 0.5401970744132996,
+      "actual_next_surprisal_nats": 1.8033212423324585
+    },
+    {
+      "id": "who_rel",
+      "pair_id": "who1",
+      "condition": "positive",
+      "group": "who",
+      "target": "who",
+      "text": "I spoke with Maya, who had already read the report.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 67.89239501953125,
+      "activation_cos": 0.0936315581202507,
+      "activation_prev1": 37.36323547363281,
+      "activation_next1": 31.278432846069336,
+      "activation_next2": 37.03860855102539,
+      "next_token_entropy_nats": 4.3973283767700195,
+      "next_token_top_probability": 0.18378421664237976,
+      "actual_next_surprisal_nats": 3.006493091583252
+    },
+    {
+      "id": "who_rel",
+      "pair_id": "who1",
+      "condition": "positive",
+      "group": "who",
+      "target": "who",
+      "text": "I spoke with Maya, who had already read the report.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 80.32328033447266,
+      "activation_cos": 0.0937500149011612,
+      "activation_prev1": 49.920509338378906,
+      "activation_next1": 42.99705505371094,
+      "activation_next2": 53.9484977722168,
+      "next_token_entropy_nats": 4.3973283767700195,
+      "next_token_top_probability": 0.18378421664237976,
+      "actual_next_surprisal_nats": 3.006493091583252
+    },
+    {
+      "id": "who_meta",
+      "pair_id": "who1",
+      "condition": "negative",
+      "group": "who",
+      "target": "who",
+      "text": "The word who appears twice in the sentence.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 63.72100830078125,
+      "activation_cos": 0.09306720644235611,
+      "activation_prev1": 49.000762939453125,
+      "activation_next1": 36.515201568603516,
+      "activation_next2": 34.554351806640625,
+      "next_token_entropy_nats": 5.3385396003723145,
+      "next_token_top_probability": 0.19276687502861023,
+      "actual_next_surprisal_nats": 4.708773612976074
+    },
+    {
+      "id": "who_meta",
+      "pair_id": "who1",
+      "condition": "negative",
+      "group": "who",
+      "target": "who",
+      "text": "The word who appears twice in the sentence.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 68.3577880859375,
+      "activation_cos": 0.08151862770318985,
+      "activation_prev1": 58.613136291503906,
+      "activation_next1": 42.86038589477539,
+      "activation_next2": 47.56392288208008,
+      "next_token_entropy_nats": 5.3385396003723145,
+      "next_token_top_probability": 0.19276687502861023,
+      "actual_next_surprisal_nats": 4.708773612976074
+    },
+    {
+      "id": "where_rel",
+      "pair_id": "where1",
+      "condition": "positive",
+      "group": "where",
+      "target": "where",
+      "text": "We returned to the cabin, where the supplies had been stored.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 62.02607727050781,
+      "activation_cos": 0.08801582455635071,
+      "activation_prev1": 31.422311782836914,
+      "activation_next1": 41.54145431518555,
+      "activation_next2": 25.356164932250977,
+      "next_token_entropy_nats": 3.08362078666687,
+      "next_token_top_probability": 0.4212746024131775,
+      "actual_next_surprisal_nats": 1.739470362663269
+    },
+    {
+      "id": "where_rel",
+      "pair_id": "where1",
+      "condition": "positive",
+      "group": "where",
+      "target": "where",
+      "text": "We returned to the cabin, where the supplies had been stored.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 78.71163177490234,
+      "activation_cos": 0.09095362573862076,
+      "activation_prev1": 41.03977584838867,
+      "activation_next1": 53.52722930908203,
+      "activation_next2": 33.230796813964844,
+      "next_token_entropy_nats": 3.08362078666687,
+      "next_token_top_probability": 0.4212746024131775,
+      "actual_next_surprisal_nats": 1.739470362663269
+    },
+    {
+      "id": "where_meta",
+      "pair_id": "where1",
+      "condition": "negative",
+      "group": "where",
+      "target": "where",
+      "text": "The word where is underlined in the exercise.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 57.921295166015625,
+      "activation_cos": 0.0726788192987442,
+      "activation_prev1": 49.000762939453125,
+      "activation_next1": 19.480087280273438,
+      "activation_next2": 6.288897514343262,
+      "next_token_entropy_nats": 3.9229955673217773,
+      "next_token_top_probability": 0.2816450595855713,
+      "actual_next_surprisal_nats": 6.2671074867248535
+    },
+    {
+      "id": "where_meta",
+      "pair_id": "where1",
+      "condition": "negative",
+      "group": "where",
+      "target": "where",
+      "text": "The word where is underlined in the exercise.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 68.56388092041016,
+      "activation_cos": 0.0761716216802597,
+      "activation_prev1": 58.613136291503906,
+      "activation_next1": 29.413715362548828,
+      "activation_next2": 15.334870338439941,
+      "next_token_entropy_nats": 3.9229955673217773,
+      "next_token_top_probability": 0.2816450595855713,
+      "actual_next_surprisal_nats": 6.2671074867248535
+    },
+    {
+      "id": "that_comp",
+      "pair_id": "that1",
+      "condition": "positive",
+      "group": "that",
+      "target": "that",
+      "text": "I realized that the second measurement was wrong.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 59.018104553222656,
+      "activation_cos": 0.0885227620601654,
+      "activation_prev1": 10.063458442687988,
+      "activation_next1": 41.427696228027344,
+      "activation_next2": 22.150217056274414,
+      "next_token_entropy_nats": 4.2715911865234375,
+      "next_token_top_probability": 0.2759805917739868,
+      "actual_next_surprisal_nats": 1.2874246835708618
+    },
+    {
+      "id": "that_comp",
+      "pair_id": "that1",
+      "condition": "positive",
+      "group": "that",
+      "target": "that",
+      "text": "I realized that the second measurement was wrong.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 62.001251220703125,
+      "activation_cos": 0.075942762196064,
+      "activation_prev1": 25.566444396972656,
+      "activation_next1": 52.55994415283203,
+      "activation_next2": 37.91437911987305,
+      "next_token_entropy_nats": 4.2715911865234375,
+      "next_token_top_probability": 0.2759805917739868,
+      "actual_next_surprisal_nats": 1.2874246835708618
+    },
+    {
+      "id": "that_demo",
+      "pair_id": "that1",
+      "condition": "negative",
+      "group": "that",
+      "target": "that",
+      "text": "I bought that book at the airport yesterday.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 47.94747543334961,
+      "activation_cos": 0.06376072019338608,
+      "activation_prev1": 26.82738494873047,
+      "activation_next1": 46.91495132446289,
+      "activation_next2": 42.08526611328125,
+      "next_token_entropy_nats": 6.160772800445557,
+      "next_token_top_probability": 0.07116156071424484,
+      "actual_next_surprisal_nats": 2.6428024768829346
+    },
+    {
+      "id": "that_demo",
+      "pair_id": "that1",
+      "condition": "negative",
+      "group": "that",
+      "target": "that",
+      "text": "I bought that book at the airport yesterday.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 44.880470275878906,
+      "activation_cos": 0.04768095910549164,
+      "activation_prev1": 33.63745880126953,
+      "activation_next1": 52.98127365112305,
+      "activation_next2": 50.94401168823242,
+      "next_token_entropy_nats": 6.160772800445557,
+      "next_token_top_probability": 0.07116156071424484,
+      "actual_next_surprisal_nats": 2.6428024768829346
+    },
+    {
+      "id": "fact_disc",
+      "pair_id": "fact1",
+      "condition": "positive",
+      "group": "fact",
+      "target": "fact",
+      "text": "In fact, the second model performed substantially better.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 60.29758071899414,
+      "activation_cos": 0.08502107113599777,
+      "activation_prev1": 13.772330284118652,
+      "activation_next1": 36.21993637084961,
+      "activation_next2": 36.7653923034668,
+      "next_token_entropy_nats": 2.556020736694336,
+      "next_token_top_probability": 0.4337419867515564,
+      "actual_next_surprisal_nats": 2.2103054523468018
+    },
+    {
+      "id": "fact_disc",
+      "pair_id": "fact1",
+      "condition": "positive",
+      "group": "fact",
+      "target": "fact",
+      "text": "In fact, the second model performed substantially better.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 70.60687255859375,
+      "activation_cos": 0.08213251084089279,
+      "activation_prev1": -265.2569274902344,
+      "activation_next1": 42.57036590576172,
+      "activation_next2": 47.15994644165039,
+      "next_token_entropy_nats": 2.556020736694336,
+      "next_token_top_probability": 0.4337419867515564,
+      "actual_next_surprisal_nats": 2.2103054523468018
+    },
+    {
+      "id": "fact_noun",
+      "pair_id": "fact1",
+      "condition": "negative",
+      "group": "fact",
+      "target": "fact",
+      "text": "The fact surprised everyone in the room.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 48.1484489440918,
+      "activation_cos": 0.06390349566936493,
+      "activation_prev1": 25.340686798095703,
+      "activation_next1": 23.56916046142578,
+      "activation_next2": 46.5836181640625,
+      "next_token_entropy_nats": 0.13401943445205688,
+      "next_token_top_probability": 0.987846851348877,
+      "actual_next_surprisal_nats": 18.14504051208496
+    },
+    {
+      "id": "fact_noun",
+      "pair_id": "fact1",
+      "condition": "negative",
+      "group": "fact",
+      "target": "fact",
+      "text": "The fact surprised everyone in the room.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 56.32619857788086,
+      "activation_cos": 0.06628069281578064,
+      "activation_prev1": -260.52349853515625,
+      "activation_next1": 43.66924285888672,
+      "activation_next2": 63.153594970703125,
+      "next_token_entropy_nats": 0.13401943445205688,
+      "next_token_top_probability": 0.987846851348877,
+      "actual_next_surprisal_nats": 18.14504051208496
+    },
+    {
+      "id": "point_temp",
+      "pair_id": "point1",
+      "condition": "positive",
+      "group": "point",
+      "target": "point",
+      "text": "At one point, I thought the entire analysis had failed.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 65.94763946533203,
+      "activation_cos": 0.08365154266357422,
+      "activation_prev1": 41.31193542480469,
+      "activation_next1": 45.87381362915039,
+      "activation_next2": 39.59395217895508,
+      "next_token_entropy_nats": 1.2930023670196533,
+      "next_token_top_probability": 0.780949056148529,
+      "actual_next_surprisal_nats": 0.24724535644054413
+    },
+    {
+      "id": "point_temp",
+      "pair_id": "point1",
+      "condition": "positive",
+      "group": "point",
+      "target": "point",
+      "text": "At one point, I thought the entire analysis had failed.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 80.07421112060547,
+      "activation_cos": 0.08359340578317642,
+      "activation_prev1": 61.60108947753906,
+      "activation_next1": 57.92610549926758,
+      "activation_next2": 59.68159103393555,
+      "next_token_entropy_nats": 1.2930023670196533,
+      "next_token_top_probability": 0.780949056148529,
+      "actual_next_surprisal_nats": 0.24724535644054413
+    },
+    {
+      "id": "point_geom",
+      "pair_id": "point1",
+      "condition": "negative",
+      "group": "point",
+      "target": "point",
+      "text": "Mark each point on the graph with a small circle.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 47.95730972290039,
+      "activation_cos": 0.07104718685150146,
+      "activation_prev1": 27.588438034057617,
+      "activation_next1": 44.34010314941406,
+      "activation_next2": 38.60260772705078,
+      "next_token_entropy_nats": 4.36744499206543,
+      "next_token_top_probability": 0.0869411826133728,
+      "actual_next_surprisal_nats": 3.13002347946167
+    },
+    {
+      "id": "point_geom",
+      "pair_id": "point1",
+      "condition": "negative",
+      "group": "point",
+      "target": "point",
+      "text": "Mark each point on the graph with a small circle.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 53.58601379394531,
+      "activation_cos": 0.06393121927976608,
+      "activation_prev1": 45.89591598510742,
+      "activation_next1": 56.72703170776367,
+      "activation_next2": 46.3027229309082,
+      "next_token_entropy_nats": 4.36744499206543,
+      "next_token_top_probability": 0.0869411826133728,
+      "actual_next_surprisal_nats": 3.13002347946167
+    },
+    {
+      "id": "feel_pred",
+      "pair_id": "feel1",
+      "condition": "positive",
+      "group": "feel",
+      "target": "feel",
+      "text": "The lighting makes the room feel much larger than it is.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 60.38322067260742,
+      "activation_cos": 0.08325830847024918,
+      "activation_prev1": 52.82038497924805,
+      "activation_next1": 53.592445373535156,
+      "activation_next2": 16.546518325805664,
+      "next_token_entropy_nats": 4.1428632736206055,
+      "next_token_top_probability": 0.16284102201461792,
+      "actual_next_surprisal_nats": 5.439980983734131
+    },
+    {
+      "id": "feel_pred",
+      "pair_id": "feel1",
+      "condition": "positive",
+      "group": "feel",
+      "target": "feel",
+      "text": "The lighting makes the room feel much larger than it is.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 76.47259521484375,
+      "activation_cos": 0.07882862538099289,
+      "activation_prev1": 55.40717697143555,
+      "activation_next1": 71.60625457763672,
+      "activation_next2": 31.183286666870117,
+      "next_token_entropy_nats": 4.1428632736206055,
+      "next_token_top_probability": 0.16284102201461792,
+      "actual_next_surprisal_nats": 5.439980983734131
+    },
+    {
+      "id": "feel_noun",
+      "pair_id": "feel1",
+      "condition": "negative",
+      "group": "feel",
+      "target": "feel",
+      "text": "I like the feel of the paper in this notebook.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 47.97935104370117,
+      "activation_cos": 0.07158991694450378,
+      "activation_prev1": 39.786834716796875,
+      "activation_next1": 39.18511962890625,
+      "activation_next2": 44.436668395996094,
+      "next_token_entropy_nats": 2.730999708175659,
+      "next_token_top_probability": 0.5880971550941467,
+      "actual_next_surprisal_nats": 0.5308631658554077
+    },
+    {
+      "id": "feel_noun",
+      "pair_id": "feel1",
+      "condition": "negative",
+      "group": "feel",
+      "target": "feel",
+      "text": "I like the feel of the paper in this notebook.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 64.84626770019531,
+      "activation_cos": 0.07393532246351242,
+      "activation_prev1": 47.825103759765625,
+      "activation_next1": 52.82951354980469,
+      "activation_next2": 51.95530319213867,
+      "next_token_entropy_nats": 2.730999708175659,
+      "next_token_top_probability": 0.5880971550941467,
+      "actual_next_surprisal_nats": 0.5308631658554077
+    },
+    {
+      "id": "spot_verb",
+      "pair_id": "spot1",
+      "condition": "positive",
+      "group": "spot",
+      "target": "spot",
+      "text": "If you spot a problem, report it before restarting the machine.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 69.908935546875,
+      "activation_cos": 0.0925460010766983,
+      "activation_prev1": 46.0860481262207,
+      "activation_next1": 56.51028060913086,
+      "activation_next2": 50.687591552734375,
+      "next_token_entropy_nats": 3.4240944385528564,
+      "next_token_top_probability": 0.347861647605896,
+      "actual_next_surprisal_nats": 1.055950403213501
+    },
+    {
+      "id": "spot_verb",
+      "pair_id": "spot1",
+      "condition": "positive",
+      "group": "spot",
+      "target": "spot",
+      "text": "If you spot a problem, report it before restarting the machine.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 85.29967498779297,
+      "activation_cos": 0.09742578864097595,
+      "activation_prev1": 54.304931640625,
+      "activation_next1": 72.1175308227539,
+      "activation_next2": 58.47815704345703,
+      "next_token_entropy_nats": 3.4240944385528564,
+      "next_token_top_probability": 0.347861647605896,
+      "actual_next_surprisal_nats": 1.055950403213501
+    },
+    {
+      "id": "spot_noun",
+      "pair_id": "spot1",
+      "condition": "negative",
+      "group": "spot",
+      "target": "spot",
+      "text": "We found a quiet spot beside the river.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 63.903507232666016,
+      "activation_cos": 0.08471659570932388,
+      "activation_prev1": 36.04689025878906,
+      "activation_next1": 36.83329391479492,
+      "activation_next2": 42.94779968261719,
+      "next_token_entropy_nats": 3.4959449768066406,
+      "next_token_top_probability": 0.171952024102211,
+      "actual_next_surprisal_nats": 5.635540008544922
+    },
+    {
+      "id": "spot_noun",
+      "pair_id": "spot1",
+      "condition": "negative",
+      "group": "spot",
+      "target": "spot",
+      "text": "We found a quiet spot beside the river.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 72.47737884521484,
+      "activation_cos": 0.082672119140625,
+      "activation_prev1": 45.72801971435547,
+      "activation_next1": 59.12410354614258,
+      "activation_next2": 57.063232421875,
+      "next_token_entropy_nats": 3.4959449768066406,
+      "next_token_top_probability": 0.171952024102211,
+      "actual_next_surprisal_nats": 5.635540008544922
+    },
+    {
+      "id": "namely",
+      "pair_id": null,
+      "condition": "positive",
+      "group": "explicit_payload",
+      "target": "namely",
+      "text": "Only one explanation remained plausible, namely a calibration error.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 37.867984771728516,
+      "activation_cos": 0.05655558779835701,
+      "activation_prev1": 40.09950637817383,
+      "activation_next1": 47.30455017089844,
+      "activation_next2": 6.3375749588012695,
+      "next_token_entropy_nats": 2.3574559688568115,
+      "next_token_top_probability": 0.5079638957977295,
+      "actual_next_surprisal_nats": 2.739844799041748
+    },
+    {
+      "id": "namely",
+      "pair_id": null,
+      "condition": "positive",
+      "group": "explicit_payload",
+      "target": "namely",
+      "text": "Only one explanation remained plausible, namely a calibration error.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 51.31105041503906,
+      "activation_cos": 0.06370881199836731,
+      "activation_prev1": 52.183040618896484,
+      "activation_next1": 59.96580123901367,
+      "activation_next2": 3.5349502563476562,
+      "next_token_entropy_nats": 2.3574559688568115,
+      "next_token_top_probability": 0.5079638957977295,
+      "actual_next_surprisal_nats": 2.739844799041748
+    },
+    {
+      "id": "for_example",
+      "pair_id": null,
+      "condition": "positive",
+      "group": "explicit_payload",
+      "target": "example",
+      "text": "For example, the same pattern appears when the input is reversed.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 25.35869789123535,
+      "activation_cos": 0.03219758719205856,
+      "activation_prev1": 34.503387451171875,
+      "activation_next1": 41.05823516845703,
+      "activation_next2": 41.26961135864258,
+      "next_token_entropy_nats": 0.8444955348968506,
+      "next_token_top_probability": 0.7937220931053162,
+      "actual_next_surprisal_nats": 0.2310219258069992
+    },
+    {
+      "id": "for_example",
+      "pair_id": null,
+      "condition": "positive",
+      "group": "explicit_payload",
+      "target": "example",
+      "text": "For example, the same pattern appears when the input is reversed.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 32.76774215698242,
+      "activation_cos": 0.03555822744965553,
+      "activation_prev1": -251.19114685058594,
+      "activation_next1": 50.32215881347656,
+      "activation_next2": 55.815792083740234,
+      "next_token_entropy_nats": 0.8444955348968506,
+      "next_token_top_probability": 0.7937220931053162,
+      "actual_next_surprisal_nats": 0.2310219258069992
+    },
+    {
+      "id": "the_control",
+      "pair_id": null,
+      "condition": "control",
+      "group": "generic_incompleteness",
+      "target": "the",
+      "text": "She quietly opened the wooden box.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 41.182823181152344,
+      "activation_cos": 0.06391709297895432,
+      "activation_prev1": 21.649534225463867,
+      "activation_next1": 20.70465087890625,
+      "activation_next2": 38.665870666503906,
+      "next_token_entropy_nats": 4.337240219116211,
+      "next_token_top_probability": 0.3855510950088501,
+      "actual_next_surprisal_nats": 7.7343316078186035
+    },
+    {
+      "id": "the_control",
+      "pair_id": null,
+      "condition": "control",
+      "group": "generic_incompleteness",
+      "target": "the",
+      "text": "She quietly opened the wooden box.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 55.431793212890625,
+      "activation_cos": 0.06376073509454727,
+      "activation_prev1": 41.664424896240234,
+      "activation_next1": 30.143407821655273,
+      "activation_next2": 43.12375259399414,
+      "next_token_entropy_nats": 4.337240219116211,
+      "next_token_top_probability": 0.3855510950088501,
+      "actual_next_surprisal_nats": 7.7343316078186035
+    },
+    {
+      "id": "of_control",
+      "pair_id": null,
+      "condition": "control",
+      "group": "generic_incompleteness",
+      "target": "of",
+      "text": "He placed a glass of water on the desk.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 29.511789321899414,
+      "activation_cos": 0.03536157310009003,
+      "activation_prev1": 25.22984504699707,
+      "activation_next1": 24.49247932434082,
+      "activation_next2": 41.749786376953125,
+      "next_token_entropy_nats": 1.6209924221038818,
+      "next_token_top_probability": 0.7805837988853455,
+      "actual_next_surprisal_nats": 0.2477131485939026
+    },
+    {
+      "id": "of_control",
+      "pair_id": null,
+      "condition": "control",
+      "group": "generic_incompleteness",
+      "target": "of",
+      "text": "He placed a glass of water on the desk.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 43.09379577636719,
+      "activation_cos": 0.039358124136924744,
+      "activation_prev1": 35.20562744140625,
+      "activation_next1": 34.840354919433594,
+      "activation_next2": 58.21291732788086,
+      "next_token_entropy_nats": 1.6209924221038818,
+      "next_token_top_probability": 0.7805837988853455,
+      "actual_next_surprisal_nats": 0.2477131485939026
+    },
+    {
+      "id": "to_control",
+      "pair_id": null,
+      "condition": "control",
+      "group": "generic_incompleteness",
+      "target": "to",
+      "text": "They decided to postpone the meeting.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 33.17184829711914,
+      "activation_cos": 0.047591064125299454,
+      "activation_prev1": 13.409393310546875,
+      "activation_next1": 33.49595642089844,
+      "activation_next2": 37.62660217285156,
+      "next_token_entropy_nats": 5.82614803314209,
+      "next_token_top_probability": 0.06227169930934906,
+      "actual_next_surprisal_nats": 7.338747978210449
+    },
+    {
+      "id": "to_control",
+      "pair_id": null,
+      "condition": "control",
+      "group": "generic_incompleteness",
+      "target": "to",
+      "text": "They decided to postpone the meeting.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 44.23038101196289,
+      "activation_cos": 0.05084545165300369,
+      "activation_prev1": 23.427026748657227,
+      "activation_next1": 52.03956604003906,
+      "activation_next2": 52.4066276550293,
+      "next_token_entropy_nats": 5.82614803314209,
+      "next_token_top_probability": 0.06227169930934906,
+      "actual_next_surprisal_nats": 7.338747978210449
+    },
+    {
+      "id": "because_boundary",
+      "pair_id": null,
+      "condition": "boundary",
+      "group": "clausal_opener",
+      "target": "because",
+      "text": "The experiment stopped because the temperature rose too quickly.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 59.3458137512207,
+      "activation_cos": 0.07513953000307083,
+      "activation_prev1": 47.73891830444336,
+      "activation_next1": 45.80780029296875,
+      "activation_next2": 15.009888648986816,
+      "next_token_entropy_nats": 2.8210957050323486,
+      "next_token_top_probability": 0.47206470370292664,
+      "actual_next_surprisal_nats": 0.7506392002105713
+    },
+    {
+      "id": "because_boundary",
+      "pair_id": null,
+      "condition": "boundary",
+      "group": "clausal_opener",
+      "target": "because",
+      "text": "The experiment stopped because the temperature rose too quickly.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 63.7077751159668,
+      "activation_cos": 0.06664251536130905,
+      "activation_prev1": 61.162017822265625,
+      "activation_next1": 54.780704498291016,
+      "activation_next2": 15.592901229858398,
+      "next_token_entropy_nats": 2.8210957050323486,
+      "next_token_top_probability": 0.47206470370292664,
+      "actual_next_surprisal_nats": 0.7506392002105713
+    },
+    {
+      "id": "if_boundary",
+      "pair_id": null,
+      "condition": "boundary",
+      "group": "clausal_opener",
+      "target": "if",
+      "text": "The result changes if the final token is removed.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 54.803871154785156,
+      "activation_cos": 0.06603757292032242,
+      "activation_prev1": 19.956153869628906,
+      "activation_next1": 43.57202911376953,
+      "activation_next2": 32.46286392211914,
+      "next_token_entropy_nats": 3.024475574493408,
+      "next_token_top_probability": 0.30764228105545044,
+      "actual_next_surprisal_nats": 1.178817629814148
+    },
+    {
+      "id": "if_boundary",
+      "pair_id": null,
+      "condition": "boundary",
+      "group": "clausal_opener",
+      "target": "if",
+      "text": "The result changes if the final token is removed.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 69.29953002929688,
+      "activation_cos": 0.07273388653993607,
+      "activation_prev1": 42.427947998046875,
+      "activation_next1": 56.94510269165039,
+      "activation_next2": 43.95393753051758,
+      "next_token_entropy_nats": 3.024475574493408,
+      "next_token_top_probability": 0.30764228105545044,
+      "actual_next_surprisal_nats": 1.178817629814148
+    },
+    {
+      "id": "natural_colon_medicine",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": ":",
+      "text": "Big news in the world of medicine surfaced this week: The National Institutes of Health promised a whopping $10.1 million to fund the scientific study of ailments.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 79.43501281738281,
+      "activation_cos": 0.1136995255947113,
+      "activation_prev1": 51.83348083496094,
+      "activation_next1": 39.961326599121094,
+      "activation_next2": 22.459392547607422,
+      "next_token_entropy_nats": 3.486854314804077,
+      "next_token_top_probability": 0.3829330503940582,
+      "actual_next_surprisal_nats": 3.897395133972168
+    },
+    {
+      "id": "natural_colon_medicine",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": ":",
+      "text": "Big news in the world of medicine surfaced this week: The National Institutes of Health promised a whopping $10.1 million to fund the scientific study of ailments.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 90.29898834228516,
+      "activation_cos": 0.10646704584360123,
+      "activation_prev1": 62.360694885253906,
+      "activation_next1": 44.82186508178711,
+      "activation_next2": 29.28568458557129,
+      "next_token_entropy_nats": 3.486854314804077,
+      "next_token_top_probability": 0.3829330503940582,
+      "actual_next_surprisal_nats": 3.897395133972168
+    },
+    {
+      "id": "natural_fact_skoda",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": "fact",
+      "text": "The survey was the biggest car owner survey in the UK. In fact, Skoda took three of the top four spots.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 62.459617614746094,
+      "activation_cos": 0.08937478810548782,
+      "activation_prev1": 22.423187255859375,
+      "activation_next1": 37.603694915771484,
+      "activation_next2": 27.00100326538086,
+      "next_token_entropy_nats": 1.4908130168914795,
+      "next_token_top_probability": 0.7632704973220825,
+      "actual_next_surprisal_nats": 0.2701428234577179
+    },
+    {
+      "id": "natural_fact_skoda",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": "fact",
+      "text": "The survey was the biggest car owner survey in the UK. In fact, Skoda took three of the top four spots.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 70.9090347290039,
+      "activation_cos": 0.07776596397161484,
+      "activation_prev1": 40.9645881652832,
+      "activation_next1": 42.9353141784668,
+      "activation_next2": 32.598575592041016,
+      "next_token_entropy_nats": 1.4908130168914795,
+      "next_token_top_probability": 0.7632704973220825,
+      "actual_next_surprisal_nats": 0.2701428234577179
+    },
+    {
+      "id": "natural_point_chicken",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": "point",
+      "text": "At one point I was wrestling with a whole chicken trying to separate it into the various parts.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 65.92829895019531,
+      "activation_cos": 0.0835360661149025,
+      "activation_prev1": 41.25484085083008,
+      "activation_next1": 42.553829193115234,
+      "activation_next2": 44.746978759765625,
+      "next_token_entropy_nats": 1.288360595703125,
+      "next_token_top_probability": 0.7817491888999939,
+      "actual_next_surprisal_nats": 4.996221542358398
+    },
+    {
+      "id": "natural_point_chicken",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": "point",
+      "text": "At one point I was wrestling with a whole chicken trying to separate it into the various parts.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 80.14633178710938,
+      "activation_cos": 0.08363174647092819,
+      "activation_prev1": 61.49283218383789,
+      "activation_next1": 55.31167221069336,
+      "activation_next2": 58.44529342651367,
+      "next_token_entropy_nats": 1.288360595703125,
+      "next_token_top_probability": 0.7817491888999939,
+      "actual_next_surprisal_nats": 4.996221542358398
+    },
+    {
+      "id": "natural_who_crystal",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": "who",
+      "text": "I got a call from Crystal, who is the daughter of the owner Ainsley. She told me that the restaurant was in trouble.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 71.80804443359375,
+      "activation_cos": 0.09769109636545181,
+      "activation_prev1": 48.58991241455078,
+      "activation_next1": 39.20919418334961,
+      "activation_next2": 40.72135543823242,
+      "next_token_entropy_nats": 4.094956874847412,
+      "next_token_top_probability": 0.20875242352485657,
+      "actual_next_surprisal_nats": 1.5666062831878662
+    },
+    {
+      "id": "natural_who_crystal",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": "who",
+      "text": "I got a call from Crystal, who is the daughter of the owner Ainsley. She told me that the restaurant was in trouble.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 84.08362579345703,
+      "activation_cos": 0.09590711444616318,
+      "activation_prev1": 56.048336029052734,
+      "activation_next1": 46.80506134033203,
+      "activation_next2": 43.2267951965332,
+      "next_token_entropy_nats": 4.094956874847412,
+      "next_token_top_probability": 0.20875242352485657,
+      "actual_next_surprisal_nats": 1.5666062831878662
+    },
+    {
+      "id": "natural_spot_bugs",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": "spot",
+      "text": "There is a feedback section in the options in case you spot any more bugs and want to notify the company.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 70.57587432861328,
+      "activation_cos": 0.09547927230596542,
+      "activation_prev1": 47.21528244018555,
+      "activation_next1": 35.9575080871582,
+      "activation_next2": 38.739505767822266,
+      "next_token_entropy_nats": 2.4986586570739746,
+      "next_token_top_probability": 0.3114885985851288,
+      "actual_next_surprisal_nats": 1.4163925647735596
+    },
+    {
+      "id": "natural_spot_bugs",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": "spot",
+      "text": "There is a feedback section in the options in case you spot any more bugs and want to notify the company.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 81.7895278930664,
+      "activation_cos": 0.0915159359574318,
+      "activation_prev1": 54.08828353881836,
+      "activation_next1": 56.335968017578125,
+      "activation_next2": 62.33559799194336,
+      "next_token_entropy_nats": 2.4986586570739746,
+      "next_token_top_probability": 0.3114885985851288,
+      "actual_next_surprisal_nats": 1.4163925647735596
+    },
+    {
+      "id": "natural_that_model",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": "that",
+      "text": "It may be that your internal model of the world is flawed, and that will deplete your body budget.",
+      "layer": 7,
+      "sv_index_zero_based": 12,
+      "activation_raw": 57.47730255126953,
+      "activation_cos": 0.0935843363404274,
+      "activation_prev1": 47.046871185302734,
+      "activation_next1": 38.58064270019531,
+      "activation_next2": 23.970821380615234,
+      "next_token_entropy_nats": 4.042911052703857,
+      "next_token_top_probability": 0.19584126770496368,
+      "actual_next_surprisal_nats": 6.63045072555542
+    },
+    {
+      "id": "natural_that_model",
+      "pair_id": null,
+      "condition": "natural",
+      "group": "natural",
+      "target": "that",
+      "text": "It may be that your internal model of the world is flawed, and that will deplete your body budget.",
+      "layer": 8,
+      "sv_index_zero_based": 12,
+      "activation_raw": 59.549583435058594,
+      "activation_cos": 0.07867678254842758,
+      "activation_prev1": 59.80921173095703,
+      "activation_next1": 45.691688537597656,
+      "activation_next2": 35.15085983276367,
+      "next_token_entropy_nats": 4.042911052703857,
+      "next_token_top_probability": 0.19584126770496368,
+      "actual_next_surprisal_nats": 6.63045072555542
+    }
+  ],
+  "traces": [
+    {
+      "case_id": "colon_elab",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " one",
+          "raw": 39.6055908203125,
+          "cos": 0.054003749042749405
+        },
+        {
+          "rel": -4,
+          "token": " reason",
+          "raw": 38.36510467529297,
+          "cos": 0.05296558886766434
+        },
+        {
+          "rel": -3,
+          "token": " the",
+          "raw": 54.71039962768555,
+          "cos": 0.08528335392475128
+        },
+        {
+          "rel": -2,
+          "token": " experiment",
+          "raw": 27.261850357055664,
+          "cos": 0.03773809224367142
+        },
+        {
+          "rel": -1,
+          "token": " failed",
+          "raw": 38.830020904541016,
+          "cos": 0.047945864498615265
+        },
+        {
+          "rel": 0,
+          "token": ":",
+          "raw": 50.925514221191406,
+          "cos": 0.07260193675756454
+        },
+        {
+          "rel": 1,
+          "token": " the",
+          "raw": 49.13496398925781,
+          "cos": 0.07785314321517944
+        },
+        {
+          "rel": 2,
+          "token": " sensor",
+          "raw": 33.019737243652344,
+          "cos": 0.047516509890556335
+        },
+        {
+          "rel": 3,
+          "token": " was",
+          "raw": 44.045040130615234,
+          "cos": 0.06724032759666443
+        },
+        {
+          "rel": 4,
+          "token": " unplug",
+          "raw": 17.63871955871582,
+          "cos": 0.026147183030843735
+        },
+        {
+          "rel": 5,
+          "token": "ged",
+          "raw": 21.598735809326172,
+          "cos": 0.030716657638549805
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 39.29627227783203,
+          "cos": 0.06042918935418129
+        }
+      ]
+    },
+    {
+      "case_id": "colon_elab",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " one",
+          "raw": 62.05229187011719,
+          "cos": 0.07446983456611633
+        },
+        {
+          "rel": -4,
+          "token": " reason",
+          "raw": 50.62343978881836,
+          "cos": 0.056689195334911346
+        },
+        {
+          "rel": -3,
+          "token": " the",
+          "raw": 66.43355560302734,
+          "cos": 0.08300280570983887
+        },
+        {
+          "rel": -2,
+          "token": " experiment",
+          "raw": 29.68846321105957,
+          "cos": 0.035021185874938965
+        },
+        {
+          "rel": -1,
+          "token": " failed",
+          "raw": 50.54293441772461,
+          "cos": 0.053130555897951126
+        },
+        {
+          "rel": 0,
+          "token": ":",
+          "raw": 49.9171257019043,
+          "cos": 0.05735104903578758
+        },
+        {
+          "rel": 1,
+          "token": " the",
+          "raw": 61.63821792602539,
+          "cos": 0.08221624046564102
+        },
+        {
+          "rel": 2,
+          "token": " sensor",
+          "raw": 43.727134704589844,
+          "cos": 0.05055059492588043
+        },
+        {
+          "rel": 3,
+          "token": " was",
+          "raw": 58.47090530395508,
+          "cos": 0.07442992925643921
+        },
+        {
+          "rel": 4,
+          "token": " unplug",
+          "raw": 23.118228912353516,
+          "cos": 0.026405135169625282
+        },
+        {
+          "rel": 5,
+          "token": "ged",
+          "raw": 29.155710220336914,
+          "cos": 0.03220069780945778
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 39.096778869628906,
+          "cos": 0.04585207998752594
+        }
+      ]
+    },
+    {
+      "case_id": "colon_time",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " meeting",
+          "raw": 27.942367553710938,
+          "cos": 0.037504080682992935
+        },
+        {
+          "rel": -4,
+          "token": " starts",
+          "raw": 14.088212013244629,
+          "cos": 0.018824953585863113
+        },
+        {
+          "rel": -3,
+          "token": " at",
+          "raw": 33.338172912597656,
+          "cos": 0.04795590043067932
+        },
+        {
+          "rel": -2,
+          "token": " ",
+          "raw": 40.66909408569336,
+          "cos": 0.066168874502182
+        },
+        {
+          "rel": -1,
+          "token": "3",
+          "raw": 38.48822021484375,
+          "cos": 0.06015884131193161
+        },
+        {
+          "rel": 0,
+          "token": ":",
+          "raw": 35.24915313720703,
+          "cos": 0.06252909451723099
+        },
+        {
+          "rel": 1,
+          "token": "30",
+          "raw": 26.24714469909668,
+          "cos": 0.038372162729501724
+        },
+        {
+          "rel": 2,
+          "token": " tomorrow",
+          "raw": 25.388826370239258,
+          "cos": 0.03464013338088989
+        },
+        {
+          "rel": 3,
+          "token": " afternoon",
+          "raw": 27.989524841308594,
+          "cos": 0.041564252227544785
+        },
+        {
+          "rel": 4,
+          "token": ".",
+          "raw": 33.86070251464844,
+          "cos": 0.05114023759961128
+        }
+      ]
+    },
+    {
+      "case_id": "colon_time",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " meeting",
+          "raw": 36.76194763183594,
+          "cos": 0.04419010877609253
+        },
+        {
+          "rel": -4,
+          "token": " starts",
+          "raw": 29.68471336364746,
+          "cos": 0.03209950402379036
+        },
+        {
+          "rel": -3,
+          "token": " at",
+          "raw": 43.87800979614258,
+          "cos": 0.047818735241889954
+        },
+        {
+          "rel": -2,
+          "token": " ",
+          "raw": 44.435428619384766,
+          "cos": 0.05181741341948509
+        },
+        {
+          "rel": -1,
+          "token": "3",
+          "raw": 44.016845703125,
+          "cos": 0.050814706832170486
+        },
+        {
+          "rel": 0,
+          "token": ":",
+          "raw": 29.088844299316406,
+          "cos": 0.03880595043301582
+        },
+        {
+          "rel": 1,
+          "token": "30",
+          "raw": 22.514907836914062,
+          "cos": 0.024938739836215973
+        },
+        {
+          "rel": 2,
+          "token": " tomorrow",
+          "raw": 30.738365173339844,
+          "cos": 0.03038964420557022
+        },
+        {
+          "rel": 3,
+          "token": " afternoon",
+          "raw": 31.838239669799805,
+          "cos": 0.03365227207541466
+        },
+        {
+          "rel": 4,
+          "token": ".",
+          "raw": 33.29145812988281,
+          "cos": 0.0403512641787529
+        }
+      ]
+    },
+    {
+      "case_id": "who_rel",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -5,
+          "token": "I",
+          "raw": 18.62468910217285,
+          "cos": 0.00045384885743260384
+        },
+        {
+          "rel": -4,
+          "token": " spoke",
+          "raw": 43.14181137084961,
+          "cos": 0.06260734796524048
+        },
+        {
+          "rel": -3,
+          "token": " with",
+          "raw": 36.328155517578125,
+          "cos": 0.04800954833626747
+        },
+        {
+          "rel": -2,
+          "token": " Maya",
+          "raw": 20.982358932495117,
+          "cos": 0.027754012495279312
+        },
+        {
+          "rel": -1,
+          "token": ",",
+          "raw": 37.36323547363281,
+          "cos": 0.05226936563849449
+        },
+        {
+          "rel": 0,
+          "token": " who",
+          "raw": 67.89239501953125,
+          "cos": 0.0936315581202507
+        },
+        {
+          "rel": 1,
+          "token": " had",
+          "raw": 31.278432846069336,
+          "cos": 0.045458752661943436
+        },
+        {
+          "rel": 2,
+          "token": " already",
+          "raw": 37.03860855102539,
+          "cos": 0.05205978453159332
+        },
+        {
+          "rel": 3,
+          "token": " read",
+          "raw": 38.762107849121094,
+          "cos": 0.05525665357708931
+        },
+        {
+          "rel": 4,
+          "token": " the",
+          "raw": 41.72104263305664,
+          "cos": 0.07608986645936966
+        },
+        {
+          "rel": 5,
+          "token": " report",
+          "raw": 43.51630783081055,
+          "cos": 0.057898715138435364
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 40.43280029296875,
+          "cos": 0.061949096620082855
+        }
+      ]
+    },
+    {
+      "case_id": "who_rel",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -5,
+          "token": "I",
+          "raw": -267.94842529296875,
+          "cos": -0.006489328574389219
+        },
+        {
+          "rel": -4,
+          "token": " spoke",
+          "raw": 58.06353759765625,
+          "cos": 0.06951559334993362
+        },
+        {
+          "rel": -3,
+          "token": " with",
+          "raw": 49.310359954833984,
+          "cos": 0.05215836688876152
+        },
+        {
+          "rel": -2,
+          "token": " Maya",
+          "raw": 34.89192199707031,
+          "cos": 0.03665229305624962
+        },
+        {
+          "rel": -1,
+          "token": ",",
+          "raw": 49.920509338378906,
+          "cos": 0.05632418394088745
+        },
+        {
+          "rel": 0,
+          "token": " who",
+          "raw": 80.32328033447266,
+          "cos": 0.0937500149011612
+        },
+        {
+          "rel": 1,
+          "token": " had",
+          "raw": 42.99705505371094,
+          "cos": 0.052330825477838516
+        },
+        {
+          "rel": 2,
+          "token": " already",
+          "raw": 53.9484977722168,
+          "cos": 0.0612562857568264
+        },
+        {
+          "rel": 3,
+          "token": " read",
+          "raw": 62.45024871826172,
+          "cos": 0.06753085553646088
+        },
+        {
+          "rel": 4,
+          "token": " the",
+          "raw": 56.827850341796875,
+          "cos": 0.07510464638471603
+        },
+        {
+          "rel": 5,
+          "token": " report",
+          "raw": 49.38643264770508,
+          "cos": 0.05052633956074715
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 42.07712936401367,
+          "cos": 0.04812506586313248
+        }
+      ]
+    },
+    {
+      "case_id": "who_meta",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "The",
+          "raw": 25.293237686157227,
+          "cos": 0.0006086985231377184
+        },
+        {
+          "rel": -1,
+          "token": " word",
+          "raw": 49.000762939453125,
+          "cos": 0.06429823487997055
+        },
+        {
+          "rel": 0,
+          "token": " who",
+          "raw": 63.72100830078125,
+          "cos": 0.09306720644235611
+        },
+        {
+          "rel": 1,
+          "token": " appears",
+          "raw": 36.515201568603516,
+          "cos": 0.05651749670505524
+        },
+        {
+          "rel": 2,
+          "token": " twice",
+          "raw": 34.554351806640625,
+          "cos": 0.04828681796789169
+        },
+        {
+          "rel": 3,
+          "token": " in",
+          "raw": 36.020809173583984,
+          "cos": 0.05186508968472481
+        },
+        {
+          "rel": 4,
+          "token": " the",
+          "raw": 38.27327346801758,
+          "cos": 0.07272196561098099
+        },
+        {
+          "rel": 5,
+          "token": " sentence",
+          "raw": 29.714759826660156,
+          "cos": 0.04087182134389877
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 27.306211471557617,
+          "cos": 0.043964095413684845
+        }
+      ]
+    },
+    {
+      "case_id": "who_meta",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "The",
+          "raw": -260.55340576171875,
+          "cos": -0.006232094950973988
+        },
+        {
+          "rel": -1,
+          "token": " word",
+          "raw": 58.613136291503906,
+          "cos": 0.06886831670999527
+        },
+        {
+          "rel": 0,
+          "token": " who",
+          "raw": 68.3577880859375,
+          "cos": 0.08151862770318985
+        },
+        {
+          "rel": 1,
+          "token": " appears",
+          "raw": 42.86038589477539,
+          "cos": 0.048812661319971085
+        },
+        {
+          "rel": 2,
+          "token": " twice",
+          "raw": 47.56392288208008,
+          "cos": 0.0515364445745945
+        },
+        {
+          "rel": 3,
+          "token": " in",
+          "raw": 58.9501838684082,
+          "cos": 0.0671273022890091
+        },
+        {
+          "rel": 4,
+          "token": " the",
+          "raw": 46.35149383544922,
+          "cos": 0.06958738714456558
+        },
+        {
+          "rel": 5,
+          "token": " sentence",
+          "raw": 40.14651870727539,
+          "cos": 0.04369470104575157
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 21.638168334960938,
+          "cos": 0.02681373991072178
+        }
+      ]
+    },
+    {
+      "case_id": "where_rel",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " returned",
+          "raw": 22.399126052856445,
+          "cos": 0.028716547414660454
+        },
+        {
+          "rel": -4,
+          "token": " to",
+          "raw": 32.21248245239258,
+          "cos": 0.04066542908549309
+        },
+        {
+          "rel": -3,
+          "token": " the",
+          "raw": 41.71852111816406,
+          "cos": 0.06281694024801254
+        },
+        {
+          "rel": -2,
+          "token": " cabin",
+          "raw": 34.757713317871094,
+          "cos": 0.047783877700567245
+        },
+        {
+          "rel": -1,
+          "token": ",",
+          "raw": 31.422311782836914,
+          "cos": 0.04189098998904228
+        },
+        {
+          "rel": 0,
+          "token": " where",
+          "raw": 62.02607727050781,
+          "cos": 0.08801582455635071
+        },
+        {
+          "rel": 1,
+          "token": " the",
+          "raw": 41.54145431518555,
+          "cos": 0.068587526679039
+        },
+        {
+          "rel": 2,
+          "token": " supplies",
+          "raw": 25.356164932250977,
+          "cos": 0.03210225701332092
+        },
+        {
+          "rel": 3,
+          "token": " had",
+          "raw": 25.101926803588867,
+          "cos": 0.03799140825867653
+        },
+        {
+          "rel": 4,
+          "token": " been",
+          "raw": 27.320096969604492,
+          "cos": 0.04248783364892006
+        },
+        {
+          "rel": 5,
+          "token": " stored",
+          "raw": 21.225488662719727,
+          "cos": 0.029107319191098213
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 30.56661033630371,
+          "cos": 0.048296768218278885
+        }
+      ]
+    },
+    {
+      "case_id": "where_rel",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " returned",
+          "raw": 31.814571380615234,
+          "cos": 0.03675349801778793
+        },
+        {
+          "rel": -4,
+          "token": " to",
+          "raw": 44.628211975097656,
+          "cos": 0.04896499589085579
+        },
+        {
+          "rel": -3,
+          "token": " the",
+          "raw": 54.8226318359375,
+          "cos": 0.06838640570640564
+        },
+        {
+          "rel": -2,
+          "token": " cabin",
+          "raw": 35.70496368408203,
+          "cos": 0.03606338053941727
+        },
+        {
+          "rel": -1,
+          "token": ",",
+          "raw": 41.03977584838867,
+          "cos": 0.04398990422487259
+        },
+        {
+          "rel": 0,
+          "token": " where",
+          "raw": 78.71163177490234,
+          "cos": 0.09095362573862076
+        },
+        {
+          "rel": 1,
+          "token": " the",
+          "raw": 53.52722930908203,
+          "cos": 0.06531710922718048
+        },
+        {
+          "rel": 2,
+          "token": " supplies",
+          "raw": 33.230796813964844,
+          "cos": 0.03276369348168373
+        },
+        {
+          "rel": 3,
+          "token": " had",
+          "raw": 33.58871078491211,
+          "cos": 0.03883820399641991
+        },
+        {
+          "rel": 4,
+          "token": " been",
+          "raw": 40.5419807434082,
+          "cos": 0.04724811762571335
+        },
+        {
+          "rel": 5,
+          "token": " stored",
+          "raw": 28.64389419555664,
+          "cos": 0.03016437217593193
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 31.214616775512695,
+          "cos": 0.04090582951903343
+        }
+      ]
+    },
+    {
+      "case_id": "where_meta",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "The",
+          "raw": 25.293237686157227,
+          "cos": 0.0006086985231377184
+        },
+        {
+          "rel": -1,
+          "token": " word",
+          "raw": 49.000762939453125,
+          "cos": 0.06429823487997055
+        },
+        {
+          "rel": 0,
+          "token": " where",
+          "raw": 57.921295166015625,
+          "cos": 0.0726788192987442
+        },
+        {
+          "rel": 1,
+          "token": " is",
+          "raw": 19.480087280273438,
+          "cos": 0.02918001264333725
+        },
+        {
+          "rel": 2,
+          "token": " under",
+          "raw": 6.288897514343262,
+          "cos": 0.009438779205083847
+        },
+        {
+          "rel": 3,
+          "token": "lined",
+          "raw": -11.57361888885498,
+          "cos": -0.015746310353279114
+        },
+        {
+          "rel": 4,
+          "token": " in",
+          "raw": 23.42369842529297,
+          "cos": 0.03578895330429077
+        },
+        {
+          "rel": 5,
+          "token": " the",
+          "raw": 30.332992553710938,
+          "cos": 0.05530489236116409
+        },
+        {
+          "rel": 6,
+          "token": " exercise",
+          "raw": 12.93341064453125,
+          "cos": 0.0180299524217844
+        },
+        {
+          "rel": 7,
+          "token": ".",
+          "raw": 28.99569320678711,
+          "cos": 0.04656079038977623
+        }
+      ]
+    },
+    {
+      "case_id": "where_meta",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "The",
+          "raw": -260.55340576171875,
+          "cos": -0.006232094950973988
+        },
+        {
+          "rel": -1,
+          "token": " word",
+          "raw": 58.613136291503906,
+          "cos": 0.06886831670999527
+        },
+        {
+          "rel": 0,
+          "token": " where",
+          "raw": 68.56388092041016,
+          "cos": 0.0761716216802597
+        },
+        {
+          "rel": 1,
+          "token": " is",
+          "raw": 29.413715362548828,
+          "cos": 0.034068528562784195
+        },
+        {
+          "rel": 2,
+          "token": " under",
+          "raw": 15.334870338439941,
+          "cos": 0.017306720837950706
+        },
+        {
+          "rel": 3,
+          "token": "lined",
+          "raw": -6.189225196838379,
+          "cos": -0.006826677825301886
+        },
+        {
+          "rel": 4,
+          "token": " in",
+          "raw": 41.17574691772461,
+          "cos": 0.049567993730306625
+        },
+        {
+          "rel": 5,
+          "token": " the",
+          "raw": 42.75658416748047,
+          "cos": 0.05693625658750534
+        },
+        {
+          "rel": 6,
+          "token": " exercise",
+          "raw": 26.997194290161133,
+          "cos": 0.029311981052160263
+        },
+        {
+          "rel": 7,
+          "token": ".",
+          "raw": 27.761859893798828,
+          "cos": 0.03390386328101158
+        }
+      ]
+    },
+    {
+      "case_id": "that_comp",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "I",
+          "raw": 18.62468910217285,
+          "cos": 0.00045384885743260384
+        },
+        {
+          "rel": -1,
+          "token": " realized",
+          "raw": 10.063458442687988,
+          "cos": 0.014719642698764801
+        },
+        {
+          "rel": 0,
+          "token": " that",
+          "raw": 59.018104553222656,
+          "cos": 0.0885227620601654
+        },
+        {
+          "rel": 1,
+          "token": " the",
+          "raw": 41.427696228027344,
+          "cos": 0.06671155244112015
+        },
+        {
+          "rel": 2,
+          "token": " second",
+          "raw": 22.150217056274414,
+          "cos": 0.03325628116726875
+        },
+        {
+          "rel": 3,
+          "token": " measurement",
+          "raw": 11.984160423278809,
+          "cos": 0.017200971022248268
+        },
+        {
+          "rel": 4,
+          "token": " was",
+          "raw": 40.40937423706055,
+          "cos": 0.058489564806222916
+        },
+        {
+          "rel": 5,
+          "token": " wrong",
+          "raw": 24.960128784179688,
+          "cos": 0.035362862050533295
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 37.092376708984375,
+          "cos": 0.055681511759757996
+        }
+      ]
+    },
+    {
+      "case_id": "that_comp",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "I",
+          "raw": -267.94842529296875,
+          "cos": -0.006489328574389219
+        },
+        {
+          "rel": -1,
+          "token": " realized",
+          "raw": 25.566444396972656,
+          "cos": 0.031483571976423264
+        },
+        {
+          "rel": 0,
+          "token": " that",
+          "raw": 62.001251220703125,
+          "cos": 0.075942762196064
+        },
+        {
+          "rel": 1,
+          "token": " the",
+          "raw": 52.55994415283203,
+          "cos": 0.06956852227449417
+        },
+        {
+          "rel": 2,
+          "token": " second",
+          "raw": 37.91437911987305,
+          "cos": 0.04388697072863579
+        },
+        {
+          "rel": 3,
+          "token": " measurement",
+          "raw": 19.64534568786621,
+          "cos": 0.023595303297042847
+        },
+        {
+          "rel": 4,
+          "token": " was",
+          "raw": 57.123077392578125,
+          "cos": 0.06665217876434326
+        },
+        {
+          "rel": 5,
+          "token": " wrong",
+          "raw": 38.82993698120117,
+          "cos": 0.04592162370681763
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 40.729835510253906,
+          "cos": 0.047873493283987045
+        }
+      ]
+    },
+    {
+      "case_id": "that_demo",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "I",
+          "raw": 18.62468910217285,
+          "cos": 0.00045384885743260384
+        },
+        {
+          "rel": -1,
+          "token": " bought",
+          "raw": 26.82738494873047,
+          "cos": 0.035735975950956345
+        },
+        {
+          "rel": 0,
+          "token": " that",
+          "raw": 47.94747543334961,
+          "cos": 0.06376072019338608
+        },
+        {
+          "rel": 1,
+          "token": " book",
+          "raw": 46.91495132446289,
+          "cos": 0.06120564788579941
+        },
+        {
+          "rel": 2,
+          "token": " at",
+          "raw": 42.08526611328125,
+          "cos": 0.054127443581819534
+        },
+        {
+          "rel": 3,
+          "token": " the",
+          "raw": 41.075801849365234,
+          "cos": 0.06905659288167953
+        },
+        {
+          "rel": 4,
+          "token": " airport",
+          "raw": 34.03473663330078,
+          "cos": 0.04792731627821922
+        },
+        {
+          "rel": 5,
+          "token": " yesterday",
+          "raw": 15.056925773620605,
+          "cos": 0.020709997043013573
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 33.19546127319336,
+          "cos": 0.04773958772420883
+        }
+      ]
+    },
+    {
+      "case_id": "that_demo",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "I",
+          "raw": -267.94842529296875,
+          "cos": -0.006489328574389219
+        },
+        {
+          "rel": -1,
+          "token": " bought",
+          "raw": 33.63745880126953,
+          "cos": 0.0376291386783123
+        },
+        {
+          "rel": 0,
+          "token": " that",
+          "raw": 44.880470275878906,
+          "cos": 0.04768095910549164
+        },
+        {
+          "rel": 1,
+          "token": " book",
+          "raw": 52.98127365112305,
+          "cos": 0.051640819758176804
+        },
+        {
+          "rel": 2,
+          "token": " at",
+          "raw": 50.94401168823242,
+          "cos": 0.05244831368327141
+        },
+        {
+          "rel": 3,
+          "token": " the",
+          "raw": 51.12144470214844,
+          "cos": 0.060126893222332
+        },
+        {
+          "rel": 4,
+          "token": " airport",
+          "raw": 36.5806770324707,
+          "cos": 0.037750739604234695
+        },
+        {
+          "rel": 5,
+          "token": " yesterday",
+          "raw": 23.12571144104004,
+          "cos": 0.023879382759332657
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 33.51958465576172,
+          "cos": 0.039063870906829834
+        }
+      ]
+    },
+    {
+      "case_id": "fact_disc",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -1,
+          "token": "In",
+          "raw": 13.772330284118652,
+          "cos": 0.0003314622153993696
+        },
+        {
+          "rel": 0,
+          "token": " fact",
+          "raw": 60.29758071899414,
+          "cos": 0.08502107113599777
+        },
+        {
+          "rel": 1,
+          "token": ",",
+          "raw": 36.21993637084961,
+          "cos": 0.06330258399248123
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 36.7653923034668,
+          "cos": 0.060060273855924606
+        },
+        {
+          "rel": 3,
+          "token": " second",
+          "raw": 26.069198608398438,
+          "cos": 0.03815803676843643
+        },
+        {
+          "rel": 4,
+          "token": " model",
+          "raw": 26.57832908630371,
+          "cos": 0.03558684512972832
+        },
+        {
+          "rel": 5,
+          "token": " performed",
+          "raw": 29.356447219848633,
+          "cos": 0.04132210090756416
+        },
+        {
+          "rel": 6,
+          "token": " substantially",
+          "raw": 23.35985565185547,
+          "cos": 0.03251342475414276
+        },
+        {
+          "rel": 7,
+          "token": " better",
+          "raw": 21.915868759155273,
+          "cos": 0.031669456511735916
+        }
+      ]
+    },
+    {
+      "case_id": "fact_disc",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -1,
+          "token": "In",
+          "raw": -265.2569274902344,
+          "cos": -0.0063452147878706455
+        },
+        {
+          "rel": 0,
+          "token": " fact",
+          "raw": 70.60687255859375,
+          "cos": 0.08213251084089279
+        },
+        {
+          "rel": 1,
+          "token": ",",
+          "raw": 42.57036590576172,
+          "cos": 0.06037041172385216
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 47.15994644165039,
+          "cos": 0.0636824369430542
+        },
+        {
+          "rel": 3,
+          "token": " second",
+          "raw": 42.7496223449707,
+          "cos": 0.048950497061014175
+        },
+        {
+          "rel": 4,
+          "token": " model",
+          "raw": 31.48599624633789,
+          "cos": 0.03714790940284729
+        },
+        {
+          "rel": 5,
+          "token": " performed",
+          "raw": 40.284751892089844,
+          "cos": 0.04452022910118103
+        },
+        {
+          "rel": 6,
+          "token": " substantially",
+          "raw": 39.507667541503906,
+          "cos": 0.042192455381155014
+        },
+        {
+          "rel": 7,
+          "token": " better",
+          "raw": 35.61897277832031,
+          "cos": 0.04125494882464409
+        }
+      ]
+    },
+    {
+      "case_id": "fact_noun",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -1,
+          "token": "The",
+          "raw": 25.340686798095703,
+          "cos": 0.0006098404992371798
+        },
+        {
+          "rel": 0,
+          "token": " fact",
+          "raw": 48.1484489440918,
+          "cos": 0.06390349566936493
+        },
+        {
+          "rel": 1,
+          "token": " surprised",
+          "raw": 23.56916046142578,
+          "cos": 0.03243763744831085
+        },
+        {
+          "rel": 2,
+          "token": " everyone",
+          "raw": 46.5836181640625,
+          "cos": 0.06185450777411461
+        },
+        {
+          "rel": 3,
+          "token": " in",
+          "raw": 34.33205795288086,
+          "cos": 0.048144031316041946
+        },
+        {
+          "rel": 4,
+          "token": " the",
+          "raw": 46.470577239990234,
+          "cos": 0.08309125900268555
+        },
+        {
+          "rel": 5,
+          "token": " room",
+          "raw": 59.987918853759766,
+          "cos": 0.07981853187084198
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 33.516136169433594,
+          "cos": 0.050584826618433
+        }
+      ]
+    },
+    {
+      "case_id": "fact_noun",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -1,
+          "token": "The",
+          "raw": -260.52349853515625,
+          "cos": -0.006231393665075302
+        },
+        {
+          "rel": 0,
+          "token": " fact",
+          "raw": 56.32619857788086,
+          "cos": 0.06628069281578064
+        },
+        {
+          "rel": 1,
+          "token": " surprised",
+          "raw": 43.66924285888672,
+          "cos": 0.04704407975077629
+        },
+        {
+          "rel": 2,
+          "token": " everyone",
+          "raw": 63.153594970703125,
+          "cos": 0.06357444077730179
+        },
+        {
+          "rel": 3,
+          "token": " in",
+          "raw": 59.09993362426758,
+          "cos": 0.06477296352386475
+        },
+        {
+          "rel": 4,
+          "token": " the",
+          "raw": 51.88132858276367,
+          "cos": 0.06387953460216522
+        },
+        {
+          "rel": 5,
+          "token": " room",
+          "raw": 56.001319885253906,
+          "cos": 0.05680347979068756
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 29.797590255737305,
+          "cos": 0.035341303795576096
+        }
+      ]
+    },
+    {
+      "case_id": "point_temp",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "At",
+          "raw": 27.787086486816406,
+          "cos": 0.0006646528490819037
+        },
+        {
+          "rel": -1,
+          "token": " one",
+          "raw": 41.31193542480469,
+          "cos": 0.053607530891895294
+        },
+        {
+          "rel": 0,
+          "token": " point",
+          "raw": 65.94763946533203,
+          "cos": 0.08365154266357422
+        },
+        {
+          "rel": 1,
+          "token": ",",
+          "raw": 45.87381362915039,
+          "cos": 0.0737088993191719
+        },
+        {
+          "rel": 2,
+          "token": " I",
+          "raw": 39.59395217895508,
+          "cos": 0.06455393880605698
+        },
+        {
+          "rel": 3,
+          "token": " thought",
+          "raw": 54.47664260864258,
+          "cos": 0.07129104435443878
+        },
+        {
+          "rel": 4,
+          "token": " the",
+          "raw": 46.864322662353516,
+          "cos": 0.07052136212587357
+        },
+        {
+          "rel": 5,
+          "token": " entire",
+          "raw": 42.4853401184082,
+          "cos": 0.0654614269733429
+        },
+        {
+          "rel": 6,
+          "token": " analysis",
+          "raw": 1.412550687789917,
+          "cos": 0.002006937051191926
+        },
+        {
+          "rel": 7,
+          "token": " had",
+          "raw": 21.587337493896484,
+          "cos": 0.03271278366446495
+        }
+      ]
+    },
+    {
+      "case_id": "point_temp",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "At",
+          "raw": -262.2172546386719,
+          "cos": -0.006234151776880026
+        },
+        {
+          "rel": -1,
+          "token": " one",
+          "raw": 61.60108947753906,
+          "cos": 0.07044917345046997
+        },
+        {
+          "rel": 0,
+          "token": " point",
+          "raw": 80.07421112060547,
+          "cos": 0.08359340578317642
+        },
+        {
+          "rel": 1,
+          "token": ",",
+          "raw": 57.92610549926758,
+          "cos": 0.07451680302619934
+        },
+        {
+          "rel": 2,
+          "token": " I",
+          "raw": 59.68159103393555,
+          "cos": 0.0748484656214714
+        },
+        {
+          "rel": 3,
+          "token": " thought",
+          "raw": 67.53895568847656,
+          "cos": 0.07468464970588684
+        },
+        {
+          "rel": 4,
+          "token": " the",
+          "raw": 61.308292388916016,
+          "cos": 0.07337946444749832
+        },
+        {
+          "rel": 5,
+          "token": " entire",
+          "raw": 64.07103729248047,
+          "cos": 0.07764574885368347
+        },
+        {
+          "rel": 6,
+          "token": " analysis",
+          "raw": 10.541346549987793,
+          "cos": 0.013386941514909267
+        },
+        {
+          "rel": 7,
+          "token": " had",
+          "raw": 39.133907318115234,
+          "cos": 0.049713391810655594
+        }
+      ]
+    },
+    {
+      "case_id": "point_geom",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "Mark",
+          "raw": 25.622970581054688,
+          "cos": 0.0006166062084957957
+        },
+        {
+          "rel": -1,
+          "token": " each",
+          "raw": 27.588438034057617,
+          "cos": 0.037524398416280746
+        },
+        {
+          "rel": 0,
+          "token": " point",
+          "raw": 47.95730972290039,
+          "cos": 0.07104718685150146
+        },
+        {
+          "rel": 1,
+          "token": " on",
+          "raw": 44.34010314941406,
+          "cos": 0.06423807889223099
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 38.60260772705078,
+          "cos": 0.061340510845184326
+        },
+        {
+          "rel": 3,
+          "token": " graph",
+          "raw": 27.509061813354492,
+          "cos": 0.036567267030477524
+        },
+        {
+          "rel": 4,
+          "token": " with",
+          "raw": 31.128055572509766,
+          "cos": 0.041674308478832245
+        },
+        {
+          "rel": 5,
+          "token": " a",
+          "raw": 43.31150817871094,
+          "cos": 0.07121758162975311
+        },
+        {
+          "rel": 6,
+          "token": " small",
+          "raw": 37.07908248901367,
+          "cos": 0.04848012700676918
+        },
+        {
+          "rel": 7,
+          "token": " circle",
+          "raw": 37.634071350097656,
+          "cos": 0.053557138890028
+        }
+      ]
+    },
+    {
+      "case_id": "point_geom",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "Mark",
+          "raw": -267.7565612792969,
+          "cos": -0.006404424086213112
+        },
+        {
+          "rel": -1,
+          "token": " each",
+          "raw": 45.89591598510742,
+          "cos": 0.05106164515018463
+        },
+        {
+          "rel": 0,
+          "token": " point",
+          "raw": 53.58601379394531,
+          "cos": 0.06393121927976608
+        },
+        {
+          "rel": 1,
+          "token": " on",
+          "raw": 56.72703170776367,
+          "cos": 0.0666721984744072
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 46.3027229309082,
+          "cos": 0.060168031603097916
+        },
+        {
+          "rel": 3,
+          "token": " graph",
+          "raw": 30.147274017333984,
+          "cos": 0.03274582326412201
+        },
+        {
+          "rel": 4,
+          "token": " with",
+          "raw": 38.62350082397461,
+          "cos": 0.043215006589889526
+        },
+        {
+          "rel": 5,
+          "token": " a",
+          "raw": 54.4998664855957,
+          "cos": 0.06800922006368637
+        },
+        {
+          "rel": 6,
+          "token": " small",
+          "raw": 49.486968994140625,
+          "cos": 0.05183656886219978
+        },
+        {
+          "rel": 7,
+          "token": " circle",
+          "raw": 47.08738708496094,
+          "cos": 0.050232626497745514
+        }
+      ]
+    },
+    {
+      "case_id": "feel_pred",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -5,
+          "token": "The",
+          "raw": 25.293237686157227,
+          "cos": 0.0006086985231377184
+        },
+        {
+          "rel": -4,
+          "token": " lighting",
+          "raw": 10.009493827819824,
+          "cos": 0.01295426208525896
+        },
+        {
+          "rel": -3,
+          "token": " makes",
+          "raw": 21.90619659423828,
+          "cos": 0.027763111516833305
+        },
+        {
+          "rel": -2,
+          "token": " the",
+          "raw": 38.111873626708984,
+          "cos": 0.05398639291524887
+        },
+        {
+          "rel": -1,
+          "token": " room",
+          "raw": 52.82038497924805,
+          "cos": 0.06935717165470123
+        },
+        {
+          "rel": 0,
+          "token": " feel",
+          "raw": 60.38322067260742,
+          "cos": 0.08325830847024918
+        },
+        {
+          "rel": 1,
+          "token": " much",
+          "raw": 53.592445373535156,
+          "cos": 0.07529915124177933
+        },
+        {
+          "rel": 2,
+          "token": " larger",
+          "raw": 16.546518325805664,
+          "cos": 0.020384740084409714
+        },
+        {
+          "rel": 3,
+          "token": " than",
+          "raw": 39.039913177490234,
+          "cos": 0.05781470239162445
+        },
+        {
+          "rel": 4,
+          "token": " it",
+          "raw": 44.1690559387207,
+          "cos": 0.06879685819149017
+        },
+        {
+          "rel": 5,
+          "token": " is",
+          "raw": 34.001426696777344,
+          "cos": 0.048689257353544235
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 36.49949645996094,
+          "cos": 0.05525035411119461
+        }
+      ]
+    },
+    {
+      "case_id": "feel_pred",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -5,
+          "token": "The",
+          "raw": -260.55340576171875,
+          "cos": -0.006232094950973988
+        },
+        {
+          "rel": -4,
+          "token": " lighting",
+          "raw": 15.509586334228516,
+          "cos": 0.0168682299554348
+        },
+        {
+          "rel": -3,
+          "token": " makes",
+          "raw": 39.570621490478516,
+          "cos": 0.04015539959073067
+        },
+        {
+          "rel": -2,
+          "token": " the",
+          "raw": 51.496646881103516,
+          "cos": 0.05617125332355499
+        },
+        {
+          "rel": -1,
+          "token": " room",
+          "raw": 55.40717697143555,
+          "cos": 0.05842363461852074
+        },
+        {
+          "rel": 0,
+          "token": " feel",
+          "raw": 76.47259521484375,
+          "cos": 0.07882862538099289
+        },
+        {
+          "rel": 1,
+          "token": " much",
+          "raw": 71.60625457763672,
+          "cos": 0.07311248034238815
+        },
+        {
+          "rel": 2,
+          "token": " larger",
+          "raw": 31.183286666870117,
+          "cos": 0.0291607603430748
+        },
+        {
+          "rel": 3,
+          "token": " than",
+          "raw": 53.41065979003906,
+          "cos": 0.06368179619312286
+        },
+        {
+          "rel": 4,
+          "token": " it",
+          "raw": 45.47270965576172,
+          "cos": 0.05251413583755493
+        },
+        {
+          "rel": 5,
+          "token": " is",
+          "raw": 41.837955474853516,
+          "cos": 0.04262496903538704
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 37.559627532958984,
+          "cos": 0.04676932096481323
+        }
+      ]
+    },
+    {
+      "case_id": "feel_noun",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -3,
+          "token": "I",
+          "raw": 18.62468910217285,
+          "cos": 0.00045384885743260384
+        },
+        {
+          "rel": -2,
+          "token": " like",
+          "raw": 25.384294509887695,
+          "cos": 0.03497922793030739
+        },
+        {
+          "rel": -1,
+          "token": " the",
+          "raw": 39.786834716796875,
+          "cos": 0.06007051840424538
+        },
+        {
+          "rel": 0,
+          "token": " feel",
+          "raw": 47.97935104370117,
+          "cos": 0.07158991694450378
+        },
+        {
+          "rel": 1,
+          "token": " of",
+          "raw": 39.18511962890625,
+          "cos": 0.05965204909443855
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 44.436668395996094,
+          "cos": 0.07000021636486053
+        },
+        {
+          "rel": 3,
+          "token": " paper",
+          "raw": 48.264888763427734,
+          "cos": 0.06848912686109543
+        },
+        {
+          "rel": 4,
+          "token": " in",
+          "raw": 28.578155517578125,
+          "cos": 0.04458767548203468
+        },
+        {
+          "rel": 5,
+          "token": " this",
+          "raw": 29.84111213684082,
+          "cos": 0.04709434509277344
+        },
+        {
+          "rel": 6,
+          "token": " notebook",
+          "raw": 17.236936569213867,
+          "cos": 0.024272656068205833
+        },
+        {
+          "rel": 7,
+          "token": ".",
+          "raw": 41.28462219238281,
+          "cos": 0.06428727507591248
+        }
+      ]
+    },
+    {
+      "case_id": "feel_noun",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -3,
+          "token": "I",
+          "raw": -267.94842529296875,
+          "cos": -0.006489328574389219
+        },
+        {
+          "rel": -2,
+          "token": " like",
+          "raw": 37.16618728637695,
+          "cos": 0.04238603264093399
+        },
+        {
+          "rel": -1,
+          "token": " the",
+          "raw": 47.825103759765625,
+          "cos": 0.05895549803972244
+        },
+        {
+          "rel": 0,
+          "token": " feel",
+          "raw": 64.84626770019531,
+          "cos": 0.07393532246351242
+        },
+        {
+          "rel": 1,
+          "token": " of",
+          "raw": 52.82951354980469,
+          "cos": 0.06156909838318825
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 51.95530319213867,
+          "cos": 0.060558196157217026
+        },
+        {
+          "rel": 3,
+          "token": " paper",
+          "raw": 57.88545227050781,
+          "cos": 0.06212141737341881
+        },
+        {
+          "rel": 4,
+          "token": " in",
+          "raw": 49.842586517333984,
+          "cos": 0.059949375689029694
+        },
+        {
+          "rel": 5,
+          "token": " this",
+          "raw": 42.07146453857422,
+          "cos": 0.05429995432496071
+        },
+        {
+          "rel": 6,
+          "token": " notebook",
+          "raw": 20.10348129272461,
+          "cos": 0.023647194728255272
+        },
+        {
+          "rel": 7,
+          "token": ".",
+          "raw": 42.65993118286133,
+          "cos": 0.050231363624334335
+        }
+      ]
+    },
+    {
+      "case_id": "spot_verb",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "If",
+          "raw": 35.30186462402344,
+          "cos": 0.0008496232912875712
+        },
+        {
+          "rel": -1,
+          "token": " you",
+          "raw": 46.0860481262207,
+          "cos": 0.06019467115402222
+        },
+        {
+          "rel": 0,
+          "token": " spot",
+          "raw": 69.908935546875,
+          "cos": 0.0925460010766983
+        },
+        {
+          "rel": 1,
+          "token": " a",
+          "raw": 56.51028060913086,
+          "cos": 0.07555732876062393
+        },
+        {
+          "rel": 2,
+          "token": " problem",
+          "raw": 50.687591552734375,
+          "cos": 0.06864853203296661
+        },
+        {
+          "rel": 3,
+          "token": ",",
+          "raw": 49.24482345581055,
+          "cos": 0.06599762290716171
+        },
+        {
+          "rel": 4,
+          "token": " report",
+          "raw": 44.72187042236328,
+          "cos": 0.057315874844789505
+        },
+        {
+          "rel": 5,
+          "token": " it",
+          "raw": 53.041038513183594,
+          "cos": 0.07892344892024994
+        },
+        {
+          "rel": 6,
+          "token": " before",
+          "raw": 39.919036865234375,
+          "cos": 0.057214196771383286
+        },
+        {
+          "rel": 7,
+          "token": " restarting",
+          "raw": 0.1375914216041565,
+          "cos": 0.000182748946826905
+        }
+      ]
+    },
+    {
+      "case_id": "spot_verb",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "If",
+          "raw": -253.74630737304688,
+          "cos": -0.00606987439095974
+        },
+        {
+          "rel": -1,
+          "token": " you",
+          "raw": 54.304931640625,
+          "cos": 0.060069065541028976
+        },
+        {
+          "rel": 0,
+          "token": " spot",
+          "raw": 85.29967498779297,
+          "cos": 0.09742578864097595
+        },
+        {
+          "rel": 1,
+          "token": " a",
+          "raw": 72.1175308227539,
+          "cos": 0.08187293261289597
+        },
+        {
+          "rel": 2,
+          "token": " problem",
+          "raw": 58.47815704345703,
+          "cos": 0.06364259123802185
+        },
+        {
+          "rel": 3,
+          "token": ",",
+          "raw": 59.02259826660156,
+          "cos": 0.06166568025946617
+        },
+        {
+          "rel": 4,
+          "token": " report",
+          "raw": 55.25734329223633,
+          "cos": 0.057536911219358444
+        },
+        {
+          "rel": 5,
+          "token": " it",
+          "raw": 58.81192398071289,
+          "cos": 0.06718164682388306
+        },
+        {
+          "rel": 6,
+          "token": " before",
+          "raw": 59.4501953125,
+          "cos": 0.06975109875202179
+        },
+        {
+          "rel": 7,
+          "token": " restarting",
+          "raw": 5.3722310066223145,
+          "cos": 0.005648724269121885
+        }
+      ]
+    },
+    {
+      "case_id": "spot_noun",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -4,
+          "token": "We",
+          "raw": 18.237926483154297,
+          "cos": 0.00043893783004023135
+        },
+        {
+          "rel": -3,
+          "token": " found",
+          "raw": 25.409029006958008,
+          "cos": 0.033566541969776154
+        },
+        {
+          "rel": -2,
+          "token": " a",
+          "raw": 35.89102554321289,
+          "cos": 0.054418161511421204
+        },
+        {
+          "rel": -1,
+          "token": " quiet",
+          "raw": 36.04689025878906,
+          "cos": 0.05543981492519379
+        },
+        {
+          "rel": 0,
+          "token": " spot",
+          "raw": 63.903507232666016,
+          "cos": 0.08471659570932388
+        },
+        {
+          "rel": 1,
+          "token": " beside",
+          "raw": 36.83329391479492,
+          "cos": 0.050993070006370544
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 42.94779968261719,
+          "cos": 0.06681948155164719
+        },
+        {
+          "rel": 3,
+          "token": " river",
+          "raw": 29.570842742919922,
+          "cos": 0.04116514325141907
+        },
+        {
+          "rel": 4,
+          "token": ".",
+          "raw": 36.651119232177734,
+          "cos": 0.05209871754050255
+        }
+      ]
+    },
+    {
+      "case_id": "spot_noun",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -4,
+          "token": "We",
+          "raw": -270.94561767578125,
+          "cos": -0.006481305696070194
+        },
+        {
+          "rel": -3,
+          "token": " found",
+          "raw": 38.96042251586914,
+          "cos": 0.04374551400542259
+        },
+        {
+          "rel": -2,
+          "token": " a",
+          "raw": 47.83290100097656,
+          "cos": 0.05960341915488243
+        },
+        {
+          "rel": -1,
+          "token": " quiet",
+          "raw": 45.72801971435547,
+          "cos": 0.05314798653125763
+        },
+        {
+          "rel": 0,
+          "token": " spot",
+          "raw": 72.47737884521484,
+          "cos": 0.082672119140625
+        },
+        {
+          "rel": 1,
+          "token": " beside",
+          "raw": 59.12410354614258,
+          "cos": 0.06477928906679153
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 57.063232421875,
+          "cos": 0.06502710282802582
+        },
+        {
+          "rel": 3,
+          "token": " river",
+          "raw": 36.061641693115234,
+          "cos": 0.035561371594667435
+        },
+        {
+          "rel": 4,
+          "token": ".",
+          "raw": 38.46977233886719,
+          "cos": 0.0465894415974617
+        }
+      ]
+    },
+    {
+      "case_id": "namely",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " one",
+          "raw": 32.555015563964844,
+          "cos": 0.04159559682011604
+        },
+        {
+          "rel": -4,
+          "token": " explanation",
+          "raw": 16.30722427368164,
+          "cos": 0.024149306118488312
+        },
+        {
+          "rel": -3,
+          "token": " remained",
+          "raw": 25.758747100830078,
+          "cos": 0.035920172929763794
+        },
+        {
+          "rel": -2,
+          "token": " plausible",
+          "raw": 35.32252883911133,
+          "cos": 0.04846871644258499
+        },
+        {
+          "rel": -1,
+          "token": ",",
+          "raw": 40.09950637817383,
+          "cos": 0.06428100913763046
+        },
+        {
+          "rel": 0,
+          "token": " namely",
+          "raw": 37.867984771728516,
+          "cos": 0.05655558779835701
+        },
+        {
+          "rel": 1,
+          "token": " a",
+          "raw": 47.30455017089844,
+          "cos": 0.07453638315200806
+        },
+        {
+          "rel": 2,
+          "token": " calibration",
+          "raw": 6.3375749588012695,
+          "cos": 0.008735381998121738
+        },
+        {
+          "rel": 3,
+          "token": " error",
+          "raw": 25.11970329284668,
+          "cos": 0.033081404864788055
+        },
+        {
+          "rel": 4,
+          "token": ".",
+          "raw": 40.348548889160156,
+          "cos": 0.05630534887313843
+        }
+      ]
+    },
+    {
+      "case_id": "namely",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " one",
+          "raw": 54.52956008911133,
+          "cos": 0.05923324078321457
+        },
+        {
+          "rel": -4,
+          "token": " explanation",
+          "raw": 24.424489974975586,
+          "cos": 0.030781729146838188
+        },
+        {
+          "rel": -3,
+          "token": " remained",
+          "raw": 47.46686935424805,
+          "cos": 0.0473480187356472
+        },
+        {
+          "rel": -2,
+          "token": " plausible",
+          "raw": 55.57815933227539,
+          "cos": 0.05718883126974106
+        },
+        {
+          "rel": -1,
+          "token": ",",
+          "raw": 52.183040618896484,
+          "cos": 0.06317713111639023
+        },
+        {
+          "rel": 0,
+          "token": " namely",
+          "raw": 51.31105041503906,
+          "cos": 0.06370881199836731
+        },
+        {
+          "rel": 1,
+          "token": " a",
+          "raw": 59.96580123901367,
+          "cos": 0.07562029361724854
+        },
+        {
+          "rel": 2,
+          "token": " calibration",
+          "raw": 3.5349502563476562,
+          "cos": 0.0040054828859865665
+        },
+        {
+          "rel": 3,
+          "token": " error",
+          "raw": 30.742813110351562,
+          "cos": 0.031952667981386185
+        },
+        {
+          "rel": 4,
+          "token": ".",
+          "raw": 33.970455169677734,
+          "cos": 0.0392443872988224
+        }
+      ]
+    },
+    {
+      "case_id": "for_example",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -1,
+          "token": "For",
+          "raw": 34.503387451171875,
+          "cos": 0.0008355617173947394
+        },
+        {
+          "rel": 0,
+          "token": " example",
+          "raw": 25.35869789123535,
+          "cos": 0.03219758719205856
+        },
+        {
+          "rel": 1,
+          "token": ",",
+          "raw": 41.05823516845703,
+          "cos": 0.06588244438171387
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 41.26961135864258,
+          "cos": 0.05937514081597328
+        },
+        {
+          "rel": 3,
+          "token": " same",
+          "raw": 35.420101165771484,
+          "cos": 0.04779570922255516
+        },
+        {
+          "rel": 4,
+          "token": " pattern",
+          "raw": 35.37940979003906,
+          "cos": 0.048785384744405746
+        },
+        {
+          "rel": 5,
+          "token": " appears",
+          "raw": 54.70969772338867,
+          "cos": 0.07418761402368546
+        },
+        {
+          "rel": 6,
+          "token": " when",
+          "raw": 50.11680221557617,
+          "cos": 0.0701877623796463
+        },
+        {
+          "rel": 7,
+          "token": " the",
+          "raw": 47.929718017578125,
+          "cos": 0.07525084912776947
+        }
+      ]
+    },
+    {
+      "case_id": "for_example",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -1,
+          "token": "For",
+          "raw": -251.19114685058594,
+          "cos": -0.006045832298696041
+        },
+        {
+          "rel": 0,
+          "token": " example",
+          "raw": 32.76774215698242,
+          "cos": 0.03555822744965553
+        },
+        {
+          "rel": 1,
+          "token": ",",
+          "raw": 50.32215881347656,
+          "cos": 0.0662904679775238
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 55.815792083740234,
+          "cos": 0.06933481246232986
+        },
+        {
+          "rel": 3,
+          "token": " same",
+          "raw": 55.370391845703125,
+          "cos": 0.060373879969120026
+        },
+        {
+          "rel": 4,
+          "token": " pattern",
+          "raw": 41.678855895996094,
+          "cos": 0.048491112887859344
+        },
+        {
+          "rel": 5,
+          "token": " appears",
+          "raw": 74.33963775634766,
+          "cos": 0.08063208311796188
+        },
+        {
+          "rel": 6,
+          "token": " when",
+          "raw": 68.95108795166016,
+          "cos": 0.08032388985157013
+        },
+        {
+          "rel": 7,
+          "token": " the",
+          "raw": 62.29134750366211,
+          "cos": 0.07840581238269806
+        }
+      ]
+    },
+    {
+      "case_id": "the_control",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -3,
+          "token": "She",
+          "raw": 38.14674758911133,
+          "cos": 0.0009411636856384575
+        },
+        {
+          "rel": -2,
+          "token": " quietly",
+          "raw": 37.447608947753906,
+          "cos": 0.0484933964908123
+        },
+        {
+          "rel": -1,
+          "token": " opened",
+          "raw": 21.649534225463867,
+          "cos": 0.028772985562682152
+        },
+        {
+          "rel": 0,
+          "token": " the",
+          "raw": 41.182823181152344,
+          "cos": 0.06391709297895432
+        },
+        {
+          "rel": 1,
+          "token": " wooden",
+          "raw": 20.70465087890625,
+          "cos": 0.027679458260536194
+        },
+        {
+          "rel": 2,
+          "token": " box",
+          "raw": 38.665870666503906,
+          "cos": 0.04891515150666237
+        },
+        {
+          "rel": 3,
+          "token": ".",
+          "raw": 37.28153991699219,
+          "cos": 0.05545640364289284
+        }
+      ]
+    },
+    {
+      "case_id": "the_control",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -3,
+          "token": "She",
+          "raw": -239.59828186035156,
+          "cos": -0.005874344147741795
+        },
+        {
+          "rel": -2,
+          "token": " quietly",
+          "raw": 45.501060485839844,
+          "cos": 0.042473021894693375
+        },
+        {
+          "rel": -1,
+          "token": " opened",
+          "raw": 41.664424896240234,
+          "cos": 0.04473229497671127
+        },
+        {
+          "rel": 0,
+          "token": " the",
+          "raw": 55.431793212890625,
+          "cos": 0.06376073509454727
+        },
+        {
+          "rel": 1,
+          "token": " wooden",
+          "raw": 30.143407821655273,
+          "cos": 0.02879306860268116
+        },
+        {
+          "rel": 2,
+          "token": " box",
+          "raw": 43.12375259399414,
+          "cos": 0.0388193279504776
+        },
+        {
+          "rel": 3,
+          "token": ".",
+          "raw": 39.52365493774414,
+          "cos": 0.04951120913028717
+        }
+      ]
+    },
+    {
+      "case_id": "of_control",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -4,
+          "token": "He",
+          "raw": 23.98836326599121,
+          "cos": 0.000573817640542984
+        },
+        {
+          "rel": -3,
+          "token": " placed",
+          "raw": 31.12784767150879,
+          "cos": 0.0419708751142025
+        },
+        {
+          "rel": -2,
+          "token": " a",
+          "raw": 39.25847625732422,
+          "cos": 0.05851563811302185
+        },
+        {
+          "rel": -1,
+          "token": " glass",
+          "raw": 25.22984504699707,
+          "cos": 0.03325416147708893
+        },
+        {
+          "rel": 0,
+          "token": " of",
+          "raw": 29.511789321899414,
+          "cos": 0.03536157310009003
+        },
+        {
+          "rel": 1,
+          "token": " water",
+          "raw": 24.49247932434082,
+          "cos": 0.03289341926574707
+        },
+        {
+          "rel": 2,
+          "token": " on",
+          "raw": 41.749786376953125,
+          "cos": 0.055770162492990494
+        },
+        {
+          "rel": 3,
+          "token": " the",
+          "raw": 37.6457633972168,
+          "cos": 0.07077217102050781
+        },
+        {
+          "rel": 4,
+          "token": " desk",
+          "raw": 25.010583877563477,
+          "cos": 0.03277241438627243
+        },
+        {
+          "rel": 5,
+          "token": ".",
+          "raw": 38.93829345703125,
+          "cos": 0.059539418667554855
+        }
+      ]
+    },
+    {
+      "case_id": "of_control",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -4,
+          "token": "He",
+          "raw": -264.9538269042969,
+          "cos": -0.006299714092165232
+        },
+        {
+          "rel": -3,
+          "token": " placed",
+          "raw": 46.49398422241211,
+          "cos": 0.05069231241941452
+        },
+        {
+          "rel": -2,
+          "token": " a",
+          "raw": 52.99726486206055,
+          "cos": 0.06386014074087143
+        },
+        {
+          "rel": -1,
+          "token": " glass",
+          "raw": 35.20562744140625,
+          "cos": 0.03708000108599663
+        },
+        {
+          "rel": 0,
+          "token": " of",
+          "raw": 43.09379577636719,
+          "cos": 0.039358124136924744
+        },
+        {
+          "rel": 1,
+          "token": " water",
+          "raw": 34.840354919433594,
+          "cos": 0.035773009061813354
+        },
+        {
+          "rel": 2,
+          "token": " on",
+          "raw": 58.21291732788086,
+          "cos": 0.05944102257490158
+        },
+        {
+          "rel": 3,
+          "token": " the",
+          "raw": 49.488460540771484,
+          "cos": 0.06456690281629562
+        },
+        {
+          "rel": 4,
+          "token": " desk",
+          "raw": 33.359107971191406,
+          "cos": 0.033241163939237595
+        },
+        {
+          "rel": 5,
+          "token": ".",
+          "raw": 41.07740020751953,
+          "cos": 0.0495101734995842
+        }
+      ]
+    },
+    {
+      "case_id": "to_control",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "They",
+          "raw": 18.68147850036621,
+          "cos": 0.00045238833990879357
+        },
+        {
+          "rel": -1,
+          "token": " decided",
+          "raw": 13.409393310546875,
+          "cos": 0.016936132684350014
+        },
+        {
+          "rel": 0,
+          "token": " to",
+          "raw": 33.17184829711914,
+          "cos": 0.047591064125299454
+        },
+        {
+          "rel": 1,
+          "token": " postpone",
+          "raw": 33.49595642089844,
+          "cos": 0.04249236360192299
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 37.62660217285156,
+          "cos": 0.05536080524325371
+        },
+        {
+          "rel": 3,
+          "token": " meeting",
+          "raw": 26.574216842651367,
+          "cos": 0.035945743322372437
+        },
+        {
+          "rel": 4,
+          "token": ".",
+          "raw": 35.374149322509766,
+          "cos": 0.05246001109480858
+        }
+      ]
+    },
+    {
+      "case_id": "to_control",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "They",
+          "raw": -267.5989685058594,
+          "cos": -0.006440588738769293
+        },
+        {
+          "rel": -1,
+          "token": " decided",
+          "raw": 23.427026748657227,
+          "cos": 0.025466790422797203
+        },
+        {
+          "rel": 0,
+          "token": " to",
+          "raw": 44.23038101196289,
+          "cos": 0.05084545165300369
+        },
+        {
+          "rel": 1,
+          "token": " postpone",
+          "raw": 52.03956604003906,
+          "cos": 0.05699392408132553
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 52.4066276550293,
+          "cos": 0.05999186635017395
+        },
+        {
+          "rel": 3,
+          "token": " meeting",
+          "raw": 34.13072967529297,
+          "cos": 0.03557450324296951
+        },
+        {
+          "rel": 4,
+          "token": ".",
+          "raw": 34.2762451171875,
+          "cos": 0.04001593962311745
+        }
+      ]
+    },
+    {
+      "case_id": "because_boundary",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -3,
+          "token": "The",
+          "raw": 25.293237686157227,
+          "cos": 0.0006086985231377184
+        },
+        {
+          "rel": -2,
+          "token": " experiment",
+          "raw": 27.224411010742188,
+          "cos": 0.034668900072574615
+        },
+        {
+          "rel": -1,
+          "token": " stopped",
+          "raw": 47.73891830444336,
+          "cos": 0.06302341818809509
+        },
+        {
+          "rel": 0,
+          "token": " because",
+          "raw": 59.3458137512207,
+          "cos": 0.07513953000307083
+        },
+        {
+          "rel": 1,
+          "token": " the",
+          "raw": 45.80780029296875,
+          "cos": 0.07457633316516876
+        },
+        {
+          "rel": 2,
+          "token": " temperature",
+          "raw": 15.009888648986816,
+          "cos": 0.021481415256857872
+        },
+        {
+          "rel": 3,
+          "token": " rose",
+          "raw": 19.798913955688477,
+          "cos": 0.026882924139499664
+        },
+        {
+          "rel": 4,
+          "token": " too",
+          "raw": 42.10184097290039,
+          "cos": 0.059358108788728714
+        },
+        {
+          "rel": 5,
+          "token": " quickly",
+          "raw": 28.53090476989746,
+          "cos": 0.03921153023838997
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 33.738075256347656,
+          "cos": 0.0527685321867466
+        }
+      ]
+    },
+    {
+      "case_id": "because_boundary",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -3,
+          "token": "The",
+          "raw": -260.55340576171875,
+          "cos": -0.006232094950973988
+        },
+        {
+          "rel": -2,
+          "token": " experiment",
+          "raw": 30.092985153198242,
+          "cos": 0.03503850847482681
+        },
+        {
+          "rel": -1,
+          "token": " stopped",
+          "raw": 61.162017822265625,
+          "cos": 0.06438777595758438
+        },
+        {
+          "rel": 0,
+          "token": " because",
+          "raw": 63.7077751159668,
+          "cos": 0.06664251536130905
+        },
+        {
+          "rel": 1,
+          "token": " the",
+          "raw": 54.780704498291016,
+          "cos": 0.07408002763986588
+        },
+        {
+          "rel": 2,
+          "token": " temperature",
+          "raw": 15.592901229858398,
+          "cos": 0.018048472702503204
+        },
+        {
+          "rel": 3,
+          "token": " rose",
+          "raw": 34.05221176147461,
+          "cos": 0.03570974990725517
+        },
+        {
+          "rel": 4,
+          "token": " too",
+          "raw": 47.800716400146484,
+          "cos": 0.052584197372198105
+        },
+        {
+          "rel": 5,
+          "token": " quickly",
+          "raw": 35.166141510009766,
+          "cos": 0.03711843490600586
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 37.798667907714844,
+          "cos": 0.045856744050979614
+        }
+      ]
+    },
+    {
+      "case_id": "if_boundary",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -3,
+          "token": "The",
+          "raw": 25.293237686157227,
+          "cos": 0.0006086985231377184
+        },
+        {
+          "rel": -2,
+          "token": " result",
+          "raw": 26.477745056152344,
+          "cos": 0.035002466291189194
+        },
+        {
+          "rel": -1,
+          "token": " changes",
+          "raw": 19.956153869628906,
+          "cos": 0.028538143262267113
+        },
+        {
+          "rel": 0,
+          "token": " if",
+          "raw": 54.803871154785156,
+          "cos": 0.06603757292032242
+        },
+        {
+          "rel": 1,
+          "token": " the",
+          "raw": 43.57202911376953,
+          "cos": 0.068805992603302
+        },
+        {
+          "rel": 2,
+          "token": " final",
+          "raw": 32.46286392211914,
+          "cos": 0.04440534487366676
+        },
+        {
+          "rel": 3,
+          "token": " token",
+          "raw": 40.640464782714844,
+          "cos": 0.05839141085743904
+        },
+        {
+          "rel": 4,
+          "token": " is",
+          "raw": 38.06019973754883,
+          "cos": 0.05514173582196236
+        },
+        {
+          "rel": 5,
+          "token": " removed",
+          "raw": 21.36243438720703,
+          "cos": 0.03042791411280632
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 35.56504440307617,
+          "cos": 0.05428585410118103
+        }
+      ]
+    },
+    {
+      "case_id": "if_boundary",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -3,
+          "token": "The",
+          "raw": -260.55340576171875,
+          "cos": -0.006232094950973988
+        },
+        {
+          "rel": -2,
+          "token": " result",
+          "raw": 32.91525650024414,
+          "cos": 0.03930065035820007
+        },
+        {
+          "rel": -1,
+          "token": " changes",
+          "raw": 42.427947998046875,
+          "cos": 0.049795132130384445
+        },
+        {
+          "rel": 0,
+          "token": " if",
+          "raw": 69.29953002929688,
+          "cos": 0.07273388653993607
+        },
+        {
+          "rel": 1,
+          "token": " the",
+          "raw": 56.94510269165039,
+          "cos": 0.07257585972547531
+        },
+        {
+          "rel": 2,
+          "token": " final",
+          "raw": 43.95393753051758,
+          "cos": 0.05176011100411415
+        },
+        {
+          "rel": 3,
+          "token": " token",
+          "raw": 45.885223388671875,
+          "cos": 0.05744105204939842
+        },
+        {
+          "rel": 4,
+          "token": " is",
+          "raw": 53.41538619995117,
+          "cos": 0.06341098248958588
+        },
+        {
+          "rel": 5,
+          "token": " removed",
+          "raw": 31.631431579589844,
+          "cos": 0.03563700243830681
+        },
+        {
+          "rel": 6,
+          "token": ".",
+          "raw": 38.90860366821289,
+          "cos": 0.04472876340150833
+        }
+      ]
+    },
+    {
+      "case_id": "natural_colon_medicine",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " of",
+          "raw": 53.26323699951172,
+          "cos": 0.07592638581991196
+        },
+        {
+          "rel": -4,
+          "token": " medicine",
+          "raw": 20.781158447265625,
+          "cos": 0.028704902157187462
+        },
+        {
+          "rel": -3,
+          "token": " surfaced",
+          "raw": 42.19658279418945,
+          "cos": 0.05843790993094444
+        },
+        {
+          "rel": -2,
+          "token": " this",
+          "raw": 40.54922103881836,
+          "cos": 0.06087777018547058
+        },
+        {
+          "rel": -1,
+          "token": " week",
+          "raw": 51.83348083496094,
+          "cos": 0.07806951552629471
+        },
+        {
+          "rel": 0,
+          "token": ":",
+          "raw": 79.43501281738281,
+          "cos": 0.1136995255947113
+        },
+        {
+          "rel": 1,
+          "token": " The",
+          "raw": 39.961326599121094,
+          "cos": 0.06595917046070099
+        },
+        {
+          "rel": 2,
+          "token": " National",
+          "raw": 22.459392547607422,
+          "cos": 0.03348128870129585
+        },
+        {
+          "rel": 3,
+          "token": " Institutes",
+          "raw": -0.2450767159461975,
+          "cos": -0.00034677490475587547
+        },
+        {
+          "rel": 4,
+          "token": " of",
+          "raw": 9.148812294006348,
+          "cos": 0.018651235848665237
+        },
+        {
+          "rel": 5,
+          "token": " Health",
+          "raw": 15.413168907165527,
+          "cos": 0.01993560791015625
+        },
+        {
+          "rel": 6,
+          "token": " promised",
+          "raw": 57.87425231933594,
+          "cos": 0.0772237479686737
+        },
+        {
+          "rel": 7,
+          "token": " a",
+          "raw": 52.982017517089844,
+          "cos": 0.0881485864520073
+        }
+      ]
+    },
+    {
+      "case_id": "natural_colon_medicine",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " of",
+          "raw": 70.23143768310547,
+          "cos": 0.07445304095745087
+        },
+        {
+          "rel": -4,
+          "token": " medicine",
+          "raw": 27.269132614135742,
+          "cos": 0.028034141287207603
+        },
+        {
+          "rel": -3,
+          "token": " surfaced",
+          "raw": 59.94902420043945,
+          "cos": 0.06493181735277176
+        },
+        {
+          "rel": -2,
+          "token": " this",
+          "raw": 56.1788330078125,
+          "cos": 0.06459305435419083
+        },
+        {
+          "rel": -1,
+          "token": " week",
+          "raw": 62.360694885253906,
+          "cos": 0.06695551425218582
+        },
+        {
+          "rel": 0,
+          "token": ":",
+          "raw": 90.29898834228516,
+          "cos": 0.10646704584360123
+        },
+        {
+          "rel": 1,
+          "token": " The",
+          "raw": 44.82186508178711,
+          "cos": 0.058852847665548325
+        },
+        {
+          "rel": 2,
+          "token": " National",
+          "raw": 29.28568458557129,
+          "cos": 0.03216353803873062
+        },
+        {
+          "rel": 3,
+          "token": " Institutes",
+          "raw": 8.292478561401367,
+          "cos": 0.007987385615706444
+        },
+        {
+          "rel": 4,
+          "token": " of",
+          "raw": 14.664873123168945,
+          "cos": 0.021964630112051964
+        },
+        {
+          "rel": 5,
+          "token": " Health",
+          "raw": 20.36331558227539,
+          "cos": 0.019375784322619438
+        },
+        {
+          "rel": 6,
+          "token": " promised",
+          "raw": 80.26566314697266,
+          "cos": 0.08292512595653534
+        },
+        {
+          "rel": 7,
+          "token": " a",
+          "raw": 71.03710174560547,
+          "cos": 0.08940977603197098
+        }
+      ]
+    },
+    {
+      "case_id": "natural_fact_skoda",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " in",
+          "raw": 30.453615188598633,
+          "cos": 0.03906821832060814
+        },
+        {
+          "rel": -4,
+          "token": " the",
+          "raw": 37.527320861816406,
+          "cos": 0.06791872531175613
+        },
+        {
+          "rel": -3,
+          "token": " UK",
+          "raw": 33.490135192871094,
+          "cos": 0.04840368032455444
+        },
+        {
+          "rel": -2,
+          "token": ".",
+          "raw": 34.783817291259766,
+          "cos": 0.051611218601465225
+        },
+        {
+          "rel": -1,
+          "token": " In",
+          "raw": 22.423187255859375,
+          "cos": 0.039246730506420135
+        },
+        {
+          "rel": 0,
+          "token": " fact",
+          "raw": 62.459617614746094,
+          "cos": 0.08937478810548782
+        },
+        {
+          "rel": 1,
+          "token": ",",
+          "raw": 37.603694915771484,
+          "cos": 0.06550070643424988
+        },
+        {
+          "rel": 2,
+          "token": " Sk",
+          "raw": 27.00100326538086,
+          "cos": 0.04460589215159416
+        },
+        {
+          "rel": 3,
+          "token": "oda",
+          "raw": 10.207406997680664,
+          "cos": 0.012800400145351887
+        },
+        {
+          "rel": 4,
+          "token": " took",
+          "raw": 35.34389877319336,
+          "cos": 0.05376959219574928
+        },
+        {
+          "rel": 5,
+          "token": " three",
+          "raw": 34.161373138427734,
+          "cos": 0.05155068263411522
+        },
+        {
+          "rel": 6,
+          "token": " of",
+          "raw": 29.168373107910156,
+          "cos": 0.040529392659664154
+        },
+        {
+          "rel": 7,
+          "token": " the",
+          "raw": 31.976890563964844,
+          "cos": 0.06115573272109032
+        }
+      ]
+    },
+    {
+      "case_id": "natural_fact_skoda",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " in",
+          "raw": 52.34954833984375,
+          "cos": 0.05459399148821831
+        },
+        {
+          "rel": -4,
+          "token": " the",
+          "raw": 43.95180892944336,
+          "cos": 0.058217842131853104
+        },
+        {
+          "rel": -3,
+          "token": " UK",
+          "raw": 38.637535095214844,
+          "cos": 0.040133751928806305
+        },
+        {
+          "rel": -2,
+          "token": ".",
+          "raw": 30.17288589477539,
+          "cos": 0.03568034991621971
+        },
+        {
+          "rel": -1,
+          "token": " In",
+          "raw": 40.9645881652832,
+          "cos": 0.05934864282608032
+        },
+        {
+          "rel": 0,
+          "token": " fact",
+          "raw": 70.9090347290039,
+          "cos": 0.07776596397161484
+        },
+        {
+          "rel": 1,
+          "token": ",",
+          "raw": 42.9353141784668,
+          "cos": 0.057750798761844635
+        },
+        {
+          "rel": 2,
+          "token": " Sk",
+          "raw": 32.598575592041016,
+          "cos": 0.041764676570892334
+        },
+        {
+          "rel": 3,
+          "token": "oda",
+          "raw": 6.371025085449219,
+          "cos": 0.0055130221880972385
+        },
+        {
+          "rel": 4,
+          "token": " took",
+          "raw": 52.30339050292969,
+          "cos": 0.06126685068011284
+        },
+        {
+          "rel": 5,
+          "token": " three",
+          "raw": 55.52320861816406,
+          "cos": 0.06695661693811417
+        },
+        {
+          "rel": 6,
+          "token": " of",
+          "raw": 40.231300354003906,
+          "cos": 0.0458543561398983
+        },
+        {
+          "rel": 7,
+          "token": " the",
+          "raw": 37.569557189941406,
+          "cos": 0.05434638261795044
+        }
+      ]
+    },
+    {
+      "case_id": "natural_point_chicken",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "At",
+          "raw": 27.700164794921875,
+          "cos": 0.000662580190692097
+        },
+        {
+          "rel": -1,
+          "token": " one",
+          "raw": 41.25484085083008,
+          "cos": 0.0534885935485363
+        },
+        {
+          "rel": 0,
+          "token": " point",
+          "raw": 65.92829895019531,
+          "cos": 0.0835360661149025
+        },
+        {
+          "rel": 1,
+          "token": " I",
+          "raw": 42.553829193115234,
+          "cos": 0.06825162470340729
+        },
+        {
+          "rel": 2,
+          "token": " was",
+          "raw": 44.746978759765625,
+          "cos": 0.06397038698196411
+        },
+        {
+          "rel": 3,
+          "token": " wrestling",
+          "raw": 10.778568267822266,
+          "cos": 0.01563112810254097
+        },
+        {
+          "rel": 4,
+          "token": " with",
+          "raw": 44.931793212890625,
+          "cos": 0.058640845119953156
+        },
+        {
+          "rel": 5,
+          "token": " a",
+          "raw": 43.68268966674805,
+          "cos": 0.07174081355333328
+        },
+        {
+          "rel": 6,
+          "token": " whole",
+          "raw": 61.52210235595703,
+          "cos": 0.08830977976322174
+        },
+        {
+          "rel": 7,
+          "token": " chicken",
+          "raw": 24.895620346069336,
+          "cos": 0.031166791915893555
+        }
+      ]
+    },
+    {
+      "case_id": "natural_point_chicken",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -2,
+          "token": "At",
+          "raw": -262.3168640136719,
+          "cos": -0.006236610002815723
+        },
+        {
+          "rel": -1,
+          "token": " one",
+          "raw": 61.49283218383789,
+          "cos": 0.07034951448440552
+        },
+        {
+          "rel": 0,
+          "token": " point",
+          "raw": 80.14633178710938,
+          "cos": 0.08363174647092819
+        },
+        {
+          "rel": 1,
+          "token": " I",
+          "raw": 55.31167221069336,
+          "cos": 0.07159333676099777
+        },
+        {
+          "rel": 2,
+          "token": " was",
+          "raw": 58.44529342651367,
+          "cos": 0.0701734647154808
+        },
+        {
+          "rel": 3,
+          "token": " wrestling",
+          "raw": 19.417940139770508,
+          "cos": 0.022076020017266273
+        },
+        {
+          "rel": 4,
+          "token": " with",
+          "raw": 60.891693115234375,
+          "cos": 0.06348223239183426
+        },
+        {
+          "rel": 5,
+          "token": " a",
+          "raw": 56.190467834472656,
+          "cos": 0.07638461887836456
+        },
+        {
+          "rel": 6,
+          "token": " whole",
+          "raw": 82.23286437988281,
+          "cos": 0.08800532668828964
+        },
+        {
+          "rel": 7,
+          "token": " chicken",
+          "raw": 29.366424560546875,
+          "cos": 0.027688786387443542
+        }
+      ]
+    },
+    {
+      "case_id": "natural_who_crystal",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " a",
+          "raw": 42.49999237060547,
+          "cos": 0.0652981773018837
+        },
+        {
+          "rel": -4,
+          "token": " call",
+          "raw": 50.737327575683594,
+          "cos": 0.06867455691099167
+        },
+        {
+          "rel": -3,
+          "token": " from",
+          "raw": 48.49166488647461,
+          "cos": 0.06269928067922592
+        },
+        {
+          "rel": -2,
+          "token": " Crystal",
+          "raw": 27.139814376831055,
+          "cos": 0.038771823048591614
+        },
+        {
+          "rel": -1,
+          "token": ",",
+          "raw": 48.58991241455078,
+          "cos": 0.06326676905155182
+        },
+        {
+          "rel": 0,
+          "token": " who",
+          "raw": 71.80804443359375,
+          "cos": 0.09769109636545181
+        },
+        {
+          "rel": 1,
+          "token": " is",
+          "raw": 39.20919418334961,
+          "cos": 0.05678899586200714
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 40.72135543823242,
+          "cos": 0.05760733783245087
+        },
+        {
+          "rel": 3,
+          "token": " daughter",
+          "raw": 20.012102127075195,
+          "cos": 0.02593647502362728
+        },
+        {
+          "rel": 4,
+          "token": " of",
+          "raw": 29.658580780029297,
+          "cos": 0.04005122557282448
+        },
+        {
+          "rel": 5,
+          "token": " the",
+          "raw": 42.19382095336914,
+          "cos": 0.07493557035923004
+        },
+        {
+          "rel": 6,
+          "token": " owner",
+          "raw": 35.25611114501953,
+          "cos": 0.03991243243217468
+        },
+        {
+          "rel": 7,
+          "token": " A",
+          "raw": 28.59926414489746,
+          "cos": 0.04235997796058655
+        }
+      ]
+    },
+    {
+      "case_id": "natural_who_crystal",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " a",
+          "raw": 48.58594512939453,
+          "cos": 0.05993615463376045
+        },
+        {
+          "rel": -4,
+          "token": " call",
+          "raw": 57.30042266845703,
+          "cos": 0.06290332973003387
+        },
+        {
+          "rel": -3,
+          "token": " from",
+          "raw": 59.811805725097656,
+          "cos": 0.06476026773452759
+        },
+        {
+          "rel": -2,
+          "token": " Crystal",
+          "raw": 26.290197372436523,
+          "cos": 0.02880012057721615
+        },
+        {
+          "rel": -1,
+          "token": ",",
+          "raw": 56.048336029052734,
+          "cos": 0.05833030119538307
+        },
+        {
+          "rel": 0,
+          "token": " who",
+          "raw": 84.08362579345703,
+          "cos": 0.09590711444616318
+        },
+        {
+          "rel": 1,
+          "token": " is",
+          "raw": 46.80506134033203,
+          "cos": 0.05576907843351364
+        },
+        {
+          "rel": 2,
+          "token": " the",
+          "raw": 43.2267951965332,
+          "cos": 0.049613166600465775
+        },
+        {
+          "rel": 3,
+          "token": " daughter",
+          "raw": 23.74901580810547,
+          "cos": 0.024125784635543823
+        },
+        {
+          "rel": 4,
+          "token": " of",
+          "raw": 37.908180236816406,
+          "cos": 0.04111648350954056
+        },
+        {
+          "rel": 5,
+          "token": " the",
+          "raw": 53.41203308105469,
+          "cos": 0.06730921566486359
+        },
+        {
+          "rel": 6,
+          "token": " owner",
+          "raw": 38.64268493652344,
+          "cos": 0.03736111521720886
+        },
+        {
+          "rel": 7,
+          "token": " A",
+          "raw": 38.86135482788086,
+          "cos": 0.04467391595244408
+        }
+      ]
+    },
+    {
+      "case_id": "natural_spot_bugs",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " the",
+          "raw": 38.79758071899414,
+          "cos": 0.06879166513681412
+        },
+        {
+          "rel": -4,
+          "token": " options",
+          "raw": 28.620288848876953,
+          "cos": 0.0389193519949913
+        },
+        {
+          "rel": -3,
+          "token": " in",
+          "raw": 15.449418067932129,
+          "cos": 0.020828070119023323
+        },
+        {
+          "rel": -2,
+          "token": " case",
+          "raw": 63.599082946777344,
+          "cos": 0.09368325769901276
+        },
+        {
+          "rel": -1,
+          "token": " you",
+          "raw": 47.21528244018555,
+          "cos": 0.07567750662565231
+        },
+        {
+          "rel": 0,
+          "token": " spot",
+          "raw": 70.57587432861328,
+          "cos": 0.09547927230596542
+        },
+        {
+          "rel": 1,
+          "token": " any",
+          "raw": 35.9575080871582,
+          "cos": 0.05607781931757927
+        },
+        {
+          "rel": 2,
+          "token": " more",
+          "raw": 38.739505767822266,
+          "cos": 0.055544544011354446
+        },
+        {
+          "rel": 3,
+          "token": " bugs",
+          "raw": 24.009777069091797,
+          "cos": 0.032672133296728134
+        },
+        {
+          "rel": 4,
+          "token": " and",
+          "raw": 38.90315628051758,
+          "cos": 0.059752654284238815
+        },
+        {
+          "rel": 5,
+          "token": " want",
+          "raw": 38.37115478515625,
+          "cos": 0.0574268214404583
+        },
+        {
+          "rel": 6,
+          "token": " to",
+          "raw": 29.54815673828125,
+          "cos": 0.044637542217969894
+        },
+        {
+          "rel": 7,
+          "token": " notify",
+          "raw": 38.39005661010742,
+          "cos": 0.05133229121565819
+        }
+      ]
+    },
+    {
+      "case_id": "natural_spot_bugs",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " the",
+          "raw": 46.72515869140625,
+          "cos": 0.061728350818157196
+        },
+        {
+          "rel": -4,
+          "token": " options",
+          "raw": 35.05634307861328,
+          "cos": 0.03897053003311157
+        },
+        {
+          "rel": -3,
+          "token": " in",
+          "raw": 26.40237808227539,
+          "cos": 0.0287347249686718
+        },
+        {
+          "rel": -2,
+          "token": " case",
+          "raw": 75.54096984863281,
+          "cos": 0.09030649811029434
+        },
+        {
+          "rel": -1,
+          "token": " you",
+          "raw": 54.08828353881836,
+          "cos": 0.07102461159229279
+        },
+        {
+          "rel": 0,
+          "token": " spot",
+          "raw": 81.7895278930664,
+          "cos": 0.0915159359574318
+        },
+        {
+          "rel": 1,
+          "token": " any",
+          "raw": 56.335968017578125,
+          "cos": 0.06924985349178314
+        },
+        {
+          "rel": 2,
+          "token": " more",
+          "raw": 62.33559799194336,
+          "cos": 0.06615633517503738
+        },
+        {
+          "rel": 3,
+          "token": " bugs",
+          "raw": 27.614675521850586,
+          "cos": 0.029024524614214897
+        },
+        {
+          "rel": 4,
+          "token": " and",
+          "raw": 46.037193298339844,
+          "cos": 0.058638036251068115
+        },
+        {
+          "rel": 5,
+          "token": " want",
+          "raw": 47.47277069091797,
+          "cos": 0.055820282548666
+        },
+        {
+          "rel": 6,
+          "token": " to",
+          "raw": 34.46184158325195,
+          "cos": 0.043567828834056854
+        },
+        {
+          "rel": 7,
+          "token": " notify",
+          "raw": 49.45027160644531,
+          "cos": 0.053220055997371674
+        }
+      ]
+    },
+    {
+      "case_id": "natural_that_model",
+      "layer": 7,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " world",
+          "raw": 40.2305908203125,
+          "cos": 0.053216930478811264
+        },
+        {
+          "rel": -4,
+          "token": " is",
+          "raw": 31.80778694152832,
+          "cos": 0.04907560348510742
+        },
+        {
+          "rel": -3,
+          "token": " flawed",
+          "raw": 28.3555908203125,
+          "cos": 0.036725714802742004
+        },
+        {
+          "rel": -2,
+          "token": ",",
+          "raw": 37.41508865356445,
+          "cos": 0.05923399329185486
+        },
+        {
+          "rel": -1,
+          "token": " and",
+          "raw": 47.046871185302734,
+          "cos": 0.07059841603040695
+        },
+        {
+          "rel": 0,
+          "token": " that",
+          "raw": 57.47730255126953,
+          "cos": 0.0935843363404274
+        },
+        {
+          "rel": 1,
+          "token": " will",
+          "raw": 38.58064270019531,
+          "cos": 0.060844678431749344
+        },
+        {
+          "rel": 2,
+          "token": " de",
+          "raw": 23.970821380615234,
+          "cos": 0.037513114511966705
+        },
+        {
+          "rel": 3,
+          "token": "plete",
+          "raw": 23.8802433013916,
+          "cos": 0.034298431128263474
+        },
+        {
+          "rel": 4,
+          "token": " your",
+          "raw": 22.34711265563965,
+          "cos": 0.0380781926214695
+        },
+        {
+          "rel": 5,
+          "token": " body",
+          "raw": 32.90906524658203,
+          "cos": 0.04827503114938736
+        },
+        {
+          "rel": 6,
+          "token": " budget",
+          "raw": 26.9294490814209,
+          "cos": 0.03888733685016632
+        },
+        {
+          "rel": 7,
+          "token": ".",
+          "raw": 36.84721374511719,
+          "cos": 0.06306656450033188
+        }
+      ]
+    },
+    {
+      "case_id": "natural_that_model",
+      "layer": 8,
+      "trace": [
+        {
+          "rel": -5,
+          "token": " world",
+          "raw": 44.51576614379883,
+          "cos": 0.04520370811223984
+        },
+        {
+          "rel": -4,
+          "token": " is",
+          "raw": 48.315467834472656,
+          "cos": 0.05973134934902191
+        },
+        {
+          "rel": -3,
+          "token": " flawed",
+          "raw": 38.806148529052734,
+          "cos": 0.04072907939553261
+        },
+        {
+          "rel": -2,
+          "token": ",",
+          "raw": 44.10107421875,
+          "cos": 0.054441165179014206
+        },
+        {
+          "rel": -1,
+          "token": " and",
+          "raw": 59.80921173095703,
+          "cos": 0.0716499388217926
+        },
+        {
+          "rel": 0,
+          "token": " that",
+          "raw": 59.549583435058594,
+          "cos": 0.07867678254842758
+        },
+        {
+          "rel": 1,
+          "token": " will",
+          "raw": 45.691688537597656,
+          "cos": 0.05678747966885567
+        },
+        {
+          "rel": 2,
+          "token": " de",
+          "raw": 35.15085983276367,
+          "cos": 0.04466094449162483
+        },
+        {
+          "rel": 3,
+          "token": "plete",
+          "raw": 34.67240524291992,
+          "cos": 0.04100983217358589
+        },
+        {
+          "rel": 4,
+          "token": " your",
+          "raw": 34.20185470581055,
+          "cos": 0.044847674667835236
+        },
+        {
+          "rel": 5,
+          "token": " body",
+          "raw": 38.45244216918945,
+          "cos": 0.044546399265527725
+        },
+        {
+          "rel": 6,
+          "token": " budget",
+          "raw": 30.5148983001709,
+          "cos": 0.03588308021426201
+        },
+        {
+          "rel": 7,
+          "token": ".",
+          "raw": 33.43951416015625,
+          "cos": 0.042550649493932724
+        }
+      ]
+    }
+  ]
+}
