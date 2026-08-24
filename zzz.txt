@@ -5,3 +5,10 @@ python analyze_aha_rollout.py \
     --step 0 \
     --every 64 \
     --chunk-size 128
+
+python probe_semantic_slot_direction.py \
+  --model openai/gpt-oss-20b \
+  --directions-dir unrealized_words_fineweb/directions \
+  --layers 7,8 \
+  --sv-indices 12,12 \
+  --out-dir semantic_slot_probe
