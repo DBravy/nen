@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Build a self-contained browser dashboard for the FineWeb SV scan.
+"""Build a self-contained browser dashboard for two FineWeb SV scans.
 
 The source data files are intentionally large. This script keeps the highest
-ranked candidates, prunes contexts and token neighbors to the fields used by the
-UI, and embeds the result in one HTML file that can be opened directly from disk.
+ranked candidates from both the broad-activity and selective-tail rankings,
+prunes contexts and token neighbors to the fields used by the UI, and embeds the
+result in one HTML file that can be opened directly from disk.
 """
 
 from __future__ import annotations
@@ -18,9 +19,12 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_DATA_DIR = ROOT / "unrealized_words_fineweb"
-PRIMARY_RANK = "rank_global_mean_abs_cosine"
+DEFAULT_SELECTIVITY_DATA_DIR = ROOT / "unrealized_words_selectivity"
+BROAD_RANK = "rank_global_mean_abs_cosine"
+SELECTIVITY_RANK = "rank_global_tail_selectivity"
 RANKING_TEXT_FIELDS = {
     "candidate",
+    "selected_tail_polarity",
     "nearest_unembed_token",
     "nearest_unembed_decoded",
     "farthest_unembed_token",
@@ -37,6 +41,12 @@ def parse_args() -> argparse.Namespace:
         help="Directory containing rankings, contexts, unembedding neighbors, and metadata",
     )
     parser.add_argument(
+        "--selectivity-data-dir",
+        type=Path,
+        default=DEFAULT_SELECTIVITY_DATA_DIR,
+        help="Directory containing the selective-tail scan outputs",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         default=None,
@@ -47,6 +57,12 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=250,
         help="Number of globally top-ranked SVs to embed; 0 embeds all (default: 250)",
+    )
+    parser.add_argument(
+        "--selectivity-top",
+        type=int,
+        default=250,
+        help="Number of top selective-tail SVs to embed; 0 embeds all (default: 250)",
     )
     return parser.parse_args()
 
@@ -63,11 +79,11 @@ def number(value: str) -> int | float | None:
     return int(parsed) if parsed.is_integer() else parsed
 
 
-def load_rankings(path: Path, top_n: int) -> tuple[list[dict[str, Any]], int]:
+def load_rankings(path: Path, top_n: int, rank_key: str) -> tuple[list[dict[str, Any]], int]:
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
-        if not reader.fieldnames or "candidate" not in reader.fieldnames or PRIMARY_RANK not in reader.fieldnames:
-            raise SystemExit(f"{path} is missing candidate or {PRIMARY_RANK}")
+        if not reader.fieldnames or "candidate" not in reader.fieldnames or rank_key not in reader.fieldnames:
+            raise SystemExit(f"{path} is missing candidate or {rank_key}")
         rows: list[dict[str, Any]] = []
         for row_number, raw in enumerate(reader, 2):
             try:
@@ -76,10 +92,10 @@ def load_rankings(path: Path, top_n: int) -> tuple[list[dict[str, Any]], int]:
                 raise SystemExit(f"Invalid numeric field on {path}:{row_number}: {exc}") from exc
             rows.append(row)
 
-    rows.sort(key=lambda row: int(row[PRIMARY_RANK]))
+    rows.sort(key=lambda row: int(row[rank_key]))
     total = len(rows)
     if top_n < 0:
-        raise SystemExit("--top must be 0 or greater")
+        raise SystemExit("top counts must be 0 or greater")
     return (rows if top_n == 0 else rows[:top_n]), total
 
 
@@ -218,20 +234,60 @@ def zero_based_candidate(row: dict[str, Any]) -> str:
     return f"L{int(row['layer']):02d}_SV{int(row['sv_index_0']):02d}"
 
 
-def build_payload(data_dir: Path, top_n: int) -> dict[str, Any]:
-    rankings_path = data_dir / "sv_rankings.csv"
+def selected_tail_value(row: dict[str, Any], suffix: str) -> Any:
+    polarity = row.get("selected_tail_polarity")
+    return row.get(f"{polarity}_{suffix}") if polarity in ("positive", "negative") else None
+
+
+def display_row(source_row: dict[str, Any], mode: str) -> dict[str, Any]:
+    row = {
+        ("singular_value_over_sv0" if key == "singular_value_over_sv1" else key): value
+        for key, value in source_row.items()
+        if key != "sv_rank_1based"
+    }
+    row["candidate"] = zero_based_candidate(source_row)
+    if mode == "selective":
+        for suffix in (
+            "max_robust_z",
+            "q99_robust_z",
+            "q999_robust_z",
+            "q9999_robust_z",
+            "top1pct_energy_share",
+            "top0_1pct_energy_share",
+            "token_rate_z3",
+            "token_rate_z5",
+            "token_rate_z8",
+            "doc_count_z3",
+            "doc_count_z5",
+            "doc_count_z8",
+            "doc_rate_z3",
+            "doc_rate_z5",
+            "doc_rate_z8",
+            "tail_shape_score",
+            "tail_support_weight",
+        ):
+            row[f"selected_tail_{suffix}"] = selected_tail_value(source_row, suffix)
+    return row
+
+
+def build_mode_payload(
+    data_dir: Path,
+    rankings_filename: str,
+    rank_key: str,
+    top_n: int,
+    mode: str,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    rankings_path = data_dir / rankings_filename
     contexts_path = data_dir / "top_contexts.jsonl"
-    unembedding_path = data_dir / "unembedding_neighbors.jsonl"
     metadata_path = data_dir / "metadata.json"
-    for path in (rankings_path, contexts_path, unembedding_path, metadata_path):
+    for path in (rankings_path, contexts_path, metadata_path):
         if not path.is_file():
             raise SystemExit(f"Missing required input: {path}")
 
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
-    rankings, total_candidates = load_rankings(rankings_path, top_n)
+    rankings, total_candidates = load_rankings(rankings_path, top_n, rank_key)
     candidates = [row["candidate"] for row in rankings]
     contexts, total_contexts = load_contexts(contexts_path, candidates)
-    unembedding, unembedding_meta = load_unembedding_neighbors(unembedding_path, candidates)
 
     expected = int(metadata.get("top_contexts_per_polarity", 0))
     incomplete: list[str] = []
@@ -244,7 +300,6 @@ def build_payload(data_dir: Path, top_n: int) -> dict[str, Any]:
 
     display_rankings: list[dict[str, Any]] = []
     display_contexts: dict[str, dict[str, list[dict[str, Any]]]] = {}
-    display_unembedding: dict[str, dict[str, Any]] = {}
     for row in rankings:
         source_candidate = str(row["candidate"])
         expected_source = f"L{int(row['layer']):02d}_SV{int(row['sv_index_0']) + 1:02d}"
@@ -254,18 +309,12 @@ def build_payload(data_dir: Path, top_n: int) -> dict[str, Any]:
                 "from layer and sv_index_0"
             )
         display_candidate = zero_based_candidate(row)
-        display_row = {
-            ("singular_value_over_sv0" if key == "singular_value_over_sv1" else key): value
-            for key, value in row.items()
-            if key != "sv_rank_1based"
-        }
-        display_row["candidate"] = display_candidate
-        display_rankings.append(display_row)
+        display_rankings.append(display_row(row, mode))
         display_contexts[display_candidate] = contexts[source_candidate]
-        display_unembedding[display_candidate] = unembedding[source_candidate]
 
-    return {
+    return ({
         "meta": {
+            "mode": mode,
             "model": metadata.get("model"),
             "dataset": metadata.get("dataset"),
             "dataset_config": metadata.get("dataset_config"),
@@ -273,20 +322,93 @@ def build_payload(data_dir: Path, top_n: int) -> dict[str, Any]:
             "tokens": metadata.get("content_tokens_processed"),
             "layers": metadata.get("layers", []),
             "k": metadata.get("k"),
-            "primary_sort": metadata.get("primary_csv_sort", PRIMARY_RANK),
+            "primary_rank": rank_key,
+            "rankings_file": rankings_filename,
             "contexts_per_polarity": expected,
             "total_candidates": total_candidates,
             "embedded_candidates": len(rankings),
             "total_contexts": total_contexts,
+            "display_sv_numbering": "zero_based",
+            "token_sample_per_layer": metadata.get("token_sample_actual_per_layer", {}),
+            "min_tail_docs_for_full_score_weight": metadata.get("min_tail_docs_for_full_score_weight"),
+        },
+        "rankings": display_rankings,
+        "contexts": display_contexts,
+    }, rankings)
+
+
+def build_payload(
+    data_dir: Path,
+    selectivity_data_dir: Path,
+    top_n: int,
+    selectivity_top_n: int,
+) -> dict[str, Any]:
+    broad, broad_source_rows = build_mode_payload(
+        data_dir, "sv_rankings.csv", BROAD_RANK, top_n, "broad"
+    )
+    selective, selective_source_rows = build_mode_payload(
+        selectivity_data_dir,
+        "selectivity_rankings.csv",
+        SELECTIVITY_RANK,
+        selectivity_top_n,
+        "selective",
+    )
+
+    comparable_fields = (
+        "model",
+        "dataset",
+        "dataset_config",
+        "documents",
+        "tokens",
+        "layers",
+        "k",
+        "total_candidates",
+    )
+    mismatches = [
+        field
+        for field in comparable_fields
+        if broad["meta"].get(field) != selective["meta"].get(field)
+    ]
+    if mismatches:
+        raise SystemExit(
+            "The scans are not directly comparable; metadata differs for " + ", ".join(mismatches)
+        )
+
+    source_rows: dict[str, dict[str, Any]] = {}
+    for row in broad_source_rows + selective_source_rows:
+        source_rows.setdefault(str(row["candidate"]), row)
+    source_candidates = list(source_rows)
+    unembedding_path = data_dir / "unembedding_neighbors.jsonl"
+    if not unembedding_path.is_file():
+        raise SystemExit(f"Missing required input: {unembedding_path}")
+    source_unembedding, unembedding_meta = load_unembedding_neighbors(
+        unembedding_path, source_candidates
+    )
+    display_unembedding = {
+        zero_based_candidate(source_rows[source_candidate]): source_unembedding[source_candidate]
+        for source_candidate in source_candidates
+    }
+
+    overlap = len(
+        {row["candidate"] for row in broad["rankings"]}
+        & {row["candidate"] for row in selective["rankings"]}
+    )
+    return {
+        "default_mode": "broad",
+        "meta": {
+            "model": broad["meta"]["model"],
+            "dataset": broad["meta"]["dataset"],
+            "dataset_config": broad["meta"]["dataset_config"],
+            "display_sv_numbering": "zero_based",
             "unembedding_candidates": unembedding_meta["total"],
             "unembedding_space": unembedding_meta["space"],
             "unembedding_vocab_rows": unembedding_meta["vocab"],
             "unembedding_neighbors_per_side": unembedding_meta["per_side"],
             "unembedding_domain_max": unembedding_meta["domain_max"],
-            "display_sv_numbering": "zero_based",
+            "embedded_candidate_union": len(display_unembedding),
+            "embedded_candidate_overlap": overlap,
         },
-        "rankings": display_rankings,
-        "contexts": display_contexts,
+        "modes": {"broad": broad, "selective": selective},
         "unembedding": display_unembedding,
     }
 
@@ -313,6 +435,9 @@ HTML_TEMPLATE = r'''<!doctype html>
       --orange: #ca6337;
       --orange-soft: #f5e4da;
       --blue: #416b92;
+      --blue-soft: #e3ebf3;
+      --mode-accent: var(--green);
+      --mode-soft: var(--green-soft);
       --shadow: 0 14px 40px rgba(42, 49, 44, .08);
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -322,6 +447,7 @@ HTML_TEMPLATE = r'''<!doctype html>
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body { margin: 0; color: var(--ink); background: var(--paper); font: 14px/1.5 var(--sans); }
+    body[data-mode="selective"] { --mode-accent: var(--blue); --mode-soft: var(--blue-soft); }
     button, input, select { font: inherit; }
     button, select { cursor: pointer; }
     a { color: inherit; }
@@ -340,6 +466,16 @@ HTML_TEMPLATE = r'''<!doctype html>
     .fact { min-width: 90px; }
     .fact b { display: block; color: #fff; font: 600 18px/1.15 var(--mono); }
     .fact span { color: #9ba8a1; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+
+    .mode-bar { border-bottom: 1px solid var(--line); background: #e9e5dc; }
+    .mode-switcher { width: min(1640px, 94vw); margin: 0 auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line-dark); border-left: 1px solid var(--line-dark); border-right: 1px solid var(--line-dark); }
+    .mode-tab { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 15px; align-items: center; border: 0; background: #ece8df; color: var(--ink-2); padding: 15px 18px; text-align: left; }
+    .mode-tab:hover { background: #f4f1e9; }
+    .mode-tab[aria-selected="true"] { position: relative; z-index: 1; background: var(--surface); box-shadow: inset 0 -4px 0 var(--mode-accent); }
+    .mode-tab-index { display: grid; place-items: center; width: 29px; height: 29px; border: 1px solid var(--line-dark); border-radius: 50%; color: var(--muted); font: 700 10px/1 var(--mono); }
+    .mode-tab[aria-selected="true"] .mode-tab-index { border-color: var(--mode-accent); background: var(--mode-soft); color: var(--mode-accent); }
+    .mode-tab b { display: block; color: var(--ink); font: 650 14px/1.2 var(--serif); }
+    .mode-tab small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.35; }
 
     .toolbar { position: sticky; top: 0; z-index: 20; background: rgba(242, 239, 231, .96); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
     .toolbar-inner { width: min(1640px, 94vw); margin: 0 auto; display: grid; grid-template-columns: minmax(220px, 1.4fr) repeat(3, minmax(145px, .55fr)) auto; gap: 11px; align-items: end; padding: 13px 0; }
@@ -365,8 +501,10 @@ HTML_TEMPLATE = r'''<!doctype html>
     .rank-row { width: 100%; display: grid; grid-template-columns: 45px minmax(0, 1fr); gap: 11px; border: 0; border-bottom: 1px solid #e8e4da; background: transparent; color: var(--ink); padding: 13px 15px 13px 12px; text-align: left; }
     .rank-row:hover { background: var(--surface-2); }
     .rank-row.active { background: #edf3ee; box-shadow: inset 4px 0 0 var(--green); }
+    body[data-mode="selective"] .rank-row.active { background: var(--blue-soft); box-shadow: inset 4px 0 0 var(--blue); }
     .rank-number { padding-top: 2px; color: var(--muted); font: 11px/1.2 var(--mono); text-align: right; }
     .rank-row.active .rank-number { color: var(--green); font-weight: 800; }
+    body[data-mode="selective"] .rank-row.active .rank-number { color: var(--blue); }
     .rank-topline { display: flex; align-items: baseline; justify-content: space-between; gap: 9px; }
     .candidate { font: 700 13px/1.3 var(--mono); letter-spacing: .01em; }
     .layer-note { color: var(--muted); font-size: 10px; white-space: nowrap; }
@@ -374,6 +512,9 @@ HTML_TEMPLATE = r'''<!doctype html>
     .rank-measure b { color: var(--ink-2); font: 600 10px/1 var(--mono); }
     .mini-track { display: block; height: 3px; margin-top: 7px; overflow: hidden; background: #e5e0d5; }
     .mini-track i { display: block; height: 100%; background: var(--green); }
+    body[data-mode="selective"] .mini-track i { background: var(--blue); }
+    .tail-pill { display: inline-block; margin-left: 6px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); color: var(--blue); padding: 2px 5px; font: 750 8px/1 var(--mono); text-transform: uppercase; vertical-align: 1px; }
+    .rank-diagnostic { display: block; margin-top: 5px; color: var(--muted); font: 8px/1.3 var(--mono); }
     .empty { padding: 32px 20px; color: var(--muted); text-align: center; }
 
     .detail-panel { min-width: 0; }
@@ -388,12 +529,32 @@ HTML_TEMPLATE = r'''<!doctype html>
     .title-row { display: flex; align-items: center; gap: 13px; flex-wrap: wrap; margin-top: 15px; }
     .detail-title { font-size: clamp(29px, 4vw, 43px); }
     .id-chip { border-radius: 99px; background: var(--green-soft); color: var(--green); padding: 4px 9px; font: 700 10px/1.2 var(--mono); }
+    body[data-mode="selective"] .id-chip { background: var(--blue-soft); color: var(--blue); }
     .detail-summary { max-width: 820px; margin: 10px 0 0; color: var(--muted); }
     .detail-summary b { color: var(--ink-2); }
     .metric-grid { display: grid; grid-template-columns: repeat(6, minmax(100px, 1fr)); gap: 1px; margin-top: 24px; border: 1px solid var(--line); background: var(--line); }
     .metric-card { min-width: 0; background: rgba(255,253,248,.86); padding: 12px; }
     .metric-card span { display: block; min-height: 28px; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
     .metric-card b { display: block; margin-top: 4px; overflow: hidden; color: var(--ink); font: 650 clamp(14px, 1.5vw, 18px)/1.1 var(--mono); text-overflow: ellipsis; }
+
+    .tail-profile { margin-top: 20px; border: 1px solid var(--line); background: var(--surface); }
+    .tail-profile-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); padding: 13px 15px; }
+    .tail-profile-head h3 { margin: 0; font: 550 18px/1.15 var(--serif); }
+    .tail-profile-head p { max-width: 680px; margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .tail-profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); }
+    .tail-side { min-width: 0; background: #faf8f2; padding: 14px 15px 13px; }
+    .tail-side.selected { position: relative; background: #f4f7fa; box-shadow: inset 0 3px 0 var(--blue); }
+    .tail-side-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .tail-side-head h4 { margin: 0; font: 700 11px/1.2 var(--mono); }
+    .tail-side-head span { color: var(--muted); font: 9px/1.2 var(--mono); }
+    .tail-side.selected .tail-side-head span { color: var(--blue); font-weight: 750; }
+    .tail-stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; margin-top: 13px; }
+    .tail-stat { min-width: 0; }
+    .tail-stat span { display: block; min-height: 22px; color: var(--muted); font-size: 8px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+    .tail-stat b { display: block; overflow: hidden; color: var(--ink-2); font: 650 12px/1.2 var(--mono); text-overflow: ellipsis; }
+    .tail-artifact-note { margin: 13px 0 0; border-top: 1px dotted var(--line); padding-top: 10px; color: var(--muted); font-size: 9px; }
+    .tail-artifact-note strong { color: var(--ink-2); }
+    .artifact-warning { color: var(--orange); font-weight: 750; }
 
     .profile { display: grid; grid-template-columns: minmax(0, 1fr) 170px; gap: 28px; align-items: center; margin-top: 20px; }
     .profile-labels { display: flex; justify-content: space-between; margin-bottom: 5px; color: var(--muted); font: 9px/1.2 var(--mono); }
@@ -407,6 +568,9 @@ HTML_TEMPLATE = r'''<!doctype html>
     .metric-details { margin-top: 18px; }
     .metric-details summary { width: max-content; color: var(--green); cursor: pointer; font-size: 11px; font-weight: 750; }
     .all-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 24px; margin-top: 13px; padding: 13px 15px; border: 1px solid var(--line); background: var(--surface); }
+    .metric-groups { display: grid; gap: 15px; margin-top: 13px; }
+    .metric-group h4 { margin: 0 0 6px; color: var(--muted); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+    .metric-group .all-metrics { margin-top: 0; }
     .all-metric { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px dotted var(--line); }
     .all-metric span { min-width: 0; color: var(--muted); font-size: 10px; }
     .all-metric b { flex: 0 0 auto; font: 600 10px/1.4 var(--mono); }
@@ -476,13 +640,17 @@ HTML_TEMPLATE = r'''<!doctype html>
     .column-head { display: flex; align-items: center; justify-content: space-between; min-height: 42px; margin-bottom: 7px; border-top: 3px solid; padding: 9px 2px 0; }
     .context-column.positive .column-head { border-color: var(--green); }
     .context-column.negative .column-head { border-color: var(--orange); }
+    body[data-mode="selective"] .context-column.score-driver { outline: 1px solid rgba(65,107,146,.35); outline-offset: 4px; }
+    body[data-mode="selective"] .context-column.score-driver .column-head { background: var(--blue-soft); padding-left: 8px; padding-right: 8px; }
     .column-head h4 { margin: 0; font: 600 13px/1.2 var(--mono); }
     .column-head span { color: var(--muted); font-size: 10px; }
+    .column-head .tail-pill { color: var(--blue); font-size: 8px; }
     .context-list { display: grid; gap: 8px; }
     .context-card { overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
     .context-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid #ebe7de; background: var(--surface-2); padding: 8px 11px; }
     .context-rank { color: var(--muted); font: 650 9px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
     .context-values { display: flex; gap: 10px; color: var(--muted); font: 9px/1.2 var(--mono); }
+    .context-values span { white-space: nowrap; }
     .context-values b { color: var(--ink-2); }
     .positive .activation { color: var(--green); }
     .negative .activation { color: var(--orange); }
@@ -499,12 +667,14 @@ HTML_TEMPLATE = r'''<!doctype html>
     :focus-visible { outline: 3px solid rgba(23,106,83,.28); outline-offset: 2px; }
     @media (max-width: 1120px) {
       .metric-grid { grid-template-columns: repeat(3, 1fr); }
+      .tail-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .all-metrics { grid-template-columns: repeat(2, 1fr); }
       .unembed-stats { grid-template-columns: repeat(2, 1fr); }
       .toolbar-inner { grid-template-columns: minmax(210px, 1.3fr) repeat(3, minmax(125px, .55fr)) auto; }
     }
     @media (max-width: 880px) {
       .masthead-inner { align-items: flex-start; flex-direction: column; min-height: 0; }
+      .mode-switcher { grid-template-columns: 1fr; }
       .dataset-facts { justify-content: flex-start; }
       .toolbar { position: static; }
       .toolbar-inner { grid-template-columns: 1fr 1fr; }
@@ -528,6 +698,7 @@ HTML_TEMPLATE = r'''<!doctype html>
       .token-limit { width: 100%; flex-basis: auto; }
       .neighbor-grid { grid-template-columns: 1fr; }
       .context-grid { grid-template-columns: 1fr; }
+      .tail-profile-grid { grid-template-columns: 1fr; }
       .context-controls { grid-template-columns: 1fr 1fr; }
       .context-controls .context-search { grid-column: 1 / -1; }
       .detail-hero, .token-space-section, .context-section { padding: 20px 16px; }
@@ -553,12 +724,23 @@ HTML_TEMPLATE = r'''<!doctype html>
         <div>
           <p class="eyebrow">Interpretability workbench · FineWeb</p>
           <h1>Singular Vector <em>Atlas</em></h1>
-          <p class="subtitle">Browse strong cross-layer directions, their nearest output-token embeddings, and the FineWeb contexts that most activate each side.</p>
+          <p class="subtitle">Explore one shared bank of singular directions through two ranking lenses, then inspect token-space neighbors and the FineWeb contexts at each activation extreme.</p>
         </div>
       </div>
       <div class="dataset-facts" id="datasetFacts" aria-label="Dataset summary"></div>
     </div>
   </header>
+
+  <nav class="mode-bar" aria-label="Analysis mode">
+    <div class="mode-switcher" role="tablist" aria-label="Direction ranking lens">
+      <button class="mode-tab" id="broadMode" type="button" role="tab" data-mode="broad" aria-selected="true">
+        <span class="mode-tab-index">01</span><span><b>Broad activity</b><small>Directions used strongly on average · ranked by mean absolute cosine</small></span>
+      </button>
+      <button class="mode-tab" id="selectiveMode" type="button" role="tab" data-mode="selective" aria-selected="false">
+        <span class="mode-tab-index">02</span><span><b>Selective tails</b><small>Directions with unusually sharp robust tails · not automatically rare or semantic</small></span>
+      </button>
+    </div>
+  </nav>
 
   <section class="toolbar" aria-label="Ranking controls">
     <div class="toolbar-inner">
@@ -576,7 +758,7 @@ HTML_TEMPLATE = r'''<!doctype html>
     <div class="dashboard-grid">
       <aside class="panel ranking-panel" aria-label="Ranked singular vectors">
         <div class="panel-head">
-          <div class="panel-head-row"><h2>Ranked directions</h2><span class="count" id="rankingCount"></span></div>
+          <div class="panel-head-row"><h2 id="rankingTitle">Ranked directions</h2><span class="count" id="rankingCount"></span></div>
           <p class="microcopy" id="rankingCaption"></p>
         </div>
         <div class="ranking-list" id="rankingList"></div>
@@ -589,7 +771,7 @@ HTML_TEMPLATE = r'''<!doctype html>
   <script>
     const DATA = __DASHBOARD_PAYLOAD__;
 
-    const METRICS = {
+    const BROAD_METRICS = {
       mean_abs_cosine: { label: "Mean |cosine|", short: "mean |cos|", kind: "decimal", help: "Mean absolute activation divided by residual-stream norm; the default cross-layer score." },
       top1_abs_rate: { label: "Top-1 token share", short: "top-1 share", kind: "percent", help: "Fraction of tokens where this direction has the largest absolute activation in the layer's top-k bank." },
       top5_abs_rate: { label: "Top-5 token share", short: "top-5 share", kind: "percent", help: "Fraction of tokens where this direction is among the five largest absolute activations." },
@@ -598,6 +780,38 @@ HTML_TEMPLATE = r'''<!doctype html>
       singular_value: { label: "Singular value", short: "singular value", kind: "number", help: "Singular value for this direction within its layer." },
       dynamicity_std_over_abs_mean: { label: "Dynamicity", short: "dynamicity", kind: "decimal", help: "Activation standard deviation divided by mean absolute activation." },
       max_abs_unembed_token_cosine: { label: "Max |token cosine|", short: "max |token cos|", kind: "decimal", help: "Strongest absolute cosine between this SV and a normalized output-token unembedding row." }
+    };
+
+    const SELECTIVE_METRICS = {
+      tail_selectivity_score: { label: "Tail selectivity score", short: "tail score", kind: "decimal", help: "The stronger polarity's q99.9 robust-z × √(top-0.1% energy share) × minimum-support weight." },
+      selected_tail_q999_robust_z: { label: "Selected-tail q99.9 robust z", short: "q99.9 robust z", kind: "decimal", help: "The score-driving tail's 99.9th percentile after median/MAD normalization." },
+      selected_tail_top0_1pct_energy_share: { label: "Selected-tail top-0.1% energy", short: "top-0.1% energy", kind: "percent", help: "Share of one-sided squared robust-z energy carried by the strongest 0.1% of sampled tokens." },
+      selected_tail_doc_rate_z5: { label: "Windows above z=5 · low first", short: "windows >5z", kind: "percent", direction: "asc", help: "Fraction of sampled windows whose score-driving polarity peak exceeds robust z=5. Lower values are rarer across windows." },
+      effective_support_fraction: { label: "Effective support · low first", short: "effective support", kind: "percent", direction: "asc", help: "M2²/(N×M4). Smaller values mean the centered variance is carried by fewer tokens or heavier tails." },
+      stable_excess_kurtosis: { label: "Excess kurtosis", short: "excess kurtosis", kind: "number", help: "Exact fourth-moment tail weight minus three; high values can reflect selectivity or artifacts." },
+      selected_tail_top_context_largest_center_token_share: { label: "Largest center-token share · low first", short: "largest token share", kind: "percent", direction: "asc", help: "Largest lexical share among retained score-driving contexts. Lower values indicate more diverse activating tokens." },
+      selected_tail_top_context_effective_center_tokens: { label: "Effective center tokens", short: "effective tokens", kind: "number", help: "Entropy-derived effective count of center tokens in retained score-driving contexts." },
+      mean_abs_cosine: { label: "Mean |cosine|", short: "mean |cos|", kind: "decimal", help: "The original broad-activity score, included to compare both lenses." },
+      max_abs_unembed_token_cosine: { label: "Max |token cosine|", short: "max |token cos|", kind: "decimal", help: "Strongest absolute output-token cosine; high values can indicate lexical anchoring." }
+    };
+
+    const MODE_CONFIG = {
+      broad: {
+        label: "Broad activity",
+        title: "Broad-activity ranking",
+        primaryRank: "rank_global_mean_abs_cosine",
+        defaultMetric: "mean_abs_cosine",
+        metrics: BROAD_METRICS,
+        caption: "Primary rank is mean absolute cosine over all scanned tokens."
+      },
+      selective: {
+        label: "Selective tails",
+        title: "Tail-selectivity ranking",
+        primaryRank: "rank_global_tail_selectivity",
+        defaultMetric: "tail_selectivity_score",
+        metrics: SELECTIVE_METRICS,
+        caption: "Primary rank is a robust heavy-tail score; it is not a direct rarity or semantic-cleanliness rank."
+      }
     };
 
     const LABELS = {
@@ -620,26 +834,43 @@ HTML_TEMPLATE = r'''<!doctype html>
       farthest_unembed_cosine: "Farthest token cosine", farthest_unembed_margin: "Farthest top-1 margin",
       max_abs_unembed_token_cosine: "Maximum |token cosine|", nearest_unembed_token_z: "Nearest token z-score",
       farthest_unembed_token_z: "Farthest token z-score", unembedding_cosine_mean: "Vocabulary cosine mean",
-      unembedding_cosine_std: "Vocabulary cosine std", rank_global_max_abs_unembed_token_cosine: "Global rank · max |token cosine|"
+      unembedding_cosine_std: "Vocabulary cosine std", rank_global_max_abs_unembed_token_cosine: "Global rank · max |token cosine|",
+      token_sample_n: "Robust-stat token sample", median_activation: "Median activation", mad_activation: "Median absolute deviation",
+      robust_activation_scale: "Robust activation scale", stable_skewness: "Stable skewness", stable_kurtosis: "Stable kurtosis",
+      stable_excess_kurtosis: "Stable excess kurtosis", effective_support_fraction: "Effective support fraction",
+      tail_selectivity_score: "Tail selectivity score", selected_tail_polarity: "Score-driving tail",
+      rank_global_tail_selectivity: "Global rank · tail selectivity", rank_layer_tail_selectivity: "Layer rank · tail selectivity",
+      rank_global_excess_kurtosis: "Global rank · excess kurtosis", rank_layer_excess_kurtosis: "Layer rank · excess kurtosis",
+      selected_tail_q999_robust_z: "Selected-tail q99.9 robust z", selected_tail_top0_1pct_energy_share: "Selected-tail top-0.1% energy share",
+      selected_tail_doc_count_z5: "Selected-tail windows above z=5", selected_tail_doc_rate_z5: "Selected-tail window rate above z=5",
+      selected_tail_top_context_effective_center_tokens: "Selected-tail effective center tokens",
+      selected_tail_top_context_largest_center_token_share: "Selected-tail largest center-token share"
     };
 
     const state = {
-      query: "",
-      layer: "all",
-      metric: "mean_abs_cosine",
-      limit: Math.min(50, DATA.rankings.length),
-      selected: null,
+      mode: DATA.default_mode || "broad",
+      views: Object.fromEntries(Object.entries(DATA.modes).map(([mode, payload]) => [mode, {
+        query: "",
+        layer: "all",
+        metric: MODE_CONFIG[mode].defaultMetric,
+        limit: Math.min(50, payload.rankings.length),
+        selected: payload.rankings[0]?.candidate || null
+      }])),
       contextQuery: "",
-      contextLimit: Math.min(6, DATA.meta.contexts_per_polarity || 6),
+      contextLimit: 6,
       dedupe: false,
       tokenLimit: Math.min(8, DATA.meta.unembedding_neighbors_per_side || 8)
     };
 
-    const byCandidate = new Map(DATA.rankings.map(row => [row.candidate, row]));
+    const candidateIndexes = Object.fromEntries(Object.entries(DATA.modes).map(([mode, payload]) => [mode, new Map(payload.rankings.map(row => [row.candidate, row]))]));
     const $ = selector => document.querySelector(selector);
     const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
     const compact = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
     const integer = new Intl.NumberFormat();
+    const modeData = () => DATA.modes[state.mode];
+    const modeConfig = () => MODE_CONFIG[state.mode];
+    const viewState = () => state.views[state.mode];
+    const byCandidate = () => candidateIndexes[state.mode];
 
     function decimal(value, digits = 3) {
       const number = Number(value);
@@ -661,38 +892,34 @@ HTML_TEMPLATE = r'''<!doctype html>
     }
 
     function formatMetric(value, kind) {
-      return kind === "percent" ? percent(value) : decimal(value, kind === "decimal" ? 4 : 3);
+      if (kind === "percent") return percent(value);
+      if (kind === "integer") return integer.format(value);
+      return decimal(value, kind === "decimal" ? 4 : 3);
     }
 
     function setup() {
-      const meta = DATA.meta;
-      $("#datasetFacts").innerHTML = [
-        [compact.format(meta.tokens), "tokens"],
-        [integer.format(meta.documents), "documents"],
-        [integer.format(meta.layers.length), "layers"],
-        [integer.format(meta.total_candidates), "directions"]
-      ].map(([value, label]) => `<div class="fact"><b>${esc(value)}</b><span>${esc(label)}</span></div>`).join("");
+      const initial = parseHash();
+      if (initial.mode && DATA.modes[initial.mode]) state.mode = initial.mode;
+      if (initial.candidate && byCandidate().has(initial.candidate)) {
+        viewState().selected = initial.candidate;
+        expandLimitToCandidate(initial.candidate);
+      }
+      configureModeControls();
 
-      const layers = [...new Set(DATA.rankings.map(row => Number(row.layer)))].sort((a, b) => a - b);
-      $("#layerFilter").innerHTML = `<option value="all">All embedded layers</option>` + layers.map(layer => `<option value="${layer}">Layer ${String(layer).padStart(2, "0")}</option>`).join("");
-      $("#sortMetric").innerHTML = Object.entries(METRICS).map(([key, item]) => `<option value="${key}">${esc(item.label)}</option>`).join("");
-      const limits = [25, 50, 100, 250].filter(value => value < DATA.rankings.length);
-      limits.push(DATA.rankings.length);
-      $("#rowLimit").innerHTML = [...new Set(limits)].map(value => `<option value="${value}">${value === DATA.rankings.length ? `All ${integer.format(value)}` : `Top ${value}`}</option>`).join("");
-
-      const hashCandidate = decodeURIComponent(location.hash.slice(1));
-      state.selected = byCandidate.has(hashCandidate) ? hashCandidate : DATA.rankings[0]?.candidate;
-      if (byCandidate.has(hashCandidate)) expandLimitToCandidate(hashCandidate);
-      $("#rowLimit").value = String(state.limit);
-
-      $("#candidateSearch").addEventListener("input", event => { state.query = event.target.value.trim().toLowerCase(); render(); });
-      $("#layerFilter").addEventListener("change", event => { state.layer = event.target.value; render(); });
-      $("#sortMetric").addEventListener("change", event => { state.metric = event.target.value; render(); });
-      $("#rowLimit").addEventListener("change", event => { state.limit = Number(event.target.value); render(); });
+      document.querySelectorAll(".mode-tab").forEach(button => button.addEventListener("click", () => switchMode(button.dataset.mode)));
+      $("#candidateSearch").addEventListener("input", event => { viewState().query = event.target.value.trim().toLowerCase(); render(); });
+      $("#layerFilter").addEventListener("change", event => { viewState().layer = event.target.value; render(); });
+      $("#sortMetric").addEventListener("change", event => { viewState().metric = event.target.value; render(); });
+      $("#rowLimit").addEventListener("change", event => { viewState().limit = Number(event.target.value); render(); });
       $("#resetFilters").addEventListener("click", resetFilters);
       addEventListener("hashchange", () => {
-        const candidate = decodeURIComponent(location.hash.slice(1));
-        if (byCandidate.has(candidate) && candidate !== state.selected) revealCandidate(candidate);
+        const target = parseHash();
+        if (!target.mode || !DATA.modes[target.mode] || !target.candidate) return;
+        state.mode = target.mode;
+        if (byCandidate().has(target.candidate)) {
+          configureModeControls();
+          revealCandidate(target.candidate, false);
+        }
       });
       addEventListener("keydown", event => {
         const tag = document.activeElement?.tagName;
@@ -702,70 +929,136 @@ HTML_TEMPLATE = r'''<!doctype html>
         }
         if (event.key === "Escape" && document.activeElement === $("#candidateSearch")) {
           $("#candidateSearch").value = "";
-          state.query = "";
+          viewState().query = "";
           render();
           $("#candidateSearch").blur();
         }
       });
 
-      $("#footerNote").innerHTML = `SV identifiers use zero-based indices (<code>SV00</code> is the first singular vector). Self-contained snapshot of the top <b>${integer.format(meta.embedded_candidates)}</b> of ${integer.format(meta.total_candidates)} candidates from <code>sv_rankings.csv</code>, with ${integer.format(meta.unembedding_neighbors_per_side)} token neighbors per side from <code>unembedding_neighbors.jsonl</code> and ${integer.format(meta.contexts_per_polarity)} contexts per polarity from <code>top_contexts.jsonl</code>. Model: <code>${esc(meta.model)}</code>.`;
       render();
+      syncHash();
+    }
+
+    function parseHash() {
+      let raw = location.hash.slice(1);
+      try { raw = decodeURIComponent(raw); } catch (_) {}
+      if (!raw) return { mode: DATA.default_mode || "broad", candidate: null };
+      const slash = raw.indexOf("/");
+      if (slash > 0 && DATA.modes[raw.slice(0, slash)]) return { mode: raw.slice(0, slash), candidate: raw.slice(slash + 1) };
+      return { mode: "broad", candidate: raw };
+    }
+
+    function configureModeControls() {
+      const payload = modeData();
+      const meta = payload.meta;
+      const view = viewState();
+      document.body.dataset.mode = state.mode;
+      document.querySelectorAll(".mode-tab").forEach(button => button.setAttribute("aria-selected", String(button.dataset.mode === state.mode)));
+      $("#datasetFacts").innerHTML = [
+        [compact.format(meta.tokens), "tokens"],
+        [integer.format(meta.documents), "sampled windows"],
+        [integer.format(meta.layers.length), "layers"],
+        [integer.format(meta.embedded_candidates), "in this lens"]
+      ].map(([value, label]) => `<div class="fact"><b>${esc(value)}</b><span>${esc(label)}</span></div>`).join("");
+      $("#rankingTitle").textContent = modeConfig().title;
+      const layers = [...new Set(payload.rankings.map(row => Number(row.layer)))].sort((a, b) => a - b);
+      $("#layerFilter").innerHTML = `<option value="all">All embedded layers</option>` + layers.map(layer => `<option value="${layer}">Layer ${String(layer).padStart(2, "0")}</option>`).join("");
+      $("#sortMetric").innerHTML = Object.entries(modeConfig().metrics).map(([key, item]) => `<option value="${key}">${esc(item.label)}</option>`).join("");
+      if (!modeConfig().metrics[view.metric]) view.metric = modeConfig().defaultMetric;
+      const limits = [25, 50, 100, 250].filter(value => value < payload.rankings.length);
+      limits.push(payload.rankings.length);
+      $("#rowLimit").innerHTML = [...new Set(limits)].map(value => `<option value="${value}">${value === payload.rankings.length ? `All ${integer.format(value)}` : `Top ${value}`}</option>`).join("");
+      if (view.limit > payload.rankings.length) view.limit = payload.rankings.length;
+      $("#candidateSearch").value = view.query;
+      $("#layerFilter").value = view.layer;
+      $("#sortMetric").value = view.metric;
+      $("#rowLimit").value = String(view.limit);
+      $("#footerNote").innerHTML = `SV identifiers are zero-based (<code>SV00</code> is the first singular vector); all rank numbers remain one-based. Both lenses scan the same ${integer.format(meta.total_candidates)} directions over the same ${integer.format(meta.documents)} FineWeb windows. This file embeds the top <b>${integer.format(DATA.modes.broad.meta.embedded_candidates)}</b> broad and <b>${integer.format(DATA.modes.selective.meta.embedded_candidates)}</b> selective candidates (${integer.format(DATA.meta.embedded_candidate_union)} unique; ${integer.format(DATA.meta.embedded_candidate_overlap)} shared), with mode-specific contexts and one shared token-neighbor map. Model: <code>${esc(meta.model)}</code>.`;
+    }
+
+    function switchMode(mode) {
+      if (!DATA.modes[mode] || mode === state.mode) return;
+      state.mode = mode;
+      state.contextQuery = "";
+      state.contextLimit = 6;
+      configureModeControls();
+      render();
+      syncHash();
     }
 
     function resetFilters() {
-      state.query = "";
-      state.layer = "all";
-      state.metric = "mean_abs_cosine";
-      state.limit = Math.min(50, DATA.rankings.length);
+      const view = viewState();
+      view.query = "";
+      view.layer = "all";
+      view.metric = modeConfig().defaultMetric;
+      view.limit = Math.min(50, modeData().rankings.length);
       $("#candidateSearch").value = "";
       $("#layerFilter").value = "all";
-      $("#sortMetric").value = state.metric;
-      $("#rowLimit").value = String(state.limit);
+      $("#sortMetric").value = view.metric;
+      $("#rowLimit").value = String(view.limit);
       render();
     }
 
     function filteredRows(applyLimit = true) {
-      const query = state.query;
-      const rows = DATA.rankings.filter(row => {
-        if (state.layer !== "all" && Number(row.layer) !== Number(state.layer)) return false;
+      const view = viewState();
+      const query = view.query;
+      const rows = modeData().rankings.filter(row => {
+        if (view.layer !== "all" && Number(row.layer) !== Number(view.layer)) return false;
         if (!query) return true;
         const haystack = `${row.candidate} layer ${row.layer} l${String(row.layer).padStart(2,"0")} sv ${row.sv_index_0} sv${String(row.sv_index_0).padStart(2,"0")}`.toLowerCase();
         return haystack.includes(query);
-      }).sort((a, b) => Number(b[state.metric]) - Number(a[state.metric]) || Number(a[PRIMARY_RANK]) - Number(b[PRIMARY_RANK]));
-      return applyLimit ? rows.slice(0, state.limit) : rows;
+      }).sort(compareRows);
+      return applyLimit ? rows.slice(0, view.limit) : rows;
     }
 
-    const PRIMARY_RANK = "rank_global_mean_abs_cosine";
+    function compareRows(a, b) {
+      const view = viewState();
+      const metric = modeConfig().metrics[view.metric];
+      const direction = metric.direction === "asc" ? 1 : -1;
+      const av = Number(a[view.metric]);
+      const bv = Number(b[view.metric]);
+      const metricDifference = Number.isFinite(av) && Number.isFinite(bv) ? (av - bv) * direction : 0;
+      return metricDifference || Number(a[modeConfig().primaryRank]) - Number(b[modeConfig().primaryRank]);
+    }
 
     function render() {
-      const previousSelection = state.selected;
+      const view = viewState();
+      const previousSelection = view.selected;
       const allMatches = filteredRows(false);
-      const rows = allMatches.slice(0, state.limit);
-      if (rows.length && !rows.some(row => row.candidate === state.selected)) state.selected = rows[0].candidate;
-      if (!rows.length) state.selected = null;
-      if (state.selected !== previousSelection) syncHash();
+      const rows = allMatches.slice(0, view.limit);
+      if (rows.length && !rows.some(row => row.candidate === view.selected)) view.selected = rows[0].candidate;
+      if (!rows.length) view.selected = null;
+      if (view.selected !== previousSelection) syncHash();
       renderRankings(rows, allMatches.length);
       renderDetail(rows);
     }
 
     function renderRankings(rows, matchCount) {
-      const metric = METRICS[state.metric];
-      const maxValue = Math.max(...rows.map(row => Number(row[state.metric]) || 0), 0);
+      const view = viewState();
+      const metric = modeConfig().metrics[view.metric];
+      const values = rows.map(row => Number(row[view.metric])).filter(Number.isFinite);
+      const minValue = values.length ? Math.min(...values) : 0;
+      const maxValue = values.length ? Math.max(...values) : 0;
       $("#rankingCount").textContent = `${integer.format(rows.length)} / ${integer.format(matchCount)}`;
-      $("#rankingCaption").textContent = `${metric.label} · descending. SV indices are zero-based; global rank still refers to mean |cosine|.`;
+      $("#rankingCaption").textContent = `${metric.label} · ${metric.direction === "asc" ? "ascending" : "descending"}. ${modeConfig().caption} SV indices are zero-based.`;
       if (!rows.length) {
         $("#rankingList").innerHTML = `<div class="empty">No directions match these filters.</div>`;
         return;
       }
       $("#rankingList").innerHTML = rows.map(row => {
-        const value = Number(row[state.metric]);
-        const width = maxValue > 0 ? Math.max(2, value / maxValue * 100) : 0;
-        return `<button class="rank-row ${row.candidate === state.selected ? "active" : ""}" type="button" ${row.candidate === state.selected ? 'aria-current="true"' : ""} data-candidate="${esc(row.candidate)}">
-          <span class="rank-number">#${integer.format(row[PRIMARY_RANK])}</span>
+        const value = Number(row[view.metric]);
+        const span = Math.max(maxValue - minValue, 1e-12);
+        const normalized = metric.direction === "asc" ? (maxValue - value) / span : (value - minValue) / span;
+        const width = values.length === 1 ? 100 : Math.max(2, Math.min(100, normalized * 100));
+        const tail = state.mode === "selective" ? `<span class="tail-pill">${row.selected_tail_polarity === "positive" ? "+ high" : "− low"} tail</span>` : "";
+        const diagnostic = state.mode === "selective" ? `<span class="rank-diagnostic">${percent(row.selected_tail_top_context_largest_center_token_share, 1)} largest center token · broad #${integer.format(row.rank_global_mean_abs_cosine)}</span>` : "";
+        return `<button class="rank-row ${row.candidate === view.selected ? "active" : ""}" type="button" ${row.candidate === view.selected ? 'aria-current="true"' : ""} data-candidate="${esc(row.candidate)}">
+          <span class="rank-number">#${integer.format(row[modeConfig().primaryRank])}</span>
           <span>
-            <span class="rank-topline"><span class="candidate">${esc(row.candidate)}</span><span class="layer-note">L${String(row.layer).padStart(2,"0")} · SV${String(row.sv_index_0).padStart(2,"0")}</span></span>
+            <span class="rank-topline"><span class="candidate">${esc(row.candidate)}${tail}</span><span class="layer-note">L${String(row.layer).padStart(2,"0")} · SV${String(row.sv_index_0).padStart(2,"0")}</span></span>
             <span class="rank-measure"><span>${esc(metric.short)}</span><b>${formatMetric(value, metric.kind)}</b></span>
             <span class="mini-track" aria-hidden="true"><i style="width:${width.toFixed(2)}%"></i></span>
+            ${diagnostic}
           </span>
         </button>`;
       }).join("");
@@ -776,32 +1069,36 @@ HTML_TEMPLATE = r'''<!doctype html>
     }
 
     function selectCandidate(candidate, updateHash = true) {
-      if (!byCandidate.has(candidate)) return;
-      state.selected = candidate;
+      if (!byCandidate().has(candidate)) return;
+      viewState().selected = candidate;
       if (updateHash) syncHash();
       render();
     }
 
     function expandLimitToCandidate(candidate) {
-      const sorted = DATA.rankings.slice().sort((a, b) => Number(b[state.metric]) - Number(a[state.metric]) || Number(a[PRIMARY_RANK]) - Number(b[PRIMARY_RANK]));
+      const view = viewState();
+      const sorted = modeData().rankings.slice().sort(compareRows);
       const needed = sorted.findIndex(row => row.candidate === candidate) + 1;
-      const choices = [...new Set([25, 50, 100, 250, DATA.rankings.length])].filter(value => value <= DATA.rankings.length).sort((a, b) => a - b);
-      state.limit = choices.find(value => value >= needed) || DATA.rankings.length;
+      const choices = [...new Set([25, 50, 100, 250, modeData().rankings.length])].filter(value => value <= modeData().rankings.length).sort((a, b) => a - b);
+      view.limit = choices.find(value => value >= needed) || modeData().rankings.length;
     }
 
-    function revealCandidate(candidate) {
-      state.query = "";
-      state.layer = "all";
+    function revealCandidate(candidate, updateHash = true) {
+      const view = viewState();
+      view.query = "";
+      view.layer = "all";
       $("#candidateSearch").value = "";
       $("#layerFilter").value = "all";
       expandLimitToCandidate(candidate);
-      $("#rowLimit").value = String(state.limit);
-      state.selected = candidate;
+      $("#rowLimit").value = String(view.limit);
+      view.selected = candidate;
+      if (updateHash) syncHash();
       render();
     }
 
     function syncHash() {
-      const nextHash = state.selected ? `#${encodeURIComponent(state.selected)}` : "";
+      const selected = viewState().selected;
+      const nextHash = selected ? `#${state.mode}/${encodeURIComponent(selected)}` : "";
       if (location.hash === nextHash) return;
       try { history.replaceState(null, "", nextHash || `${location.pathname}${location.search}`); }
       catch (_) { location.hash = nextHash; }
@@ -839,24 +1136,29 @@ HTML_TEMPLATE = r'''<!doctype html>
 
     function renderDetail(visibleRows) {
       const root = $("#detail");
-      if (!state.selected) {
+      const view = viewState();
+      if (!view.selected) {
         root.innerHTML = `<div class="empty">Choose a broader filter to inspect a direction.</div>`;
         return;
       }
-      const row = byCandidate.get(state.selected);
-      const selectedIndex = visibleRows.findIndex(item => item.candidate === state.selected);
+      const row = byCandidate().get(view.selected);
+      const selectedIndex = visibleRows.findIndex(item => item.candidate === view.selected);
       const lo = Math.min(Number(row.min_activation), 0);
       const hi = Math.max(Number(row.max_activation), 0);
       const spread = Math.max(hi - lo, 1e-9);
       const zeroPosition = (0 - lo) / spread * 100;
       const meanPosition = Math.max(0, Math.min(100, (Number(row.mean_activation) - lo) / spread * 100));
-      const tokenData = DATA.unembedding[state.selected];
-      const hiddenKeys = new Set(["candidate"]);
-      const allMetrics = Object.entries(row).filter(([key]) => !hiddenKeys.has(key)).map(([key, value]) => `<div class="all-metric"><span>${esc(LABELS[key] || key.replaceAll("_", " "))}</span><b>${esc(formatAny(key, value))}</b></div>`).join("");
+      const tokenData = DATA.unembedding[view.selected];
+      const isSelective = state.mode === "selective";
+      const rankLabel = isSelective ? "Global tail-selectivity rank" : "Global mean |cosine| rank";
+      const summary = isSelective
+        ? `The singular direction at <b>zero-based SV index ${integer.format(row.sv_index_0)}</b> in layer ${row.layer}, viewed through its robust activation tails. It ranks <b>#${integer.format(row.rank_global_tail_selectivity)} by tail selectivity</b> and <b>#${integer.format(row.rank_global_mean_abs_cosine)} by broad activity</b> over ${integer.format(row.n_tokens)} FineWeb tokens. The score rewards a sharp, energy-concentrated tail with minimum support; it does not itself penalize frequent activation once five sampled windows clear z=5.`
+        : `The singular direction at <b>zero-based SV index ${integer.format(row.sv_index_0)}</b> in layer ${row.layer}. It is the <b>#${integer.format(row.rank_global_mean_abs_cosine)} direction globally</b> by mean absolute cosine over ${integer.format(row.n_tokens)} FineWeb tokens.`;
+      const heroMetrics = isSelective ? selectiveHeroMetrics(row) : broadHeroMetrics(row);
 
       root.innerHTML = `<section class="detail-hero">
         <div class="detail-nav">
-          <span class="detail-rank">Global mean |cosine| rank #${integer.format(row[PRIMARY_RANK])}</span>
+          <span class="detail-rank">${rankLabel} #${integer.format(row[modeConfig().primaryRank])}</span>
           <div class="nav-buttons">
             <button class="icon-button" id="previousCandidate" type="button" aria-label="Previous visible direction" title="Previous visible direction" ${selectedIndex <= 0 ? "disabled" : ""}>←</button>
             <button class="icon-button" id="nextCandidate" type="button" aria-label="Next visible direction" title="Next visible direction" ${selectedIndex < 0 || selectedIndex >= visibleRows.length - 1 ? "disabled" : ""}>→</button>
@@ -864,15 +1166,9 @@ HTML_TEMPLATE = r'''<!doctype html>
           </div>
         </div>
         <div class="title-row"><h2 class="detail-title">${esc(row.candidate)}</h2><span class="id-chip">L${String(row.layer).padStart(2,"0")} / SV${String(row.sv_index_0).padStart(2,"0")}</span></div>
-        <p class="detail-summary">The singular direction at <b>zero-based SV index ${integer.format(row.sv_index_0)}</b> in layer ${row.layer}. It is the <b>#${integer.format(row[PRIMARY_RANK])} direction globally</b> by mean absolute cosine over ${integer.format(row.n_tokens)} FineWeb tokens.</p>
-        <div class="metric-grid">
-          ${metricCard("Mean |cosine|", decimal(row.mean_abs_cosine, 4), METRICS.mean_abs_cosine.help)}
-          ${metricCard("Top-1 token share", percent(row.top1_abs_rate), METRICS.top1_abs_rate.help)}
-          ${metricCard("Top-5 token share", percent(row.top5_abs_rate), METRICS.top5_abs_rate.help)}
-          ${metricCard("Mean |activation|", decimal(row.mean_abs_activation), "Mean magnitude of the projection coefficient over tokens.")}
-          ${metricCard("Activation std", decimal(row.std_activation), METRICS.std_activation.help)}
-          ${metricCard("Singular value", decimal(row.singular_value), METRICS.singular_value.help)}
-        </div>
+        <p class="detail-summary">${summary}</p>
+        <div class="metric-grid">${heroMetrics}</div>
+        ${isSelective ? tailProfile(row) : ""}
         <div class="profile">
           <div>
             <div class="profile-labels"><span>${signed(lo)}</span><span>activation range</span><span>${signed(hi)}</span></div>
@@ -880,24 +1176,24 @@ HTML_TEMPLATE = r'''<!doctype html>
           </div>
           <div class="profile-stat"><span>Mean<b>${signed(row.mean_activation)}</b></span><span>Positive tokens<b>${percent(row.positive_rate, Number(row.positive_rate) < .01 ? 2 : 1)}</b></span></div>
         </div>
-        <details class="metric-details"><summary>Inspect all ranking metrics</summary><div class="all-metrics">${allMetrics}</div></details>
+        <details class="metric-details"><summary>Inspect all ${integer.format(Object.keys(row).length - 1)} ranking metrics</summary>${allMetricGroups(row)}</details>
       </section>
       ${unembeddingSection(tokenData, row)}
       <section class="context-section">
-        <div class="section-heading"><div><p class="eyebrow">Observed examples</p><h3>Top activation contexts</h3><p>Contexts are ordered by signed projection activation. Each highlight marks the activating token; cosine is normalized by the layer residual norm.</p><span class="sign-note">Positive and negative are arbitrary SVD orientations, not sentiment labels.</span></div></div>
+        <div class="section-heading"><div><p class="eyebrow">Observed examples · ${esc(modeConfig().label)}</p><h3>${isSelective ? "Extreme tail contexts" : "Top activation contexts"}</h3><p>${isSelective ? "Contexts are ordered by raw projection extremes; the displayed tail z is derived from this scan's median and robust MAD scale. The score-driving tail is highlighted, while both orientations remain available for comparison." : "Contexts are ordered by signed projection activation. Each highlight marks the activating token; cosine is normalized by the layer residual norm."}</p><span class="sign-note">High (+) and low (−) are arbitrary SVD orientations, not sentiment labels. ${isSelective ? "High selectivity or kurtosis can still reflect lexical, formatting, or data artifacts." : ""}</span></div></div>
         <div class="context-controls">
           <label class="control context-search">Search these contexts<input id="contextSearch" type="search" value="${esc(state.contextQuery)}" placeholder="Text, token, domain…"></label>
           <label class="control">Per side<select id="contextLimit"></select></label>
           <label class="check"><input id="dedupeSources" type="checkbox" ${state.dedupe ? "checked" : ""}> Unique sources</label>
         </div>
         <div class="context-grid">
-          <section class="context-column positive"><div class="column-head"><h4>+ Positive direction</h4><span id="positiveCount"></span></div><div class="context-list" id="positiveList"></div></section>
-          <section class="context-column negative"><div class="column-head"><h4>− Negative direction</h4><span id="negativeCount"></span></div><div class="context-list" id="negativeList"></div></section>
+          <section class="context-column positive ${isSelective && row.selected_tail_polarity === "positive" ? "score-driver" : ""}"><div class="column-head"><h4>+ ${isSelective ? "High tail" : "Positive direction"}${isSelective && row.selected_tail_polarity === "positive" ? '<span class="tail-pill">score driver</span>' : ""}</h4><span id="positiveCount"></span></div><div class="context-list" id="positiveList"></div></section>
+          <section class="context-column negative ${isSelective && row.selected_tail_polarity === "negative" ? "score-driver" : ""}"><div class="column-head"><h4>− ${isSelective ? "Low tail" : "Negative direction"}${isSelective && row.selected_tail_polarity === "negative" ? '<span class="tail-pill">score driver</span>' : ""}</h4><span id="negativeCount"></span></div><div class="context-list" id="negativeList"></div></section>
         </div>
       </section>`;
 
-      const maxContexts = DATA.meta.contexts_per_polarity || Math.max(...Object.values(DATA.contexts[state.selected] || {}).map(items => items.length), 0);
-      const contextLimits = [...new Set([6, 12, maxContexts].filter(value => value > 0 && value <= maxContexts))].sort((a, b) => a - b);
+      const maxContexts = modeData().meta.contexts_per_polarity || Math.max(...Object.values(modeData().contexts[view.selected] || {}).map(items => items.length), 0);
+      const contextLimits = [...new Set([6, 12, 24, maxContexts].filter(value => value > 0 && value <= maxContexts))].sort((a, b) => a - b);
       if (!contextLimits.includes(state.contextLimit)) state.contextLimit = contextLimits[0] || maxContexts;
       $("#contextLimit").innerHTML = contextLimits.map(value => `<option value="${value}">${value === maxContexts ? `All ${value}` : value}</option>`).join("");
       $("#contextLimit").value = String(state.contextLimit);
@@ -919,19 +1215,90 @@ HTML_TEMPLATE = r'''<!doctype html>
       renderContexts();
     }
 
+    function broadHeroMetrics(row) {
+      return [
+        metricCard("Mean |cosine|", decimal(row.mean_abs_cosine, 4), BROAD_METRICS.mean_abs_cosine.help),
+        metricCard("Top-1 token share", percent(row.top1_abs_rate), BROAD_METRICS.top1_abs_rate.help),
+        metricCard("Top-5 token share", percent(row.top5_abs_rate), BROAD_METRICS.top5_abs_rate.help),
+        metricCard("Mean |activation|", decimal(row.mean_abs_activation), "Mean magnitude of the projection coefficient over tokens."),
+        metricCard("Activation std", decimal(row.std_activation), BROAD_METRICS.std_activation.help),
+        metricCard("Singular value", decimal(row.singular_value), BROAD_METRICS.singular_value.help)
+      ].join("");
+    }
+
+    function selectiveHeroMetrics(row) {
+      const polarity = row.selected_tail_polarity === "positive" ? "High (+)" : "Low (−)";
+      return [
+        metricCard("Tail selectivity score", decimal(row.tail_selectivity_score, 4), SELECTIVE_METRICS.tail_selectivity_score.help),
+        metricCard("Score-driving tail", polarity, "The arbitrary SV orientation whose tail produced the larger score."),
+        metricCard("Selected q99.9 robust z", decimal(row.selected_tail_q999_robust_z, 3), SELECTIVE_METRICS.selected_tail_q999_robust_z.help),
+        metricCard("Top-0.1% tail energy", percent(row.selected_tail_top0_1pct_energy_share, 2), SELECTIVE_METRICS.selected_tail_top0_1pct_energy_share.help),
+        metricCard("Windows above z=5", `${integer.format(row.selected_tail_doc_count_z5)} · ${percent(row.selected_tail_doc_rate_z5, 1)}`, SELECTIVE_METRICS.selected_tail_doc_rate_z5.help),
+        metricCard("Effective support", percent(row.effective_support_fraction, 2), SELECTIVE_METRICS.effective_support_fraction.help)
+      ].join("");
+    }
+
+    function tailProfile(row) {
+      const sampleSize = row.token_sample_n || modeData().meta.token_sample_per_layer?.[row.layer];
+      return `<section class="tail-profile">
+        <div class="tail-profile-head"><div><h3>Two-sided tail profile</h3><p>Robust z uses the per-direction median and 1.4826 × MAD scale. Quantiles and energy shares use a systematic ${integer.format(sampleSize)}-token layer sample; sampled-window peak counts use all ${integer.format(row.n_tokens)} scanned tokens.</p></div></div>
+        <div class="tail-profile-grid">${tailSide(row, "positive")}${tailSide(row, "negative")}</div>
+      </section>`;
+    }
+
+    function tailSide(row, polarity) {
+      const prefix = `${polarity}_`;
+      const selected = row.selected_tail_polarity === polarity;
+      const largestShare = Number(row[`${prefix}top_context_largest_center_token_share`]);
+      const warning = largestShare >= .5 ? `<span class="artifact-warning">High lexical concentration—inspect for a repeated token.</span>` : "Lexical concentration is below 50% in the retained extremes.";
+      return `<article class="tail-side ${selected ? "selected" : ""}">
+        <div class="tail-side-head"><h4>${polarity === "positive" ? "+ High tail" : "− Low tail"}</h4><span>${selected ? "Score driver" : `tail score ${decimal(row[`${prefix}tail_selectivity_score`], 3)}`}</span></div>
+        <div class="tail-stat-grid">
+          ${tailStat("q99 robust z", decimal(row[`${prefix}q99_robust_z`], 3))}
+          ${tailStat("q99.9 robust z", decimal(row[`${prefix}q999_robust_z`], 3))}
+          ${tailStat("q99.99 robust z", decimal(row[`${prefix}q9999_robust_z`], 3))}
+          ${tailStat("Maximum robust z", decimal(row[`${prefix}max_robust_z`], 3))}
+          ${tailStat("Top-0.1% z² energy", percent(row[`${prefix}top0_1pct_energy_share`], 2))}
+          ${tailStat("Windows above z=5", `${integer.format(row[`${prefix}doc_count_z5`])} · ${percent(row[`${prefix}doc_rate_z5`], 1)}`)}
+        </div>
+        <p class="tail-artifact-note"><strong>${integer.format(row[`${prefix}top_context_unique_documents`])}</strong> unique windows · <strong>${decimal(row[`${prefix}top_context_effective_center_tokens`], 2)}</strong> effective center tokens · largest token <strong>${percent(largestShare, 1)}</strong>. ${warning}</p>
+      </article>`;
+    }
+
+    function tailStat(label, value) {
+      return `<div class="tail-stat"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;
+    }
+
+    function allMetricGroups(row) {
+      const groups = new Map();
+      Object.entries(row).filter(([key]) => key !== "candidate").forEach(([key, value]) => {
+        let group = "Core activity";
+        if (key.startsWith("rank_")) group = "Ranks";
+        else if (key.includes("unembed")) group = "Token geometry";
+        else if (key.includes("top_context")) group = "Context diversity";
+        else if (key.startsWith("positive_")) group = "+ high tail";
+        else if (key.startsWith("negative_")) group = "− low tail";
+        else if (key.startsWith("abs_") || key.startsWith("selected_tail_") || ["token_sample_n", "median_activation", "mad_activation", "robust_activation_scale", "stable_skewness", "stable_kurtosis", "stable_excess_kurtosis", "effective_support_fraction", "tail_selectivity_score"].includes(key)) group = "Robust distribution";
+        if (!groups.has(group)) groups.set(group, []);
+        groups.get(group).push(`<div class="all-metric"><span>${esc(LABELS[key] || key.replaceAll("_", " "))}</span><b>${esc(formatAny(key, value))}</b></div>`);
+      });
+      return `<div class="metric-groups">${[...groups.entries()].map(([label, items]) => `<section class="metric-group"><h4>${esc(label)}</h4><div class="all-metrics">${items.join("")}</div></section>`).join("")}</div>`;
+    }
+
     function formatAny(key, value) {
       if (value == null) return "—";
       if (typeof value === "string") return visibleToken(value);
-      if (key.startsWith("rank_") || ["layer", "sv_index_0", "n_tokens", "n_documents"].includes(key)) return integer.format(value);
-      if (["positive_rate", "top1_abs_rate", "top5_abs_rate", "doc_top5_presence_rate"].includes(key)) return percent(value, 2);
+      if (key.startsWith("rank_") || key.endsWith("_count_z3") || key.endsWith("_count_z5") || key.endsWith("_count_z8") || ["layer", "sv_index_0", "n_tokens", "n_documents", "token_sample_n"].includes(key)) return integer.format(value);
+      if (/(?:rate|share|fraction|weight)$/.test(key) || key.includes("energy_share")) return percent(value, 2);
       return decimal(value, 5);
     }
 
     function copyCandidate() {
       const button = $("#copyCandidate");
       const done = () => { button.textContent = "Copied"; setTimeout(() => button.textContent = "Copy ID", 1200); };
-      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(state.selected).then(done).catch(() => fallbackCopy(state.selected, done));
-      else fallbackCopy(state.selected, done);
+      const selected = viewState().selected;
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(selected).then(done).catch(() => fallbackCopy(selected, done));
+      else fallbackCopy(selected, done);
     }
 
     function fallbackCopy(text, done) {
@@ -1064,12 +1431,14 @@ HTML_TEMPLATE = r'''<!doctype html>
     }
 
     function renderContexts() {
-      const grouped = DATA.contexts[state.selected] || { positive: [], negative: [] };
-      renderContextColumn("positive", filterContexts(grouped.positive));
-      renderContextColumn("negative", filterContexts(grouped.negative));
+      const selected = viewState().selected;
+      const grouped = modeData().contexts[selected] || { positive: [], negative: [] };
+      const row = byCandidate().get(selected);
+      renderContextColumn("positive", filterContexts(grouped.positive), row);
+      renderContextColumn("negative", filterContexts(grouped.negative), row);
     }
 
-    function renderContextColumn(polarity, filtered) {
+    function renderContextColumn(polarity, filtered, row) {
       const list = $(`#${polarity}List`);
       const shown = filtered.slice(0, state.contextLimit);
       $(`#${polarity}Count`).textContent = `${shown.length} of ${filtered.length}`;
@@ -1081,10 +1450,10 @@ HTML_TEMPLATE = r'''<!doctype html>
         list.append(empty);
         return;
       }
-      shown.forEach(item => list.append(contextCard(item, polarity)));
+      shown.forEach(item => list.append(contextCard(item, polarity, row)));
     }
 
-    function contextCard(item, polarity) {
+    function contextCard(item, polarity, row) {
       const card = document.createElement("article");
       card.className = `context-card ${polarity}`;
 
@@ -1100,6 +1469,14 @@ HTML_TEMPLATE = r'''<!doctype html>
       const cosine = document.createElement("span");
       cosine.innerHTML = `cos <b>${esc(signed(item.cosine, 4))}</b>`;
       values.append(activation, cosine);
+      if (state.mode === "selective" && row) {
+        const scale = Math.max(Number(row.robust_activation_scale), 1e-12);
+        const centered = (Number(item.activation) - Number(row.median_activation)) / scale;
+        const tailZ = polarity === "positive" ? centered : -centered;
+        const robust = document.createElement("span");
+        robust.innerHTML = `tail z <b>${esc(decimal(tailZ, 2))}</b>`;
+        values.append(robust);
+      }
       meta.append(rank, values);
 
       const copy = document.createElement("p");
@@ -1162,18 +1539,23 @@ HTML_TEMPLATE = r'''<!doctype html>
 def main() -> None:
     args = parse_args()
     data_dir = args.data_dir.expanduser().resolve()
+    selectivity_data_dir = args.selectivity_data_dir.expanduser().resolve()
     output = (args.output or data_dir / "report.html").expanduser().resolve()
-    payload = build_payload(data_dir, args.top)
+    payload = build_payload(data_dir, selectivity_data_dir, args.top, args.selectivity_top)
     html = HTML_TEMPLATE.replace("__DASHBOARD_PAYLOAD__", safe_script_json(payload))
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(html, encoding="utf-8")
 
-    meta = payload["meta"]
-    embedded_contexts = sum(
-        len(group[polarity])
-        for group in payload["contexts"].values()
-        for polarity in ("positive", "negative")
-    )
+    broad = payload["modes"]["broad"]
+    selective = payload["modes"]["selective"]
+    contexts_by_mode = {
+        mode: sum(
+            len(group[polarity])
+            for group in mode_payload["contexts"].values()
+            for polarity in ("positive", "negative")
+        )
+        for mode, mode_payload in payload["modes"].items()
+    }
     embedded_neighbors = sum(
         len(group[side])
         for group in payload["unembedding"].values()
@@ -1181,8 +1563,12 @@ def main() -> None:
     )
     print(f"Wrote {output}")
     print(
-        f"Embedded {meta['embedded_candidates']:,} of {meta['total_candidates']:,} candidates, "
-        f"{embedded_neighbors:,} token neighbors, and {embedded_contexts:,} contexts"
+        f"Embedded {broad['meta']['embedded_candidates']:,} broad and "
+        f"{selective['meta']['embedded_candidates']:,} selective candidates "
+        f"({payload['meta']['embedded_candidate_union']:,} unique), "
+        f"{embedded_neighbors:,} token neighbors, and "
+        f"{contexts_by_mode['broad'] + contexts_by_mode['selective']:,} contexts "
+        f"({contexts_by_mode['broad']:,} broad + {contexts_by_mode['selective']:,} selective)"
     )
     print(f"Output size: {output.stat().st_size / 1_000_000:.1f} MB")
 
