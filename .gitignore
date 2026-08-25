@@ -4,3 +4,5 @@ jlens_rlens_matrix_analysis.json
 # Generated selectivity artifacts
 /unrealized_words_selectivity/checkpoint.pkl
 /unrealized_words_selectivity/top_contexts.jsonl
+/cot_unrealized_low/checkpoint.pkl
+/cot_unrealized_low/top_contexts.jsonl
