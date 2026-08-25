@@ -1,2 +1,6 @@
 task_gaming_candidate_data/token_data.jsonl
 jlens_rlens_matrix_analysis.json
+
+# Generated selectivity artifacts
+/unrealized_words_selectivity/checkpoint.pkl
+/unrealized_words_selectivity/top_contexts.jsonl
