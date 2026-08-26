@@ -8,3 +8,9 @@ jlens_rlens_matrix_analysis.json
 /cot_unrealized_low/top_contexts.jsonl
 /cot_unrealized_medium/checkpoint.pkl
 /cot_unrealized_medium/top_contexts.jsonl
+/predictive_cot_low/checkpoint.pkl
+/predictive_cot_low/top_contexts.jsonl
+/predictive_words_fineweb/checkpoint.pkl
+/predictive_words_fineweb/top_contexts.jsonl
+/predictive_words_scan/checkpoint.pkl
+/predictive_words_scan/top_contexts.jsonl
