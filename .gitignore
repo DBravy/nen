@@ -14,3 +14,5 @@ jlens_rlens_matrix_analysis.json
 /predictive_words_fineweb/top_contexts.jsonl
 /predictive_words_scan/checkpoint.pkl
 /predictive_words_scan/top_contexts.jsonl
+/predictive_cot_medium/checkpoint.pkl
+/predictive_cot_medium/top_contexts.jsonl
