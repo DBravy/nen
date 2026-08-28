@@ -141,6 +141,7 @@ async function loadRollout() {
     state.view = v;
     state.pauseIndex = null;
     renderStream();
+    updateRunEnabled();
     const d = state.datasets.find((x) => x.key === dataset).rollouts[index];
     $("rollout-meta").textContent =
       `${v.prompt_id} · ${d.difficulty || "?"} · effort ${d.reasoning_effort} · ${v.tokens.length} resp tokens`;
@@ -177,20 +178,31 @@ function renderStream() {
       state.pauseIndex = t.index;
       renderStream();
       $("pause-info").textContent = `pause at token #${t.index}: ${JSON.stringify(t.text)}`;
-      $("run").disabled = false;
+      updateRunEnabled();
     });
     stream.appendChild(span);
   });
 }
 
+// -- scope / run enabling -------------------------------------------------- //
+function updateRunEnabled() {
+  const whole = $("scope").value === "whole_cot";
+  $("run").disabled = !state.view || !(whole || state.pauseIndex != null);
+  $("scope-note").textContent = whole
+    ? "Whole-CoT: regenerates from the prompt with the edits active on every generated token. Pause point is ignored."
+    : "Pause-token: edits fire only at the selected token; the rest generates normally.";
+}
+
 // -- run ------------------------------------------------------------------- //
 async function run() {
-  if (state.pauseIndex == null) return;
+  const whole = $("scope").value === "whole_cot";
+  if (!whole && state.pauseIndex == null) return;
   const edits = [...document.querySelectorAll(".edit")].map(readEdit);
   const body = {
     dataset: $("dataset").value,
     rollout_index: +$("rollout").value,
-    pause_index: state.pauseIndex,
+    scope: $("scope").value,
+    pause_index: state.pauseIndex == null ? -1 : state.pauseIndex,
     basis: $("basis").value,
     edits,
     n_samples: +$("n_samples").value,
@@ -205,7 +217,9 @@ async function run() {
   try {
     const res = await jpost("/api/intervene", body);
     renderResults(res);
-    $("status").textContent = `done · prefix ${res.prefix_len} tokens · pause token ${JSON.stringify(res.pause_token)}`;
+    $("status").textContent = res.scope === "whole_cot"
+      ? `done · whole CoT from prompt (${res.prefix_len} prompt tokens)`
+      : `done · prefix ${res.prefix_len} tokens · pause token ${JSON.stringify(res.pause_token)}`;
   } catch (e) {
     $("status").textContent = e.message;
     $("status").className = "status err";
@@ -236,10 +250,12 @@ $("rollout").addEventListener("change", loadRollout);
 $("basis").addEventListener("change", () =>
   document.querySelectorAll(".edit").forEach(updateSdNote)
 );
+$("scope").addEventListener("change", updateRunEnabled);
 $("add-edit").addEventListener("click", addEdit);
 $("run").addEventListener("click", run);
 
 addEdit();
+updateRunEnabled();
 loadDatasets().catch((e) => {
   $("status").textContent = e.message;
   $("status").className = "status err";

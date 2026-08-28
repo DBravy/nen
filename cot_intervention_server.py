@@ -90,16 +90,25 @@ def find_decoder_layers(model):
     raise RuntimeError("Could not locate a decoder-layer ModuleList on the model.")
 
 
-class PauseTokenEditController:
+class SVEditController:
     """
-    Apply additive SV edits to the residual stream at exactly one position: the
-    last token of the prefill forward (= the pause token). Decode steps (seq_len
-    == 1) are never edited, so only the pause token's hidden state is nudged.
+    Apply additive SV edits to the residual stream at the last position of a
+    forward pass.
+
+    persist=False  ("pause token only"): edit only on the prefill forward
+        (seq_len > 1) — i.e. exactly the pause token. Decode steps are untouched,
+        so only that one hidden state is nudged (it still propagates via the KV
+        cache that later tokens attend to).
+
+    persist=True  ("whole CoT"): edit the last position of *every* forward — the
+        last prompt token during prefill, then every generated token during
+        decode. The edit is therefore active throughout the whole rollout.
     """
 
-    def __init__(self, model, decoder_layers, edits: list[TargetEdit]):
+    def __init__(self, model, decoder_layers, edits: list[TargetEdit], persist: bool = False):
         self.model = model
         self.decoder_layers = decoder_layers
+        self.persist = persist
         self.edits_by_layer = defaultdict(list)
         for e in edits:
             self.edits_by_layer[e.layer].append(e)
@@ -114,8 +123,8 @@ class PauseTokenEditController:
                 return None
             tensor = output if torch.is_tensor(output) else output[0]
             seq_len = tensor.shape[-2]
-            if seq_len <= 1:
-                # decode step: pause token already cached, do not edit.
+            if seq_len <= 1 and not self.persist:
+                # pause-token mode: decode step, token already cached; skip.
                 return None
             idx = torch.as_tensor([seq_len - 1], device=tensor.device, dtype=torch.long)
             x = tensor.index_select(-2, idx).float()  # [batch, 1, d]
@@ -389,7 +398,8 @@ class Store:
     def intervene(self, body):
         dataset = body["dataset"]
         index = int(body["rollout_index"])
-        pause_index = int(body["pause_index"])
+        scope = body.get("scope", "pause_token")  # "pause_token" | "whole_cot"
+        pause_index = int(body.get("pause_index", -1))
         basis = body.get("basis", "unrealized")
         n_samples = int(body.get("n_samples", 3))
         temperature = float(body.get("temperature", 0.7))
@@ -399,14 +409,25 @@ class Store:
 
         t = self._tokenized(dataset, index)
         prompt_ids, response_ids = t["prompt_ids"], t["response_ids"]
-        if pause_index < 0 or pause_index >= len(response_ids):
-            raise ValueError(f"pause_index {pause_index} out of range (0..{len(response_ids)-1})")
-        prefix_ids = prompt_ids + response_ids[: pause_index + 1]
-        original_continuation = self.tok.decode(
-            response_ids[pause_index + 1 :],
-            skip_special_tokens=False,
-            clean_up_tokenization_spaces=False,
-        )
+
+        persist = scope == "whole_cot"
+        if persist:
+            # Re-run the whole CoT from the prompt with the edits active throughout.
+            prefix_ids = list(prompt_ids)
+            original_continuation = self.tok.decode(
+                response_ids, skip_special_tokens=False, clean_up_tokenization_spaces=False
+            )
+            pause_token = None
+        else:
+            if pause_index < 0 or pause_index >= len(response_ids):
+                raise ValueError(f"pause_index {pause_index} out of range (0..{len(response_ids)-1})")
+            prefix_ids = prompt_ids + response_ids[: pause_index + 1]
+            original_continuation = self.tok.decode(
+                response_ids[pause_index + 1 :],
+                skip_special_tokens=False,
+                clean_up_tokenization_spaces=False,
+            )
+            pause_token = self.tok.decode([response_ids[pause_index]], skip_special_tokens=False)
 
         edits = []
         for e in body.get("edits", []):
@@ -441,7 +462,7 @@ class Store:
             )
             telemetry = {}
             if edits:
-                controller = PauseTokenEditController(self.model, self.decoder_layers, edits)
+                controller = SVEditController(self.model, self.decoder_layers, edits, persist=persist)
                 with controller:
                     intervened = self._generate(
                         prefix_ids,
@@ -464,7 +485,8 @@ class Store:
                 )
 
         return {
-            "pause_token": self.tok.decode([response_ids[pause_index]], skip_special_tokens=False),
+            "scope": scope,
+            "pause_token": pause_token,
             "prefix_len": len(prefix_ids),
             "original_continuation": original_continuation,
             "baseline": baseline,

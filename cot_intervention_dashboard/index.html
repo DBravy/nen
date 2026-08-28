@@ -26,8 +26,14 @@
       <div id="rollout-meta" class="meta-line"></div>
       <div id="mismatch-warn" class="warn" hidden></div>
 
-      <h2>Edits <span class="hint">applied only at the pause token</span></h2>
+      <h2>Edits</h2>
       <div class="field-row">
+        <label>Scope
+          <select id="scope">
+            <option value="pause_token">Pause token only</option>
+            <option value="whole_cot">Whole CoT (steer throughout)</option>
+          </select>
+        </label>
         <label>Basis
           <select id="basis">
             <option value="unrealized">unrealized</option>
@@ -35,6 +41,7 @@
           </select>
         </label>
       </div>
+      <div id="scope-note" class="hint" style="margin:-4px 0 10px"></div>
       <div id="edits"></div>
       <button id="add-edit" class="ghost">+ Add edit</button>
 
