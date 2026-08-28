@@ -12,3 +12,13 @@ python probe_semantic_slot_direction.py \
   --layers 7,8 \
   --sv-indices 12,12 \
   --out-dir semantic_slot_probe
+
+
+    python scan_predictive_jlens_directions.py \
+        --mode cot \
+        --prompts-jsonl reasoning_prompts.jsonl \
+        --reasoning-effort medium \
+        --max-new-tokens 768 \
+        --max-replay-tokens 1536 \
+        --k 64 \
+        --out predictive_cot_medium

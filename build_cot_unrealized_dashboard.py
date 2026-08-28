@@ -19,7 +19,26 @@ DEFAULT_LOW_DIR = ROOT / "cot_unrealized_low"
 DEFAULT_MEDIUM_DIR = ROOT / "cot_unrealized_medium"
 DEFAULT_FINEWEB_DIR = ROOT / "unrealized_words_fineweb"
 DEFAULT_FINEWEB_SELECTIVITY_DIR = ROOT / "unrealized_words_selectivity"
+DEFAULT_PREDICTIVE_LOW_DIR = ROOT / "predictive_cot_low"
+DEFAULT_PREDICTIVE_MEDIUM_DIR = ROOT / "predictive_cot_medium"
+DEFAULT_PREDICTIVE_FINEWEB_DIR = ROOT / "predictive_words_scan"
+DEFAULT_PREDICTIVE_FINEWEB_SELECTIVITY_DIR = ROOT / "predictive_words_scan"
 DEFAULT_OUTPUT = ROOT / "cot_unrealized_report.html"
+
+# Metadata describing each attribution basis. Both sources render through the
+# exact same UI; only the residual-state/token pairing differs.
+SOURCE_LABELS = {
+    "unrealized": {
+        "label": "Current-token",
+        "tagline": "reads h[t] → token[t]",
+        "note": "Current-token attribution: each direction reads the residual state at the same position as the token it describes.",
+    },
+    "predictive": {
+        "label": "Predictive",
+        "tagline": "reads h[t−1] → token[t]",
+        "note": "Predictive attribution: each direction reads the residual state one position before the token it describes. Same shared SVD basis, different state/token pairing.",
+    },
+}
 BROAD_RANK = "rank_global_mean_abs_cosine"
 SELECTIVE_RANK = "rank_global_tail_selectivity"
 TEXT_FIELDS = {
@@ -42,6 +61,19 @@ def parse_args() -> argparse.Namespace:
         "--fineweb-selectivity-data-dir",
         type=Path,
         default=DEFAULT_FINEWEB_SELECTIVITY_DIR,
+    )
+    parser.add_argument("--predictive-low-data-dir", type=Path, default=DEFAULT_PREDICTIVE_LOW_DIR)
+    parser.add_argument("--predictive-medium-data-dir", type=Path, default=DEFAULT_PREDICTIVE_MEDIUM_DIR)
+    parser.add_argument("--predictive-fineweb-data-dir", type=Path, default=DEFAULT_PREDICTIVE_FINEWEB_DIR)
+    parser.add_argument(
+        "--predictive-fineweb-selectivity-data-dir",
+        type=Path,
+        default=DEFAULT_PREDICTIVE_FINEWEB_SELECTIVITY_DIR,
+    )
+    parser.add_argument(
+        "--no-predictive",
+        action="store_true",
+        help="Build only the current-token source (original single-basis behavior)",
     )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument(
@@ -996,6 +1028,17 @@ HTML_TEMPLATE = r'''<!doctype html>
     .effort-tab small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
     .effort-stat { color: var(--muted); font: 650 10px/1.4 var(--mono); text-align: right; white-space: nowrap; }
 
+    .source-bar { background: #121b23; border-bottom: 1px solid var(--line-dark); }
+    .source-bar-inner { width: min(1680px, 94vw); margin: 0 auto; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 10px 0; }
+    .source-switch { display: inline-flex; gap: 1px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.16); }
+    .source-tab { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; border: 0; background: #1c2731; color: #b8c2c8; padding: 8px 16px; text-align: left; }
+    .source-tab:hover { background: #24313d; }
+    .source-tab[aria-selected="true"] { background: var(--orange); color: #fff; }
+    .source-index { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid rgba(255,255,255,.3); border-radius: 50%; font: 750 8px/1 var(--mono); }
+    .source-tab b { display: block; font: 650 12px/1.15 var(--serif); }
+    .source-tab small { display: block; margin-top: 1px; font: 650 9px/1.3 var(--mono); opacity: .82; }
+    .source-note { margin: 0; color: #929ea6; font-size: 10px; max-width: 720px; }
+
     .toolbar { position: sticky; top: 0; z-index: 30; border-bottom: 1px solid var(--line); background: rgba(238,234,226,.96); backdrop-filter: blur(12px); }
     .toolbar-inner { width: min(1680px, 94vw); margin: 0 auto; display: grid; grid-template-columns: 260px minmax(210px, 1.2fr) 145px minmax(165px, .65fr) 120px auto; gap: 10px; align-items: end; padding: 12px 0; }
     .control { display: block; min-width: 0; color: var(--muted); font-size: 8px; font-weight: 850; letter-spacing: .11em; text-transform: uppercase; }
@@ -1006,6 +1049,24 @@ HTML_TEMPLATE = r'''<!doctype html>
     .lens-button { border: 0; background: var(--surface); color: var(--muted); padding: 0 10px; font-size: 10px; font-weight: 750; }
     .lens-button[aria-pressed="true"] { background: var(--effort-soft); color: var(--effort); }
     .search-wrap { position: relative; }
+
+    .token-finder { border-bottom: 1px solid var(--line); background: var(--surface-2); }
+    .token-finder-inner { width: min(1680px, 94vw); margin: 0 auto; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 10px 0; }
+    .token-field { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 8px; font-weight: 850; letter-spacing: .11em; text-transform: uppercase; white-space: nowrap; }
+    .token-wrap { position: relative; }
+    .token-field input { width: 240px; height: 34px; border: 1px solid var(--line-dark); border-radius: 2px; outline: 0; background: var(--surface); color: var(--ink); padding: 0 10px; text-transform: none; letter-spacing: normal; font: 12px/1 var(--mono); }
+    .token-field input:focus { border-color: var(--effort); box-shadow: 0 0 0 3px color-mix(in srgb, var(--effort) 14%, transparent); }
+    .token-summary { margin: 0; color: var(--muted); font-size: 11px; min-width: 0; }
+    .token-summary.active { color: var(--ink-2); }
+    .token-summary code { font: 700 11px/1 var(--mono); background: var(--effort-soft); color: var(--effort); padding: 2px 6px; border-radius: 3px; }
+    .token-clear { border: 1px solid var(--line-dark); background: var(--surface); color: var(--ink-2); height: 30px; padding: 0 12px; border-radius: 2px; font-size: 10px; font-weight: 750; }
+    .token-clear:hover { background: var(--surface-2); }
+    .rank-token { display: flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--muted); font: 8px/1.25 var(--mono); }
+    .rank-token code { font: 700 9px/1 var(--mono); color: var(--ink-2); }
+    .token-hit { display: inline-flex; align-items: center; gap: 4px; font: 700 8px/1 var(--mono); padding: 2px 5px; border-radius: 3px; text-transform: uppercase; white-space: nowrap; }
+    .token-hit code { font: inherit; background: none; padding: 0; color: inherit; }
+    .token-hit.positive { background: var(--teal-soft); color: var(--teal); }
+    .token-hit.negative { background: var(--orange-soft); color: var(--orange); }
     .search-wrap input { padding-right: 42px; }
     .shortcut { position: absolute; right: 8px; bottom: 8px; border: 1px solid var(--line); border-radius: 3px; background: var(--surface-2); color: var(--muted); padding: 1px 6px; font: 9px/1.45 var(--mono); }
     .reset { height: 38px; border: 1px solid var(--line-dark); background: transparent; color: var(--ink-2); padding: 0 13px; font-size: 10px; font-weight: 800; }
@@ -1279,6 +1340,13 @@ HTML_TEMPLATE = r'''<!doctype html>
     </div>
   </header>
 
+  <nav class="source-bar" id="sourceBar" aria-label="Attribution basis">
+    <div class="source-bar-inner">
+      <div class="source-switch" id="sourceSwitch" role="tablist" aria-label="Attribution basis"></div>
+      <p class="source-note" id="sourceNote"></p>
+    </div>
+  </nav>
+
   <nav class="effort-bar" aria-label="Reasoning effort">
     <div class="effort-switch" role="tablist" aria-label="Reasoning effort scan">
       <button class="effort-tab" type="button" role="tab" data-effort="low" aria-selected="true">
@@ -1301,6 +1369,16 @@ HTML_TEMPLATE = r'''<!doctype html>
     </div>
   </section>
 
+  <section class="token-finder" aria-label="Find directions by context token">
+    <div class="token-finder-inner">
+      <label class="token-field">Token in top contexts
+        <span class="token-wrap"><input id="tokenSearch" type="search" placeholder="e.g. maybe · wait · def · →" autocomplete="off" spellcheck="false"></span>
+      </label>
+      <p class="token-summary" id="tokenSummary"></p>
+      <button class="token-clear" id="tokenClear" type="button" hidden>Clear token</button>
+    </div>
+  </section>
+
   <main class="shell">
     <div class="dashboard-grid">
       <aside class="panel ranking-panel" aria-label="Ranked singular directions">
@@ -1313,7 +1391,9 @@ HTML_TEMPLATE = r'''<!doctype html>
   <footer class="footer" id="footerNote"></footer>
 
   <script>
-    const DATA = __COT_DASHBOARD_PAYLOAD__;
+    const ALL = __COT_DASHBOARD_PAYLOAD__;
+    let activeSource = ALL.default_source;
+    let DATA = ALL.sources[activeSource];
     const BROAD_METRICS = {
       mean_abs_cosine: { label: "Mean |cosine|", short: "mean |cos|", kind: "decimal", help: "Mean absolute projection normalized by residual-stream norm." },
       doc_top5_presence_rate: { label: "Trace top-5 presence", short: "trace top-5", kind: "percent", help: "Share of reasoning traces where this direction enters the layer's top five." },
@@ -1356,14 +1436,17 @@ HTML_TEMPLATE = r'''<!doctype html>
       selected_tail_top_context_effective_center_tokens: "Selected-tail effective center tokens", selected_tail_top_context_largest_center_token_share: "Selected-tail largest center-token share"
     };
 
-    const rankingIndexes = Object.fromEntries(Object.entries(DATA.efforts).map(([effort, payload]) => [effort, new Map(payload.rankings.map(row => [row.candidate, row]))]));
-    const finewebIndexes = Object.fromEntries(Object.entries(DATA.fineweb.sources).map(([source, payload]) => [source, payload.rankings]));
+    const buildRankingIndexes = () => Object.fromEntries(Object.entries(DATA.efforts).map(([effort, payload]) => [effort, new Map(payload.rankings.map(row => [row.candidate, row]))]));
+    const buildFinewebIndexes = () => Object.fromEntries(Object.entries(DATA.fineweb.sources).map(([source, payload]) => [source, payload.rankings]));
+    const buildViews = () => Object.fromEntries(Object.entries(DATA.efforts).map(([effort, payload]) => [effort, Object.fromEntries(Object.entries(payload.cohorts).map(([lens, candidates]) => [lens, {
+      query: "", layer: "all", metric: LENS_CONFIG[lens].defaultMetric, limit: Math.min(50, candidates.length), selected: candidates[0] || null
+    }]))]));
+    let rankingIndexes = buildRankingIndexes();
+    let finewebIndexes = buildFinewebIndexes();
     const state = {
       effort: DATA.default_effort || "low",
       lens: DATA.default_lens || "broad",
-      views: Object.fromEntries(Object.entries(DATA.efforts).map(([effort, payload]) => [effort, Object.fromEntries(Object.entries(payload.cohorts).map(([lens, candidates]) => [lens, {
-        query: "", layer: "all", metric: LENS_CONFIG[lens].defaultMetric, limit: Math.min(50, candidates.length), selected: candidates[0] || null
-      }]))])),
+      views: buildViews(),
       contextQuery: "",
       contextLimit: 6,
       dedupe: true,
@@ -1371,7 +1454,8 @@ HTML_TEMPLATE = r'''<!doctype html>
       traceFocus: null,
       traceKey: null,
       tokenLimit: 8,
-      finewebSource: "broad"
+      finewebSource: "broad",
+      tokenQuery: ""
     };
     const $ = selector => document.querySelector(selector);
     const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
@@ -1417,10 +1501,13 @@ HTML_TEMPLATE = r'''<!doctype html>
         viewState().selected = initial.candidate;
         expandLimitToCandidate(initial.candidate);
       }
+      buildSourceTabs();
       configureControls();
       document.querySelectorAll(".effort-tab").forEach(button => button.addEventListener("click", () => switchEffort(button.dataset.effort)));
       document.querySelectorAll(".lens-button").forEach(button => button.addEventListener("click", () => switchLens(button.dataset.lens)));
       $("#candidateSearch").addEventListener("input", event => { viewState().query = event.target.value.trim().toLowerCase(); render(); });
+      $("#tokenSearch").addEventListener("input", event => { state.tokenQuery = event.target.value; render(); });
+      $("#tokenClear").addEventListener("click", () => { state.tokenQuery = ""; $("#tokenSearch").value = ""; render(); $("#tokenSearch").focus(); });
       $("#layerFilter").addEventListener("change", event => { viewState().layer = event.target.value; render(); });
       $("#sortMetric").addEventListener("change", event => { viewState().metric = event.target.value; render(); });
       $("#rowLimit").addEventListener("change", event => { viewState().limit = Number(event.target.value); render(); });
@@ -1456,6 +1543,10 @@ HTML_TEMPLATE = r'''<!doctype html>
       const meta = payload.meta;
       const view = viewState();
       document.body.dataset.effort = state.effort;
+      document.body.dataset.source = activeSource;
+      document.querySelectorAll(".source-tab").forEach(button => button.setAttribute("aria-selected", String(button.dataset.source === activeSource)));
+      const sourceInfo = (ALL.source_labels || {})[activeSource];
+      if ($("#sourceNote")) $("#sourceNote").textContent = sourceInfo ? sourceInfo.note : "";
       document.querySelectorAll(".effort-tab").forEach(button => button.setAttribute("aria-selected", String(button.dataset.effort === state.effort)));
       document.querySelectorAll(".lens-button").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.lens === state.lens)));
       $("#lowEffortStat").textContent = `${compact.format(DATA.efforts.low.meta.analysis_tokens)} analysis tokens`;
@@ -1473,6 +1564,7 @@ HTML_TEMPLATE = r'''<!doctype html>
       $("#rowLimit").innerHTML = [...new Set(choices)].map(value => `<option value="${value}">${value === rows.length ? `All ${integer.format(value)}` : `Top ${value}`}</option>`).join("");
       if (view.limit > rows.length) view.limit = rows.length;
       $("#candidateSearch").value = view.query;
+      if ($("#tokenSearch")) $("#tokenSearch").value = state.tokenQuery;
       $("#layerFilter").value = view.layer;
       $("#sortMetric").value = view.metric;
       $("#rowLimit").value = String(view.limit);
@@ -1492,11 +1584,35 @@ HTML_TEMPLATE = r'''<!doctype html>
       resetTraceState();
       configureControls(); render(); syncHash();
     }
+    function switchSource(source) {
+      if (!ALL.sources[source] || source === activeSource) return;
+      activeSource = source;
+      DATA = ALL.sources[source];
+      rankingIndexes = buildRankingIndexes();
+      finewebIndexes = buildFinewebIndexes();
+      state.effort = DATA.default_effort || "low";
+      state.lens = DATA.default_lens || "broad";
+      state.views = buildViews();
+      state.finewebSource = "broad";
+      state.polarity = "positive";
+      state.tokenQuery = "";
+      resetTraceState();
+      configureControls(); render(); syncHash();
+    }
+    function buildSourceTabs() {
+      const bar = $("#sourceBar"), order = ALL.source_order || [];
+      if (order.length < 2) { if (bar) bar.style.display = "none"; return; }
+      $("#sourceSwitch").innerHTML = order.map((source, index) => {
+        const info = (ALL.source_labels || {})[source] || { label: source, tagline: "" };
+        return `<button class="source-tab" type="button" role="tab" data-source="${esc(source)}" aria-selected="${String(source === activeSource)}"><span class="source-index">${String(index + 1).padStart(2, "0")}</span><span><b>${esc(info.label)}</b><small>${esc(info.tagline)}</small></span></button>`;
+      }).join("");
+      $("#sourceSwitch").querySelectorAll(".source-tab").forEach(button => button.addEventListener("click", () => switchSource(button.dataset.source)));
+    }
     function resetTraceState() { state.contextQuery = ""; state.contextLimit = 6; state.traceFocus = null; state.traceKey = null; }
     function resetFilters() {
       const view = viewState();
-      view.query = ""; view.layer = "all"; view.metric = lensConfig().defaultMetric; view.limit = Math.min(50, cohortRows().length);
-      $("#candidateSearch").value = ""; $("#layerFilter").value = "all"; $("#sortMetric").value = view.metric; $("#rowLimit").value = String(view.limit); render();
+      view.query = ""; view.layer = "all"; view.metric = lensConfig().defaultMetric; view.limit = Math.min(50, cohortRows().length); state.tokenQuery = "";
+      $("#candidateSearch").value = ""; $("#layerFilter").value = "all"; $("#sortMetric").value = view.metric; $("#rowLimit").value = String(view.limit); if ($("#tokenSearch")) $("#tokenSearch").value = ""; render();
     }
     function compareRows(a, b) {
       const metric = lensConfig().metrics[viewState().metric];
@@ -1505,12 +1621,54 @@ HTML_TEMPLATE = r'''<!doctype html>
       const diff = Number.isFinite(av) && Number.isFinite(bv) ? (av - bv) * direction : 0;
       return diff || Number(a[lensConfig().primaryRank]) - Number(b[lensConfig().primaryRank]);
     }
+    function embeddedPerSide() { return Number(effortData().meta.embedded_contexts_per_side) || 0; }
+    function candidateTokenHits(candidate, queryLower) {
+      const grouped = effortData().contexts[candidate];
+      if (!grouped) return null;
+      let best = null; const seen = new Map(); const sides = new Set();
+      for (const polarity of ["positive", "negative"]) {
+        for (const item of grouped[polarity] || []) {
+          if (!String(item.token ?? "").toLowerCase().includes(queryLower)) continue;
+          sides.add(polarity);
+          if (!seen.has(item.token)) seen.set(item.token, { token: item.token, polarity, rank: item.rank });
+          if (!best || Number(item.rank) < Number(best.rank)) best = { token: item.token, polarity, rank: item.rank };
+        }
+      }
+      return best ? { best, sides: [...sides], tokens: [...seen.values()], count: seen.size } : null;
+    }
+    function tokenHitBadge(candidate) {
+      const q = state.tokenQuery.trim().toLowerCase();
+      if (!q) return "";
+      const hit = candidateTokenHits(candidate, q);
+      if (!hit) return "";
+      const label = hit.best.polarity === "positive" ? "+ high" : "− low";
+      const extra = hit.count > 1 ? ` · ${integer.format(hit.count)} tokens` : "";
+      return `<span class="rank-token"><span class="token-hit ${hit.best.polarity}">${label} · rank ${integer.format(hit.best.rank)}/${embeddedPerSide()}</span><code>${esc(visibleToken(hit.best.token))}</code>${extra}</span>`;
+    }
+    function updateTokenSummary(rows) {
+      const summary = $("#tokenSummary"), clear = $("#tokenClear");
+      if (!summary) return;
+      const q = state.tokenQuery.trim();
+      if (!q) {
+        summary.classList.remove("active");
+        summary.textContent = `Type a token to keep only directions whose top-${embeddedPerSide()} activating contexts include it (matches either tail, current effort and lens).`;
+        if (clear) clear.hidden = true;
+        return;
+      }
+      const ql = q.toLowerCase();
+      let pos = 0, neg = 0;
+      rows.forEach(row => { const hit = candidateTokenHits(row.candidate, ql); if (!hit) return; if (hit.sides.includes("positive")) pos++; if (hit.sides.includes("negative")) neg++; });
+      summary.classList.add("active");
+      summary.innerHTML = `<b>${integer.format(rows.length)}</b> of ${integer.format(cohortRows().length)} ${esc(state.lens)} directions include <code>${esc(visibleToken(q))}</code> in top-${embeddedPerSide()} · <span class="token-hit positive">+ ${integer.format(pos)} high</span> <span class="token-hit negative">− ${integer.format(neg)} low</span>`;
+      if (clear) clear.hidden = false;
+    }
     function filteredRows(applyLimit = true) {
-      const view = viewState(), query = view.query;
+      const view = viewState(), query = view.query, tokenQuery = state.tokenQuery.trim().toLowerCase();
       const rows = cohortRows().filter(row => {
         if (view.layer !== "all" && Number(row.layer) !== Number(view.layer)) return false;
-        if (!query) return true;
-        return `${row.candidate} layer ${row.layer} l${String(row.layer).padStart(2,"0")} sv ${row.sv_index_0} sv${String(row.sv_index_0).padStart(2,"0")}`.toLowerCase().includes(query);
+        if (query && !`${row.candidate} layer ${row.layer} l${String(row.layer).padStart(2,"0")} sv ${row.sv_index_0} sv${String(row.sv_index_0).padStart(2,"0")}`.toLowerCase().includes(query)) return false;
+        if (tokenQuery && !candidateTokenHits(row.candidate, tokenQuery)) return false;
+        return true;
       }).sort(compareRows);
       return applyLimit ? rows.slice(0, view.limit) : rows;
     }
@@ -1519,14 +1677,15 @@ HTML_TEMPLATE = r'''<!doctype html>
       if (rows.length && !rows.some(row => row.candidate === view.selected)) view.selected = rows[0].candidate;
       if (!rows.length) view.selected = null;
       if (view.selected !== previous) { state.traceFocus = null; state.traceKey = null; syncHash(); }
-      renderRankings(rows, all.length); renderDetail(rows);
+      renderRankings(rows, all.length); renderDetail(rows); updateTokenSummary(all);
     }
     function renderRankings(rows, matchCount) {
       const view = viewState(), metric = lensConfig().metrics[view.metric];
       const values = rows.map(row => Number(row[view.metric])).filter(Number.isFinite);
       const min = values.length ? Math.min(...values) : 0, max = values.length ? Math.max(...values) : 0;
       $("#rankingCount").textContent = `${integer.format(rows.length)} / ${integer.format(matchCount)}`;
-      $("#rankingCaption").textContent = `${metric.label} · ${metric.direction === "asc" ? "ascending" : "descending"}. ${lensConfig().caption} SV indices are zero-based.`;
+      const tokenNote = state.tokenQuery.trim() ? `Filtered to directions with “${state.tokenQuery.trim()}” in top-${embeddedPerSide()} contexts. ` : "";
+      $("#rankingCaption").textContent = `${tokenNote}${metric.label} · ${metric.direction === "asc" ? "ascending" : "descending"}. ${lensConfig().caption} SV indices are zero-based.`;
       if (!rows.length) { $("#rankingList").innerHTML = `<div class="empty">No directions match these filters.</div>`; return; }
       const other = otherEffort(state.effort), otherIndex = rowIndex(other);
       $("#rankingList").innerHTML = rows.map(row => {
@@ -1538,7 +1697,7 @@ HTML_TEMPLATE = r'''<!doctype html>
         return `<button class="rank-row ${row.candidate === view.selected ? "active" : ""}" type="button" data-candidate="${esc(row.candidate)}" ${row.candidate === view.selected ? 'aria-current="true"' : ""}>
           <span class="rank-number">#${integer.format(row[lensConfig().primaryRank])}</span><span><span class="rank-topline"><span class="candidate">${esc(row.candidate)}${tail}</span><span class="layer-note">L${String(row.layer).padStart(2,"0")} · SV${String(row.sv_index_0).padStart(2,"0")}</span></span>
           <span class="rank-measure"><span>${esc(metric.short)}</span><b>${esc(formatMetric(value, metric.kind))}</b></span><span class="mini-track"><i style="width:${width.toFixed(2)}%"></i></span>
-          <span class="rank-compare"><span>${other} effort #${integer.format(otherRow?.[lensConfig().primaryRank])}</span><span>${state.lens === "selective" ? `${percent(row.selected_tail_top_context_largest_center_token_share, 0)} top token` : `${percent(row.doc_top5_presence_rate, 0)} traces`}</span></span></span></button>`;
+          <span class="rank-compare"><span>${other} effort #${integer.format(otherRow?.[lensConfig().primaryRank])}</span><span>${state.lens === "selective" ? `${percent(row.selected_tail_top_context_largest_center_token_share, 0)} top token` : `${percent(row.doc_top5_presence_rate, 0)} traces`}</span></span>${tokenHitBadge(row.candidate)}</span></button>`;
       }).join("");
       $("#rankingList").querySelectorAll(".rank-row").forEach(button => button.addEventListener("click", () => { selectCandidate(button.dataset.candidate); if (innerWidth <= 940) $("#detail").scrollIntoView({behavior:"smooth",block:"start"}); }));
     }
@@ -1801,26 +1960,7 @@ HTML_TEMPLATE = r'''<!doctype html>
 </html>'''
 
 
-def main() -> None:
-    args = parse_args()
-    low_dir = args.low_data_dir.expanduser().resolve()
-    medium_dir = args.medium_data_dir.expanduser().resolve()
-    fineweb_dir = args.fineweb_data_dir.expanduser().resolve()
-    fineweb_selectivity_dir = args.fineweb_selectivity_data_dir.expanduser().resolve()
-    output = args.output.expanduser().resolve()
-    payload = build_payload(
-        low_dir,
-        medium_dir,
-        fineweb_dir,
-        fineweb_selectivity_dir,
-        args.top,
-        args.contexts_per_side,
-        args.fineweb_contexts_per_side,
-    )
-    html = HTML_TEMPLATE.replace("__COT_DASHBOARD_PAYLOAD__", safe_script_json(payload))
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(html, encoding="utf-8")
-
+def summarize_source(name: str, payload: dict[str, Any]) -> str:
     embedded_contexts = sum(
         len(items)
         for effort in payload["efforts"].values()
@@ -1842,15 +1982,71 @@ def main() -> None:
     )
     low_meta = payload["efforts"]["low"]["meta"]
     medium_meta = payload["efforts"]["medium"]["meta"]
-    print(f"Wrote {output}")
-    print(
-        f"Embedded {low_meta['embedded_candidates']:,} low-effort and "
+    return (
+        f"[{name}] {low_meta['embedded_candidates']:,} low-effort and "
         f"{medium_meta['embedded_candidates']:,} medium-effort candidates, "
         f"{embedded_contexts:,} CoT context events, "
         f"{embedded_fineweb_contexts:,} FineWeb contexts, "
         f"{embedded_neighbors:,} token neighbors, "
         f"and {low_meta['rollouts'] + medium_meta['rollouts']:,} full rollouts"
     )
+
+
+def main() -> None:
+    args = parse_args()
+    output = args.output.expanduser().resolve()
+
+    def build_source(low: Path, medium: Path, fineweb: Path, selectivity: Path) -> dict[str, Any]:
+        return build_payload(
+            low.expanduser().resolve(),
+            medium.expanduser().resolve(),
+            fineweb.expanduser().resolve(),
+            selectivity.expanduser().resolve(),
+            args.top,
+            args.contexts_per_side,
+            args.fineweb_contexts_per_side,
+        )
+
+    sources: dict[str, Any] = {}
+    order: list[str] = []
+
+    # Current-token (original) source — unchanged default behavior.
+    sources["unrealized"] = build_source(
+        args.low_data_dir,
+        args.medium_data_dir,
+        args.fineweb_data_dir,
+        args.fineweb_selectivity_data_dir,
+    )
+    order.append("unrealized")
+    print(summarize_source("current-token", sources["unrealized"]))
+
+    # Predictive source — added when its scan directories are present.
+    if not args.no_predictive:
+        predictive_dirs = [
+            args.predictive_low_data_dir,
+            args.predictive_medium_data_dir,
+            args.predictive_fineweb_data_dir,
+            args.predictive_fineweb_selectivity_data_dir,
+        ]
+        if all(path.expanduser().resolve().exists() for path in predictive_dirs):
+            sources["predictive"] = build_source(*predictive_dirs)
+            order.append("predictive")
+            print(summarize_source("predictive", sources["predictive"]))
+        else:
+            print("Predictive scan directories not found; building current-token source only.")
+
+    combined = {
+        "default_source": "unrealized",
+        "source_order": order,
+        "source_labels": {name: SOURCE_LABELS[name] for name in order},
+        "sources": sources,
+    }
+    html = HTML_TEMPLATE.replace("__COT_DASHBOARD_PAYLOAD__", safe_script_json(combined))
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(html, encoding="utf-8")
+
+    print(f"Wrote {output}")
+    print(f"Attribution sources embedded: {', '.join(order)}")
     print(f"Output size: {output.stat().st_size / 1_000_000:.1f} MB")
 
 

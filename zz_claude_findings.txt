@@ -1,0 +1,35 @@
+I've now got a verified picture across both datasets. Here's what I found.
+
+The headline
+In the predictive lens, the coherent directions are keyed on the read state (the prev_token at t‑1), not the target token — exactly the intuition you had ("driven by what goes in"). And what they encode is almost always a construction (read-state word → its grammatical complement), not a standalone concept. That's why you see fewer "concept" patterns here than in the J‑lens: the J‑lens gives you token-identity categories; the predictive lens gives you "the model just emitted word X and is now composing the continuation of X." Once I aggregated on prev_token instead of the center token, clean families popped out immediately.
+
+Verified families (both low + medium)
+I aggregated positive/negative prev_token and target token per SV, then measured concentration. The strong, replicating families:
+
+1. Deliberation → "to" (intention / planning move). Read state = need/Need/Wait/think/check, target =  to. This is the "I need to do X next" construction, read one token early.
+L09_SV51 (0.91 prev-concentration), L11_SV37,L12_SV37,L13_SV37, L13_SV50,L14_SV50, L05_SV49, L01_SV13. In medium it splits cleanly: need→to (planning) vs Wait/see/test→ : / if / that (setting up a verification), e.g. medium L10–L14_SV50.
+
+2. Modal → "be" (epistemic possibility). Read state = could/might/may/maybe, target =  be/ also/ the. "could be", "might also be", "maybe the…".
+Low: L02_SV44, L03_SV25, L05_SV14, L06_SV57. This is the biggest low-vs-medium difference: at an identical 0.45 threshold, low has ~4 of these, medium has ~38 (L01_SV29/53/56, L03_SV29/53/62, L04_SV23, L05_SV31, L06_SV57, L07_SV28/39, L08_SV39, L10–L13_SV19, …). Medium-effort CoT allocates roughly an order of magnitude more SV directions to hedged hypothesis-floating.
+
+3. "So/Thus" → conclusion. Read state = So/Thus/Since, target =  answer/ we. "So the answer is / So we get…" — the therefore move. L00_SV62 (0.84), L03_SV34, L04_SV59, L03_SV58, L00_SV58.
+
+4. Sentence-boundary → next reasoning move. Read state = end punctuation, target = the connective that opens the next move. Two sharp sub-cases worth your attention:
+
+? → reconsider (Wait/Actually/But): the model posed itself a question and pivots. L07_SV12, L10_SV42,L11_SV42,L12_SV42,L13_SV42.
+. → Provide (decide to deliver the final answer): a dense late-layer cluster L16_SV12/45, L17_SV46/57, L18_SV47, L19_SV07/13, L20_SV12, L21_SV06/11/12/24. The "I'm done reasoning, give the answer" decision, and it forms late — which is where you'd expect it.
+5. Numbers (confirms yours), with the read-state story: number-target directions in L22 (L22_SV01/07/12/39/55) and L16/L17 are gated by read state (, =,  , : — i.e. numbers predicted inside expressions/parens, not numbers-in-general.
+
+6. Your "first reasoning token" (confirms + sharpens): it's precisely the post-<|message|> state. Target = We/Need (first analysis token), read state = the <|message|> control token. L08_SV58, L11_SV56, L12_SV56, L13_SV55, L14_SV54, L15_SV54, L16_SV53, L18_SV52.
+
+The finding I'd actually flag as important
+A behavioral family is not necessarily one direction. I pulled the actual V columns and measured abs-cosine across layers:
+
+Some families are a single residual direction tracked across a band of layers — SV37 need→to is 0.96–0.99 across L11–L13; ?→reconsider is one SV42 direction across L10–L13; the post‑<|message|> direction is 0.85–0.95 across L11–L15. These are true "tracked concepts" like your L13_SV49 "wait."
+But the modal→be and So→conclusion families are behaviorally identical yet near-orthogonal across layers (cosine < 0.2). Same computation, re-implemented in a different direction at each layer.
+So before calling a cross-layer pattern "the same concept," it's worth a 2-line cosine check — otherwise you'll conflate a genuinely persistent direction with a functional family that just happens to do the same job. The diagonal drift in SV rank (SV58→57→56…) that looks like tracking is real for group 1 and illusory for group 2.
+
+Suggested next moves
+The .→Provide late-layer cluster and the ?→Wait/Actually L10–L13 cluster are your best candidates for causal/steering tests — they're sharp, tracked, and correspond to legible reasoning decisions ("conclude now" / "reconsider").
+The low-vs-medium modal gap is a clean quantitative claim you could put in the doc: effort level changes how much of the SV budget goes to hedged hypothesis generation.
+Want me to (a) dump the full per-SV digests (/tmp/digest_predictive_cot_{low,medium}.txt) somewhere in the repo so you can scan them, or (b) run the same read-state aggregation over the J-lens CoT data to contrast input-keyed vs output-keyed directly?
