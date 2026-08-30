@@ -60,6 +60,20 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--cot-low-dir", type=Path, default=DEFAULT_COT_LOW)
     parser.add_argument("--cot-medium-dir", type=Path, default=DEFAULT_COT_MEDIUM)
+    parser.add_argument(
+        "--left-vectors",
+        type=Path,
+        default=None,
+        help=(
+            "left_singular_vectors.jsonl from add_left_singular_vector_info.py. "
+            "Defaults to INPUT/left_singular_vectors.jsonl and is optional when absent."
+        ),
+    )
+    parser.add_argument(
+        "--require-left-vectors",
+        action="store_true",
+        help="Fail instead of building the legacy V-only dashboard when the left-vector artifact is absent.",
+    )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--top", type=int, default=250, help="Candidates retained per lens; 0 retains all")
     parser.add_argument(
@@ -446,6 +460,178 @@ def load_unembedding(path: Path, selected: set[str], source_by_display: dict[str
         "vocab": next(iter(vocab)),
         "per_side": next(iter(per_side)),
         "domain_max": domain_max,
+    }
+
+
+def direction_bank_fingerprint(data_dir: Path, layers: list[int]) -> str:
+    """Match add_left_singular_vector_info.py's V/S basis fingerprint."""
+    try:
+        import numpy as np
+    except ImportError as exc:
+        raise SystemExit("NumPy is required to validate the left-vector basis") from exc
+
+    digest = hashlib.sha256()
+    digest.update(b"jlens-vs-bank-v1\0")
+    for layer in layers:
+        path = data_dir / "directions" / f"L{layer:02d}.npz"
+        validate_inputs(path)
+        with np.load(path) as saved:
+            if "V" not in saved or "S" not in saved:
+                raise SystemExit(f"{path} is missing V or S")
+            arrays = {
+                "V": np.ascontiguousarray(saved["V"], dtype=np.float32),
+                "S": np.ascontiguousarray(saved["S"], dtype=np.float32),
+            }
+        digest.update(f"L{layer:02d}\0".encode("ascii"))
+        for key in ("V", "S"):
+            array = arrays[key]
+            digest.update(key.encode("ascii") + b"\0")
+            digest.update(array.dtype.str.encode("ascii") + b"\0")
+            digest.update(json.dumps(list(array.shape), separators=(",", ":")).encode("ascii"))
+            digest.update(b"\0")
+            digest.update(array.tobytes())
+    return digest.hexdigest()
+
+
+def compact_left_neighbor(raw: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": raw.get("token_id"),
+        "token": raw.get("token"),
+        "decoded": raw.get("decoded"),
+        "cosine": raw.get("cosine"),
+        "dot_product": raw.get("dot_product"),
+    }
+
+
+def compact_layer_match(raw: dict[str, Any] | None) -> dict[str, Any] | None:
+    if raw is None:
+        return None
+    layer = int(raw["layer"])
+    sv0 = int(raw["sv_index_0"])
+    return {
+        "candidate": display_candidate(layer, sv0),
+        "layer": layer,
+        "sv_index_0": sv0,
+        "cosine": raw.get("cosine"),
+        "abs_cosine": raw.get("abs_cosine"),
+        "same_index_cosine": raw.get("same_index_cosine"),
+    }
+
+
+def load_left_singular_vectors(
+    path: Path,
+    selected: set[str],
+    source_by_display: dict[str, str],
+    canonical_fingerprint: str,
+    required: bool,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    metadata_path = path.with_name("left_singular_vectors_metadata.json")
+    if not path.is_file():
+        if required:
+            raise SystemExit(
+                f"Missing required left-vector artifact: {path}. Run add_left_singular_vector_info.py first."
+            )
+        return {}, {
+            "available": False,
+            "path": str(path),
+            "metadata_path": str(metadata_path),
+            "reason": "artifact not found",
+        }
+    validate_inputs(metadata_path)
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    artifact_fingerprint = str(metadata.get("basis_fingerprint_sha256") or "")
+    if artifact_fingerprint != canonical_fingerprint:
+        raise SystemExit(
+            "Left-vector artifact V/S basis does not match the canonical dashboard bank: "
+            f"artifact={artifact_fingerprint or 'missing'} canonical={canonical_fingerprint}"
+        )
+
+    display_by_source = {source_by_display[candidate]: candidate for candidate in selected}
+    output: dict[str, Any] = {}
+    source_records = 0
+    with path.open(encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, 1):
+            if not line.strip():
+                continue
+            source_records += 1
+            raw = json.loads(line)
+            if str(raw.get("basis_fingerprint_sha256") or "") != canonical_fingerprint:
+                raise SystemExit(f"Left-vector basis mismatch on {path}:{line_number}")
+            candidate = display_by_source.get(str(raw.get("candidate")))
+            if candidate is None:
+                continue
+            if candidate in output:
+                raise SystemExit(f"Duplicate left-vector record on {path}:{line_number}")
+            geometry = raw.get("left_token_geometry")
+            compact_geometry = None
+            if geometry is not None:
+                compact_geometry = {
+                    "mean": geometry.get("cosine_mean"),
+                    "std": geometry.get("cosine_std"),
+                    "dot_mean": geometry.get("dot_product_mean"),
+                    "dot_std": geometry.get("dot_product_std"),
+                    "max_abs": geometry.get("max_abs_token_cosine"),
+                    "nearest": [
+                        compact_left_neighbor(item) for item in geometry.get("nearest_tokens", [])
+                    ],
+                    "farthest": [
+                        compact_left_neighbor(item) for item in geometry.get("farthest_tokens", [])
+                    ],
+                    "highest_dot": [
+                        compact_left_neighbor(item)
+                        for item in geometry.get("highest_dot_product_tokens", [])
+                    ],
+                    "lowest_dot": [
+                        compact_left_neighbor(item)
+                        for item in geometry.get("lowest_dot_product_tokens", [])
+                    ],
+                }
+            output[candidate] = {
+                "stored_singular_value": raw.get("stored_singular_value"),
+                "actual_transport_gain": raw.get("actual_transport_gain"),
+                "gain_over_stored_singular_value": raw.get("gain_over_stored_singular_value"),
+                "left_right_coordinate_cosine": raw.get("left_right_coordinate_cosine"),
+                "reconstruction_method": raw.get("reconstruction_method"),
+                "stored_u_present": raw.get("stored_u_present"),
+                "transport_vs_stored_u_cosine": raw.get("transport_vs_stored_u_cosine"),
+                "transport_vs_sigma_stored_u_relative_error": raw.get(
+                    "transport_vs_sigma_stored_u_relative_error"
+                ),
+                "largest_abs_left_cosine_with_other_sv_same_layer": raw.get(
+                    "largest_abs_left_cosine_with_other_sv_same_layer"
+                ),
+                "most_overlapping_left_sv_index_0_same_layer": raw.get(
+                    "most_overlapping_left_sv_index_0_same_layer"
+                ),
+                "most_overlapping_left_sv_cosine_same_layer": raw.get(
+                    "most_overlapping_left_sv_cosine_same_layer"
+                ),
+                "previous_layer_left_match": compact_layer_match(
+                    raw.get("previous_layer_left_match")
+                ),
+                "next_layer_left_match": compact_layer_match(raw.get("next_layer_left_match")),
+                "tokens": compact_geometry,
+                "right_left_token_overlap": raw.get("right_left_token_overlap"),
+            }
+
+    missing = selected - set(output)
+    if missing:
+        examples = ", ".join(sorted(missing)[:5])
+        raise SystemExit(
+            f"Left-vector artifact is missing {len(missing)} selected candidates (for example {examples})"
+        )
+    token_geometry_meta = metadata.get("token_geometry") or {}
+    return {candidate: output[candidate] for candidate in sorted(output)}, {
+        "available": True,
+        "path": str(path),
+        "metadata_path": str(metadata_path),
+        "source_records": source_records,
+        "embedded_records": len(output),
+        "basis_fingerprint_sha256": canonical_fingerprint,
+        "reconstruction": metadata.get("reconstruction"),
+        "basis_audits": metadata.get("basis_audits") or [],
+        "token_geometry_available": bool(token_geometry_meta.get("available")),
+        "token_geometry": token_geometry_meta,
     }
 
 
@@ -878,6 +1064,8 @@ def build_payload(
     original_rankings: Path,
     cot_low_dir: Path,
     cot_medium_dir: Path,
+    left_vectors_path: Path,
+    require_left_vectors: bool,
     top_n: int,
     context_limit: int,
     cot_context_limit: int,
@@ -944,6 +1132,14 @@ def build_payload(
     )
     unembedding, unembedding_meta = load_unembedding(
         canonical / "unembedding_neighbors.jsonl", selected, source_by_display
+    )
+    canonical_fingerprint = direction_bank_fingerprint(canonical, layers)
+    left_singular, left_singular_meta = load_left_singular_vectors(
+        left_vectors_path,
+        selected,
+        source_by_display,
+        canonical_fingerprint,
+        require_left_vectors,
     )
     original = load_original_metrics(original_rankings, selected)
     display_rows = [rows_by_candidate[candidate] for candidate in sorted(selected)]
@@ -1048,6 +1244,7 @@ def build_payload(
             "mirror": mirror_meta,
             "original_basis": basis_meta,
             "unembedding": unembedding_meta,
+            "left_singular": left_singular_meta,
             "cohort_overlap": overlap,
             "cohort_sizes": {key: len(value) for key, value in cohorts.items()},
             "display_sv_numbering": "zero_based",
@@ -1063,6 +1260,7 @@ def build_payload(
         "contexts": contexts,
         "context_summaries": {candidate: summaries[candidate] for candidate in sorted(selected)},
         "unembedding": unembedding,
+        "left_singular": left_singular,
         "original": original,
         "cot": {
             "default_effort": "medium",
@@ -1110,11 +1308,11 @@ HTML_TEMPLATE = r'''<!doctype html>
     .transition-summary{border:1px solid var(--line);background:var(--surface);padding:10px;margin-bottom:8px}.summary-line{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:8px}.summary-line b{color:var(--ink2)}.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.data-chip{max-width:185px;overflow:hidden;border:1px solid var(--line);border-radius:99px;background:var(--surface2);padding:3px 6px;color:var(--muted);font:8px/1.2 var(--mono);text-overflow:ellipsis;white-space:nowrap}.data-chip b{color:var(--ink2)}.context-list{display:grid;gap:8px}.context-card{overflow:hidden;border:1px solid var(--line);background:var(--surface)}.context-card.boundary{border-color:#d3a398}.context-meta{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #e9e4da;background:var(--surface2);padding:7px 9px;color:var(--muted);font:8px/1.25 var(--mono)}.context-meta b{color:var(--ink2)}.transition{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;padding:9px 10px 2px}.transition-box{min-width:0;border:1px solid var(--line);background:#fff;padding:7px 8px}.transition-box span{display:block;color:var(--muted);font-size:7px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.transition-box b{display:block;overflow:hidden;margin-top:3px;font:650 10px/1.2 var(--mono);text-overflow:ellipsis;white-space:nowrap}.transition-arrow{color:var(--accent);font-size:17px}.context-copy{margin:0;padding:10px;color:#293741;font:11px/1.58 var(--serif);white-space:pre-wrap;overflow-wrap:anywhere}mark{border-radius:2px;background:#f0cf91;color:#17202a;padding:1px 2px;box-shadow:0 0 0 1px rgba(156,95,31,.13)}.source-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 10px 9px;color:var(--muted);font-size:8px}.source-link{color:var(--cyan);font-weight:800;text-decoration:none}.source-link:hover{text-decoration:underline}.boundary-badge{border-radius:99px;background:var(--red-soft);color:var(--red);padding:3px 6px;font:800 7px/1 var(--mono);text-transform:uppercase}
     .cot-compare{margin-top:17px;border:1px solid var(--line)}.cot-compare-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line)}.cot-compare-card{border:0;background:#faf8f2;padding:13px 14px;text-align:left}.cot-compare-card.current{background:var(--accent-soft)}.cot-compare-card .pair-title{margin-bottom:9px}.cot-compare-card .pair-values{margin:0}
     .cot-section{padding:clamp(22px,3vw,34px);border-bottom:1px solid var(--line);background:#f1eee7}.cot-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:22px}.cot-heading h3{margin:0;font:500 26px/1.12 var(--serif)}.cot-heading p{max-width:880px;margin:7px 0 0;color:var(--muted);font-size:10px}.cot-effort-switch{display:grid;grid-template-columns:repeat(2,minmax(150px,1fr));min-width:340px;border:1px solid var(--line2);background:var(--line2);gap:1px}.cot-effort-button{border:0;background:#e7e3da;color:var(--muted);padding:10px 12px;text-align:left}.cot-effort-button b,.cot-effort-button small{display:block}.cot-effort-button b{color:var(--ink2);font:650 11px/1.2 var(--serif)}.cot-effort-button small{margin-top:3px;font:8px/1.3 var(--mono)}.cot-effort-button[aria-selected="true"]{background:var(--surface);box-shadow:inset 0 -3px 0 var(--accent)}.cot-metrics{display:grid;grid-template-columns:repeat(6,minmax(90px,1fr));gap:1px;margin-top:16px;border:1px solid var(--line);background:var(--line)}.cot-caveat,.cot-missing{margin:14px 0;border-left:4px solid var(--red);background:var(--red-soft);color:#77463f;padding:11px 13px;font-size:9px}.cot-missing{border-color:var(--gold);background:var(--gold-soft);color:#6e512d}.cot-controls{display:grid;grid-template-columns:minmax(190px,1fr) 105px auto auto;gap:8px;align-items:end;margin:15px 0 11px}.cot-workbench{display:grid;grid-template-columns:minmax(320px,430px) minmax(0,1fr);gap:14px;align-items:start}.cot-browser,.cot-trace-viewer{min-width:0;border:1px solid var(--line);background:var(--surface)}.cot-polarity-switch{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line)}.cot-polarity-button{border:0;background:#eeeae2;padding:9px 11px;text-align:left}.cot-polarity-button b,.cot-polarity-button small{display:block}.cot-polarity-button b{font:700 9px/1.2 var(--mono)}.cot-polarity-button small{margin-top:2px;color:var(--muted);font-size:8px}.cot-polarity-button[aria-pressed="true"]{background:var(--accent-soft);box-shadow:inset 0 -3px 0 var(--accent)}.cot-footprint{border-bottom:1px solid var(--line);padding:9px 10px}.cot-event-list{display:grid;gap:7px;padding:9px;max-height:620px;overflow:auto}.cot-event{overflow:hidden;border:1px solid var(--line);background:#fff}.cot-event.active{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}.cot-event .transition{padding-top:7px}.cot-event .context-copy{font-size:10px;max-height:150px;overflow:auto}.cot-event-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 10px 9px;color:var(--muted);font-size:8px}.cot-open{border:0;background:transparent;color:var(--accent);padding:2px 0;font-size:8px;font-weight:850}.cot-progress{display:block;height:3px;background:#e1ddd4}.cot-progress i{display:block;height:100%;background:var(--accent)}.cot-trace-head{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line);padding:12px 14px}.cot-trace-head h4{margin:0;font:550 18px/1.15 var(--serif)}.cot-trace-head p{margin:4px 0 0;color:var(--muted);font-size:8px}.trace-badges{display:flex;gap:5px;align-items:flex-start;flex-wrap:wrap}.cot-trace-body{display:grid;gap:1px;background:var(--line)}.cot-trace-block{min-width:0;background:#fbfaf6;padding:13px 15px}.cot-trace-label{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;color:var(--muted);font-size:7px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.cot-trace-text{margin:0;color:#283640;font:11px/1.62 var(--serif);white-space:pre-wrap;overflow-wrap:anywhere}.cot-trace-text+.cot-trace-text{margin-top:11px}.trace-focus{display:block;border-left:4px solid var(--accent);background:var(--accent-soft);margin:10px -5px;padding:8px 9px}.trace-empty{color:var(--muted);font-style:italic}.cot-rollout-controls{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:9px;align-items:end;margin:13px 0}.cot-rollout-controls .control{max-width:560px}.unlinked-badge{border-radius:99px;background:var(--gold-soft);color:#6e512d;padding:4px 7px;font:800 7px/1 var(--mono);text-transform:uppercase}
-    .token-section{border-bottom:1px solid var(--line);background:#f6f5f0}.token-section>summary{cursor:pointer;list-style:none;padding:18px clamp(22px,3vw,34px)}.token-section>summary::-webkit-details-marker{display:none}.token-summary{display:flex;justify-content:space-between;align-items:center;gap:18px}.token-summary h3{margin:0;font:500 23px/1.15 var(--serif)}.token-summary p{margin:4px 0 0;color:var(--muted);font-size:9px}.token-summary b{color:var(--accent);font:650 10px/1.2 var(--mono)}.token-content{padding:0 clamp(22px,3vw,34px) clamp(22px,3vw,34px)}.token-toolbar{display:flex;justify-content:flex-end;margin-bottom:9px}.token-limit{width:120px}.token-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.token-head{display:flex;justify-content:space-between;gap:10px;border-top:3px solid var(--cyan);padding:8px 2px}.token-column.opposed .token-head{border-color:var(--gold)}.token-head h4{margin:0;font:650 11px/1.2 var(--mono)}.token-head span{color:var(--muted);font-size:8px}.token-list{display:grid;gap:5px}.token-row{display:grid;grid-template-columns:25px minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid var(--line);background:var(--surface);padding:7px 9px}.token-rank{color:var(--muted);font:650 8px/1 var(--mono);text-align:right}.token-name{min-width:0}.token-name b,.token-name small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.token-name b{font:650 10px/1.2 var(--mono)}.token-name small{margin-top:2px;color:var(--muted);font:7px/1.2 var(--mono)}.token-value{color:var(--ink2);font:650 9px/1.2 var(--mono)}
+    .token-section{border-bottom:1px solid var(--line);background:#f6f5f0}.token-section>summary{cursor:pointer;list-style:none;padding:18px clamp(22px,3vw,34px)}.token-section>summary::-webkit-details-marker{display:none}.token-summary{display:flex;justify-content:space-between;align-items:center;gap:18px}.token-summary h3{margin:0;font:500 23px/1.15 var(--serif)}.token-summary p{margin:4px 0 0;color:var(--muted);font-size:9px}.token-summary b{color:var(--accent);font:650 10px/1.2 var(--mono)}.token-content{padding:0 clamp(22px,3vw,34px) clamp(22px,3vw,34px)}.transport-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin-bottom:13px;border:1px solid var(--line);background:var(--line)}.transport-card{min-width:0;background:var(--surface);padding:10px 11px}.transport-card span{display:block;min-height:22px;color:var(--muted);font-size:7px;font-weight:800;text-transform:uppercase}.transport-card b{display:block;overflow:hidden;color:var(--ink2);font:650 11px/1.2 var(--mono);text-overflow:ellipsis}.transport-note{margin:0 0 12px;border-left:3px solid var(--cyan);padding-left:9px;color:var(--muted);font-size:9px}.token-toolbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:9px}.token-space{width:220px}.token-limit{width:120px}.token-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.token-head{display:flex;justify-content:space-between;gap:10px;border-top:3px solid var(--cyan);padding:8px 2px}.token-column.opposed .token-head{border-color:var(--gold)}.token-head h4{margin:0;font:650 11px/1.2 var(--mono)}.token-head span{color:var(--muted);font-size:8px}.token-list{display:grid;gap:5px}.token-row{display:grid;grid-template-columns:25px minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid var(--line);background:var(--surface);padding:7px 9px}.token-rank{color:var(--muted);font:650 8px/1 var(--mono);text-align:right}.token-name{min-width:0}.token-name b,.token-name small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.token-name b{font:650 10px/1.2 var(--mono)}.token-name small{margin-top:2px;color:var(--muted);font:7px/1.2 var(--mono)}.token-value{color:var(--ink2);font:650 9px/1.2 var(--mono)}
     .footer{width:min(1660px,94vw);margin:-38px auto 30px;color:var(--muted);font-size:9px}.footer code{font-family:var(--mono)}:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 28%,transparent);outline-offset:2px}
-    @media(max-width:1180px){.metric-grid,.cot-metrics{grid-template-columns:repeat(3,1fr)}.all-metrics{grid-template-columns:repeat(2,1fr)}.cot-workbench{grid-template-columns:minmax(300px,390px) minmax(0,1fr)}}
+    @media(max-width:1180px){.metric-grid,.cot-metrics{grid-template-columns:repeat(3,1fr)}.transport-grid{grid-template-columns:repeat(2,1fr)}.all-metrics{grid-template-columns:repeat(2,1fr)}.cot-workbench{grid-template-columns:minmax(300px,390px) minmax(0,1fr)}}
     @media(max-width:940px){.mast-inner{align-items:flex-start;flex-direction:column;min-height:0}.facts{justify-content:flex-start}.provenance-inner{align-items:flex-start;flex-direction:column}.lens-switch{overflow-x:auto;grid-template-columns:repeat(5,minmax(210px,1fr))}.toolbar-inner{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar-inner .search-control{grid-column:1/-1}.grid{grid-template-columns:1fr}.ranking-panel{position:static;height:auto;min-height:0}.ranking-list{max-height:430px}.cot-heading{flex-direction:column}.cot-effort-switch{width:100%;min-width:0}.cot-workbench{grid-template-columns:1fr}.cot-event-list{max-height:430px}}
-    @media(max-width:650px){.mast-inner,.provenance-inner,.lens-switch,.toolbar-inner,.shell,.footer{width:min(92vw,1660px)}.brand-mark{display:none}.lens-switch{display:flex;overflow-x:auto}.lens-tab{min-width:210px}.toolbar-inner{grid-template-columns:1fr}.toolbar-inner .search-control{grid-column:auto}.metric-grid,.pair-grid,.tail-grid,.context-grid,.token-grid,.cot-compare-grid,.cot-metrics{grid-template-columns:1fr}.all-metrics{grid-template-columns:1fr}.pair-values,.tail-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.context-controls,.cot-controls{grid-template-columns:1fr}.hero,.contexts,.cot-section{padding:20px 15px}.comparison-head,.token-summary{align-items:flex-start;flex-direction:column}.semantic-note{grid-template-columns:1fr}.cot-effort-switch{grid-template-columns:1fr}.cot-trace-head{flex-direction:column}.cot-rollout-controls{grid-template-columns:1fr}}
+    @media(max-width:650px){.mast-inner,.provenance-inner,.lens-switch,.toolbar-inner,.shell,.footer{width:min(92vw,1660px)}.brand-mark{display:none}.lens-switch{display:flex;overflow-x:auto}.lens-tab{min-width:210px}.toolbar-inner{grid-template-columns:1fr}.toolbar-inner .search-control{grid-column:auto}.metric-grid,.pair-grid,.tail-grid,.context-grid,.token-grid,.transport-grid,.cot-compare-grid,.cot-metrics{grid-template-columns:1fr}.all-metrics{grid-template-columns:1fr}.pair-values,.tail-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.context-controls,.cot-controls{grid-template-columns:1fr}.hero,.contexts,.cot-section{padding:20px 15px}.comparison-head,.token-summary{align-items:flex-start;flex-direction:column}.token-toolbar{align-items:stretch;flex-direction:column}.token-space,.token-limit{width:100%}.semantic-note{grid-template-columns:1fr}.cot-effort-switch{grid-template-columns:1fr}.cot-trace-head{flex-direction:column}.cot-rollout-controls{grid-template-columns:1fr}}
     @media print{.toolbar,.ranking-panel,.nav-buttons,.context-controls,.footer{display:none!important}.masthead{background:#fff;color:var(--ink)}.masthead *{color:var(--ink)!important}.grid{display:block}.panel{box-shadow:none}}
   </style>
 </head>
@@ -1192,7 +1390,8 @@ HTML_TEMPLATE = r'''<!doctype html>
         medium:{query:"",limit:6,includeSpecial:false,dedupe:true,polarity:"positive",focus:null,focusCandidate:null}
       },
       cotPromptId:null,
-      tokenLimit:8
+      tokenLimit:8,
+      tokenSpace:"left_cosine"
     };
     const $=selector=>document.querySelector(selector);
     const esc=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
@@ -1239,8 +1438,9 @@ HTML_TEMPLATE = r'''<!doctype html>
       const effort=lensConfig().effort,cotMeta=effort?cotData(effort).meta:null;
       $("#facts").innerHTML=(cotMeta?[[compact.format(cotMeta.analysis_target_tokens),"analysis targets"],[integer.format(cotMeta.rollouts),`${effort} traces`],[integer.format(cotMeta.union_cohort_size),"broad + tail union"],[cotMeta.contexts_available?integer.format(cotMeta.source_contexts_per_side):"missing","events / tail"]]:[[compact.format(meta.target_tokens),"target tokens"],[integer.format(meta.documents),"FineWeb windows"],[integer.format(meta.total_candidates),"directions"],[integer.format(meta.contexts_per_polarity_source),"events / tail"]]).map(([v,l])=>`<div class="fact"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("");
       const mirror=meta.mirror;
-      $("#provenanceText").innerHTML=`Input <b>predictive_words_scan</b> and mirror <b>predictive_words_fineweb</b> store one shared evidence set. Their requested-method metadata conflicts and cannot establish which decomposition method produced the cached bank.`;
-      $("#provenanceBadges").innerHTML=`<span class="badge ok">FineWeb + CoT V/S exact</span><span class="badge ok">one shared neighbor bank</span><span class="badge">scan label · ${esc(mirror.canonical_svd_method)}</span><span class="badge warn">fineweb label · ${esc(mirror.mirror_svd_method)} · conflict</span>`;
+      const leftMeta=meta.left_singular;
+      $("#provenanceText").innerHTML=`Input <b>predictive_words_scan</b> and mirror <b>predictive_words_fineweb</b> store one shared evidence set. Their requested-method metadata conflicts and cannot establish which decomposition method produced the cached bank.${leftMeta.available?` Transported U geometry is joined through an exact V/S fingerprint and used <b>zero model forwards</b>.`:""}`;
+      $("#provenanceBadges").innerHTML=`<span class="badge ok">FineWeb + CoT V/S exact</span>${leftMeta.available?'<span class="badge ok">J·V → U attached</span>':'<span class="badge warn">U artifact not built</span>'}<span class="badge">scan label · ${esc(mirror.canonical_svd_method)}</span><span class="badge warn">fineweb label · ${esc(mirror.mirror_svd_method)} · conflict</span>`;
       $("#rankingTitle").textContent=lensConfig().title;
       const layers=[...new Set(rows.map(row=>Number(row.layer)))].sort((a,b)=>a-b);
       $("#layerFilter").innerHTML=`<option value="all">All embedded layers</option>`+layers.map(layer=>`<option value="${layer}">Layer ${String(layer).padStart(2,"0")}</option>`).join("");
@@ -1250,7 +1450,7 @@ HTML_TEMPLATE = r'''<!doctype html>
       $("#rowLimit").innerHTML=[...new Set(choices)].map(value=>`<option value="${value}">${value===rows.length?`All ${integer.format(value)}`:`Top ${value}`}</option>`).join("");
       if(view.limit>rows.length)view.limit=rows.length;
       $("#candidateSearch").value=view.query;$("#layerFilter").value=view.layer;$("#sortMetric").value=view.metric;$("#rowLimit").value=String(view.limit);
-      $("#footer").innerHTML=`SV identifiers are zero-based; rank numbers are one-based. FineWeb screened-tail rank is derived among candidates with retained selected-tail special-read share ≤ <b>${percent(meta.boundary_threshold,0)}</b>; its score, moments, heaps, and source raw rank are unchanged. No screened CoT rank is invented. Low CoT has rankings and rollouts but no retained-event file, so its traces cannot be linked to an SV. FineWeb predictive, low CoT, medium CoT, and the original reference share bit-identical V/S arrays; the single token-neighbor section is shared geometry.`;
+      $("#footer").innerHTML=`SV identifiers are zero-based; rank numbers are one-based. FineWeb screened-tail rank is derived among candidates with retained selected-tail special-read share ≤ <b>${percent(meta.boundary_threshold,0)}</b>; its score, moments, heaps, and source raw rank are unchanged. No screened CoT rank is invented. Low CoT has rankings and rollouts but no retained-event file, so its traces cannot be linked to an SV. FineWeb predictive, low CoT, medium CoT, and the original reference share bit-identical V/S arrays.${leftMeta.available?" Transported U is reconstructed from that exact saved V and J; token rows are raw lm-head geometry, not probabilities.":""}`;
     }
     function switchLens(lens){if(!DATA.lenses[lens]||lens===state.lens)return;state.lens=lens;if(LENSES[lens].effort)state.cotEffort=LENSES[lens].effort;configure();render();syncHash();}
     function resetFilters(){const view=viewState();view.query="";view.layer="all";view.metric=lensConfig().defaultMetric;view.limit=Math.min(50,cohortRows().length);configure();render();}
@@ -1313,10 +1513,14 @@ HTML_TEMPLATE = r'''<!doctype html>
     function openCotTrace(item,row){cotView().focus=item;state.cotPromptId=item.prompt_id;renderCotEvents(row);$("#cotTraceViewer")?.scrollIntoView({behavior:"smooth",block:"nearest"});}
     function renderCotTrace(item,unlinked){const root=$("#cotTraceViewer");if(!root)return;const rollout=item?cotData().rollouts[String(item.document)]:rolloutByPrompt(state.cotPromptId);if(!rollout){root.innerHTML=`<div class="empty">${unlinked?"Choose a rollout to read the corpus reference.":"Choose a visible transition event to open its linked trace."}</div>`;return;}state.cotPromptId=rollout.prompt_id;root.innerHTML=`<div class="cot-trace-head"><div><h4>${esc(rollout.prompt_id)}</h4><p>${esc(rollout.category)} · ${esc(rollout.difficulty)}${item?` · event #${integer.format(item.rank)} at ${percent(item.progress,0)} of response`:" · rollout corpus reference"}</p></div><div class="trace-badges"><span class="badge ok">${esc(state.cotEffort)} effort</span>${unlinked?'<span class="unlinked-badge">not direction-linked</span>':""}${item?.special_read?'<span class="badge warn">special predecessor</span>':""}${rollout.hit_cap?'<span class="badge warn">hit generation cap</span>':""}</div></div><div class="cot-trace-body"><section class="cot-trace-block"><div class="cot-trace-label"><span>Prompt</span><span>excluded from activation scan · ${integer.format(rollout.prompt_tokens)} tokens</span></div><div id="cotTracePrompt"></div></section><section class="cot-trace-block"><div class="cot-trace-label"><span>Generated analysis</span><span>${unlinked?"present, but not localized to this SV":"target highlighted; projection read one token earlier"} · ${integer.format(rollout.analysis_tokens)} tokens</span></div><p class="cot-trace-text" id="cotTraceReasoning"></p></section><section class="cot-trace-block"><div class="cot-trace-label"><span>Final response</span><span>excluded from activation scan · ${integer.format(rollout.final_tokens)} tokens</span></div><p class="cot-trace-text" id="cotTraceFinal"></p></section></div>`;const promptRoot=$("#cotTracePrompt");(rollout.messages||[]).forEach(message=>{const p=document.createElement("p");p.className="cot-trace-text";p.textContent=`${String(message.role).toUpperCase()}\n${message.content}`;promptRoot.append(p);});const reasoning=$("#cotTraceReasoning");if(item)appendCotFocusedReasoning(reasoning,rollout.reasoning||"",item);else reasoning.textContent=rollout.reasoning||"No analysis text was captured.";const final=$("#cotTraceFinal");final.textContent=rollout.final?.trim()||(rollout.hit_cap?"No final-channel response was captured before the generation cap.":"No final-channel response was captured.");if(!rollout.final?.trim())final.classList.add("trace-empty");}
     function appendCotFocusedReasoning(target,text,item){if(!text){target.textContent="No analysis text was captured.";target.classList.add("trace-empty");return;}const plain=String(item.plain||""),index=plain?text.indexOf(plain):-1;if(index<0){const focus=document.createElement("span");focus.className="trace-focus";appendMarkedText(focus,item.marked||"");target.append(focus,document.createTextNode(`\n\n${text}`));return;}target.append(document.createTextNode(text.slice(0,index)));const focus=document.createElement("span");focus.className="trace-focus";appendMarkedText(focus,item.marked||plain);target.append(focus,document.createTextNode(text.slice(index+plain.length)));}
-    function tokenSection(row){const data=DATA.unembedding[row.candidate];if(!data)return"";return `<details class="token-section"><summary><div class="token-summary"><div><p class="eyebrow">Shared direction geometry</p><h3>Token-space neighbors</h3><p>FineWeb predictive, low CoT, medium CoT, and the original current-token reference use this exact V direction; their neighbor artifact is byte-identical. Neighbors are geometric references, not observed next-token probabilities.</p></div><b>max |cos| ${decimal(data.max_abs,4)} · expand ↓</b></div></summary><div class="token-content"><div class="token-toolbar"><label class="control token-limit">Tokens per side<select id="tokenLimit"></select></label></div><div class="token-grid"><section class="token-column aligned"><div class="token-head"><h4>+ Aligned tokens</h4><span id="alignedTokenCount"></span></div><div class="token-list" id="alignedTokenList"></div></section><section class="token-column opposed"><div class="token-head"><h4>− Opposed tokens</h4><span id="opposedTokenCount"></span></div><div class="token-list" id="opposedTokenList"></div></section></div></div></details>`;}
-    function bindTokenControls(row){const data=DATA.unembedding[row.candidate];if(!data||!$("#tokenLimit"))return;const max=Math.max(data.nearest.length,data.farthest.length),limits=[...new Set([8,16,max].filter(value=>value<=max))].sort((a,b)=>a-b);if(!limits.includes(state.tokenLimit))state.tokenLimit=limits[0]||max;$("#tokenLimit").innerHTML=limits.map(value=>`<option value="${value}">${value===max?`All ${value}`:value}</option>`).join("");$("#tokenLimit").value=String(state.tokenLimit);$("#tokenLimit").addEventListener("change",event=>{state.tokenLimit=Number(event.target.value);renderTokenRows(data);});renderTokenRows(data);}
-    function renderTokenRows(data){renderTokenColumn("aligned",data.nearest,data);renderTokenColumn("opposed",data.farthest,data);}
-    function renderTokenColumn(side,items,data){const list=$(`#${side}TokenList`);if(!list)return;const shown=items.slice(0,state.tokenLimit);$(`#${side}TokenCount`).textContent=`${shown.length} of ${items.length}`;list.innerHTML=shown.map((item,index)=>{const label=item.decoded||item.token||`token #${item.id}`,z=(Number(item.cosine)-Number(data.mean))/Math.max(Number(data.std),1e-9);return `<article class="token-row"><span class="token-rank">#${index+1}</span><span class="token-name"><b>${esc(visibleToken(label))}</b><small>${item.token?`raw ${esc(visibleToken(item.token))} · `:""}id ${integer.format(item.id)}</small></span><span class="token-value">${signed(item.cosine,4)}<br>${signed(z,2)}σ</span></article>`;}).join("");}
+    function transportMetric(label,value){return `<div class="transport-card"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;}
+    function layerMatchLabel(match){return match?`${match.candidate} · ${signed(match.cosine,3)}`:"edge layer";}
+    function tokenSection(row){const right=DATA.unembedding[row.candidate],left=DATA.left_singular[row.candidate];if(!right&&!left)return"";const leftTokens=left?.tokens,available=[];if(leftTokens){available.push(`<option value="left_cosine">Transported U · token cosine</option>`,`<option value="left_dot">Transported U · lm-head dot</option>`);}if(right)available.push(`<option value="right_cosine">Source V · token cosine</option>`);const maxAbs=leftTokens?.max_abs??right?.max_abs,summarySide=leftTokens?"U":"V";const transport=left?`<div class="transport-grid">${transportMetric("Stored singular value",decimal(left.stored_singular_value,5))}${transportMetric("Actual ||Jv|| gain",decimal(left.actual_transport_gain,5))}${transportMetric("Actual gain / stored σ",decimal(left.gain_over_stored_singular_value,5))}${transportMetric("Jv direction ↔ stored U",left.transport_vs_stored_u_cosine==null?"not validated":signed(left.transport_vs_stored_u_cosine,5))}${transportMetric("||Jv − σU|| / ||σU||",left.transport_vs_sigma_stored_u_relative_error==null?"not validated":decimal(left.transport_vs_sigma_stored_u_relative_error,5))}${transportMetric("Largest other-U overlap",`${signed(left.most_overlapping_left_sv_cosine_same_layer,4)} · SV${String(left.most_overlapping_left_sv_index_0_same_layer).padStart(2,"0")}`)}${transportMetric("Best previous-layer U",layerMatchLabel(left.previous_layer_left_match))}${transportMetric("Best next-layer U",layerMatchLabel(left.next_layer_left_match))}</div>`:"";const note=left?`<p class="transport-note"><strong>Transported U is reconstructed as (J @ V) / ||J @ V||.</strong> Its cosine neighbors show output-side token directions; lm-head dot products show raw linear score direction. Neither is an observed next-token probability. The V↔U coordinate cosine (${signed(left.left_right_coordinate_cosine,3)}) is only a same-coordinate-system diagnostic.</p>`:"";return `<details class="token-section" ${left?"open":""}><summary><div class="token-summary"><div><p class="eyebrow">J-Lens transport geometry · V → U</p><h3>Source and transported token directions</h3><p>Compare the right singular direction used by every scan with the exact output direction produced by the saved V under J. The artifact is accepted only when its V/S fingerprint matches this dashboard.</p></div><b>${summarySide} max |cos| ${decimal(maxAbs,4)} · ${left?"zero forwards":"V only"} ↓</b></div></summary><div class="token-content">${transport}${note}${available.length?`<div class="token-toolbar"><label class="control token-space">Vector / metric<select id="tokenSpace">${available.join("")}</select></label><label class="control token-limit">Tokens per side<select id="tokenLimit"></select></label></div><div class="token-grid"><section class="token-column aligned"><div class="token-head"><h4 id="alignedTokenTitle">+ Aligned tokens</h4><span id="alignedTokenCount"></span></div><div class="token-list" id="alignedTokenList"></div></section><section class="token-column opposed"><div class="token-head"><h4 id="opposedTokenTitle">− Opposed tokens</h4><span id="opposedTokenCount"></span></div><div class="token-list" id="opposedTokenList"></div></section></div>`:`<div class="warning">Transport diagnostics are present, but token geometry was skipped when the artifact was built.</div>`}</div></details>`;}
+    function selectedTokenData(row){const right=DATA.unembedding[row.candidate],left=DATA.left_singular[row.candidate]?.tokens;if(state.tokenSpace==="left_cosine"&&left)return{nearest:left.nearest,farthest:left.farthest,mean:left.mean,std:left.std,metric:"cosine",positive:"+ U-aligned token directions",negative:"− U-opposed token directions"};if(state.tokenSpace==="left_dot"&&left)return{nearest:left.highest_dot,farthest:left.lowest_dot,mean:left.dot_mean,std:left.dot_std,metric:"dot_product",positive:"+ Highest U lm-head scores",negative:"− Lowest U lm-head scores"};if(right)return{...right,metric:"cosine",positive:"+ V-aligned token directions",negative:"− V-opposed token directions"};return null;}
+    function bindTokenControls(row){if(!$("#tokenLimit"))return;const choices=[...$("#tokenSpace").options].map(option=>option.value);if(!choices.includes(state.tokenSpace))state.tokenSpace=choices[0];$("#tokenSpace").value=state.tokenSpace;$("#tokenSpace").addEventListener("change",event=>{state.tokenSpace=event.target.value;configureTokenLimit(row);});$("#tokenLimit").addEventListener("change",event=>{state.tokenLimit=Number(event.target.value);renderTokenRows(row);});configureTokenLimit(row);}
+    function configureTokenLimit(row){const data=selectedTokenData(row);if(!data)return;const max=Math.max(data.nearest.length,data.farthest.length),limits=[...new Set([8,16,max].filter(value=>value>0&&value<=max))].sort((a,b)=>a-b);if(!limits.includes(state.tokenLimit))state.tokenLimit=limits[0]||max;$("#tokenLimit").innerHTML=limits.map(value=>`<option value="${value}">${value===max?`All ${value}`:value}</option>`).join("");$("#tokenLimit").value=String(state.tokenLimit);renderTokenRows(row);}
+    function renderTokenRows(row){const data=selectedTokenData(row);if(!data)return;$("#alignedTokenTitle").textContent=data.positive;$("#opposedTokenTitle").textContent=data.negative;renderTokenColumn("aligned",data.nearest,data);renderTokenColumn("opposed",data.farthest,data);}
+    function renderTokenColumn(side,items,data){const list=$(`#${side}TokenList`);if(!list)return;const shown=items.slice(0,state.tokenLimit),metric=data.metric,mean=Number(data.mean),std=Math.max(Number(data.std),1e-9);$(`#${side}TokenCount`).textContent=`${shown.length} of ${items.length}`;list.innerHTML=shown.map((item,index)=>{const label=item.decoded||item.token||`token #${item.id}`,value=Number(item[metric]),z=(value-mean)/std,secondary=metric==="dot_product"?`cos ${signed(item.cosine,4)}`:`${signed(z,2)}σ`;return `<article class="token-row"><span class="token-rank">#${index+1}</span><span class="token-name"><b>${esc(visibleToken(label))}</b><small>${item.token?`raw ${esc(visibleToken(item.token))} · `:""}id ${integer.format(item.id)}</small></span><span class="token-value">${signed(value,4)}<br>${secondary}</span></article>`;}).join("");}
     function copyCandidate(){const button=$("#copyCandidate"),value=viewState().selected,done=()=>{button.textContent="Copied";setTimeout(()=>button.textContent="Copy ID",1200);};if(navigator.clipboard?.writeText)navigator.clipboard.writeText(value).then(done).catch(()=>fallbackCopy(value,done));else fallbackCopy(value,done);}
     function fallbackCopy(text,done){const area=document.createElement("textarea");area.value=text;area.style.position="fixed";area.style.opacity="0";document.body.append(area);area.select();document.execCommand("copy");area.remove();done();}
     setup();
@@ -1333,6 +1537,11 @@ def main() -> None:
     original_rankings = args.original_rankings.expanduser().resolve()
     cot_low_dir = args.cot_low_dir.expanduser().resolve()
     cot_medium_dir = args.cot_medium_dir.expanduser().resolve()
+    left_vectors_path = (
+        args.left_vectors.expanduser().resolve()
+        if args.left_vectors is not None
+        else canonical / "left_singular_vectors.jsonl"
+    )
     output = args.output.expanduser().resolve()
     payload = build_payload(
         canonical,
@@ -1341,6 +1550,8 @@ def main() -> None:
         original_rankings,
         cot_low_dir,
         cot_medium_dir,
+        left_vectors_path,
+        args.require_left_vectors,
         args.top,
         args.contexts_per_side,
         args.cot_contexts_per_side,
@@ -1367,11 +1578,19 @@ def main() -> None:
         for candidate in payload["unembedding"].values()
         for side in ("nearest", "farthest")
     )
+    left_neighbors = sum(
+        len(tokens[side])
+        for candidate in payload["left_singular"].values()
+        for tokens in [candidate.get("tokens")]
+        if tokens is not None
+        for side in ("nearest", "farthest")
+    )
     print(f"Wrote {output}")
     print(
         f"Embedded {payload['meta']['candidate_union']:,} unique candidates, "
         f"{contexts:,} FineWeb contexts, {cot_contexts:,} CoT contexts, "
-        f"and {neighbors:,} shared token neighbors"
+        f"{neighbors:,} source-V token neighbors, and "
+        f"{left_neighbors:,} transported-U token neighbors"
     )
     print(
         "Mirror substantive artifacts and direction arrays are identical; "

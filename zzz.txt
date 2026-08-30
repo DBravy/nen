@@ -23,4 +23,4 @@ python probe_semantic_slot_direction.py \
         --k 64 \
         --out predictive_cot_medium
 
-python3 cot_intervention_server.py --host 0.0.0.0 --port 8123
+python3 cot_intervention_server.py --host 0.0.0.0 --port 5002

@@ -33,3 +33,28 @@ Suggested next moves
 The .→Provide late-layer cluster and the ?→Wait/Actually L10–L13 cluster are your best candidates for causal/steering tests — they're sharp, tracked, and correspond to legible reasoning decisions ("conclude now" / "reconsider").
 The low-vs-medium modal gap is a clean quantitative claim you could put in the doc: effort level changes how much of the SV budget goes to hedged hypothesis generation.
 Want me to (a) dump the full per-SV digests (/tmp/digest_predictive_cot_{low,medium}.txt) somewhere in the repo so you can scan them, or (b) run the same read-state aggregation over the J-lens CoT data to contrast input-keyed vs output-keyed directly?
+
+Three of these are dramatic, and they tell a coherent story.
+
+1. Numbers dominate low; medium frees up the early/mid stack. Number-target directions by layer:
+
+Low: heavy at every layer (L01=7, L05=9, L08=9, L13=7 …), peaking at L22=37.
+Medium: sparse early/mid (L09=1, L12=1, L14=2), only concentrated late (L18–22).
+So in low-effort reasoning, a huge fraction of the whole SV stack is owned by arithmetic; in medium those early/mid directions get claimed by other computation.
+
+2. The epistemic/modal subspace: 1 → 37. This is the standout. In medium, ~37 directions across L00–L20 cleanly encode could/might/maybe → be ("could be", "might also be", "maybe the…"). I checked what those exact directions were doing in low: almost all of them already had "maybe" as a weak top-prev (~0.17–0.23) but never crossed threshold — their top slots were diluted or partly claimed by numbers/:/<|message|>. So they're latent "maybe" detectors that only sharpen when the model actually produces hedged, multi-hypothesis language — which medium does and low doesn't.
+
+3. "Decide to answer" (→Provide): 13 → 0. Low has a dense, stereotyped closer — a clear set of directions (L16–L21) firing at a sentence boundary predicting Provide. In medium that dissolves entirely: after 659 tokens of reasoning, the transition to the answer is diffuse and varied, not a sharp stereotyped event.
+
+Base rates confirm this is behavioral, not an artifact
+Per-1000 words in the raw reasoning text:
+
+might: 0.0 (low) → 4.0 (medium). Low essentially never says "might"; medium uses the full modal range. (Low's modals are almost all "maybe/could".) This is the behavioral signature of genuine multi-hypothesis reasoning and directly underwrites the 1→37 jump.
+provide 6.6 → 2.5, need 15.1 → 7.8, so 26.6 → 16.9, wait 3.5 → 1.2, check 3.2 → 1.0 — low is markedly more formulaic per token (scaffold words + answer trigger denser), even though it's shorter.
+but 10.6 → 15.4 — medium does more contrastive/revising reasoning (matches the contrastive family appearing only in medium).
+The one-line summary
+Low-effort CoT is "compute-then-close": numbers own the entire SV stack, plus a fixed scaffold (We need to…) and a sharp Provide-the-answer trigger. Medium-effort CoT repurposes the same directions toward epistemic exploration: the early/mid stack shifts off arithmetic onto hedged hypothesis language (might/could/maybe be) and contrastive pivots, and the "done, answer now" moment stops being a discrete detectable event. The directions the doc previously noted as "completely different in medium vs low" (L02_SV17, L13_SV54) are exactly this — directions whose top-slot ownership flips with effort.
+
+One caveat to keep honest: medium sampled ~5× more tokens per layer (31,901 vs 6,572), so some of the number-family shrinkage is narrow content getting outcompeted for the top-64 slots. But the modal/contrastive/Provide/need shifts are corroborated by the raw base rates, so those are real behavioral differences, not sampling.
+
+You've got zz_claude_findings.txt open — want me to write this comparison into it (with the per-family table and the specific SV lists), so you have it alongside the doc?
