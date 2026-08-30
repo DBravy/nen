@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "source_scan_dir": "/home/dbrayjr5/nen/predictive_words_scan",
+  "source_scanner_family": "scan_cot_jlens_directions / scan_predictive_jlens_directions / scan_sparse_jlens_directions / scan_unrealized_words",
+  "model": "openai/gpt-oss-20b",
+  "lens_repo": "solarkyle/jspace-lenses",
+  "lens_file": "gpt-oss-20b/lens.pt",
+  "layers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+  ],
+  "directions_per_layer": {
+    "0": 64,
+    "1": 64,
+    "2": 64,
+    "3": 64,
+    "4": 64,
+    "5": 64,
+    "6": 64,
+    "7": 64,
+    "8": 64,
+    "9": 64,
+    "10": 64,
+    "11": 64,
+    "12": 64,
+    "13": 64,
+    "14": 64,
+    "15": 64,
+    "16": 64,
+    "17": 64,
+    "18": 64,
+    "19": 64,
+    "20": 64,
+    "21": 64,
+    "22": 64
+  },
+  "d_model": 2880,
+  "candidate_count": 1472,
+  "basis_fingerprint_algorithm": "sha256(jlens-vs-bank-v1, layer, raw float32 V/S)",
+  "basis_fingerprint_sha256": "ec2245a2fb3105dada92dfbc9dcc77d81a093f3122a4d0ede16909ff9989ab9e",
+  "basis_audits": [
+    {
+      "scan_dir": "/home/dbrayjr5/nen/predictive_words_fineweb",
+      "basis_fingerprint_sha256": "ec2245a2fb3105dada92dfbc9dcc77d81a093f3122a4d0ede16909ff9989ab9e",
+      "exact_v_s_match": true,
+      "error": null
+    },
+    {
+      "scan_dir": "/home/dbrayjr5/nen/unrealized_words_fineweb",
+      "basis_fingerprint_sha256": "ec2245a2fb3105dada92dfbc9dcc77d81a093f3122a4d0ede16909ff9989ab9e",
+      "exact_v_s_match": true,
+      "error": null
+    },
+    {
+      "scan_dir": "/home/dbrayjr5/nen/predictive_cot_low",
+      "basis_fingerprint_sha256": "ec2245a2fb3105dada92dfbc9dcc77d81a093f3122a4d0ede16909ff9989ab9e",
+      "exact_v_s_match": true,
+      "error": null
+    },
+    {
+      "scan_dir": "/home/dbrayjr5/nen/predictive_cot_medium",
+      "basis_fingerprint_sha256": "ec2245a2fb3105dada92dfbc9dcc77d81a093f3122a4d0ede16909ff9989ab9e",
+      "exact_v_s_match": true,
+      "error": null
+    }
+  ],
+  "reconstruction": {
+    "definition": "u_exact = (J @ v) / ||J @ v||",
+    "gain_definition": "actual_transport_gain = ||J @ v||",
+    "used_stored_u_without_jlens": false,
+    "forward_passes": 0,
+    "stored_u_note": "Stored U is compared with normalized J@V when present. Randomized SVD can make stored U/S approximate for an individual saved V."
+  },
+  "token_geometry": {
+    "available": true,
+    "model": "openai/gpt-oss-20b",
+    "model_revision": null,
+    "space": "raw_lm_head_row_vs_normalized_J_times_V",
+    "vocab_rows_considered": 201085,
+    "neighbors_per_side": 32,
+    "special_tokens_included": false,
+    "forward_passes": 0
+  },
+  "right_neighbor_artifact": "/home/dbrayjr5/nen/predictive_words_scan/unembedding_neighbors.jsonl",
+  "outputs": {
+    "records": "/home/dbrayjr5/nen/predictive_words_scan/left_singular_vectors.jsonl",
+    "left_arrays": "/home/dbrayjr5/nen/predictive_words_scan/left_directions"
+  }
+}
