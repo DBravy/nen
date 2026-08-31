@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -20,6 +21,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent
 DEFAULT_DATA_DIR = ROOT / "unrealized_words_fineweb"
 DEFAULT_SELECTIVITY_DATA_DIR = ROOT / "unrealized_words_selectivity"
+DEFAULT_LEFT_DATA_DIR = ROOT / "predictive_words_scan"
+LEFT_TOKEN_NEIGHBORS_PER_SIDE = 16
 BROAD_RANK = "rank_global_mean_abs_cosine"
 SELECTIVITY_RANK = "rank_global_tail_selectivity"
 RANKING_TEXT_FIELDS = {
@@ -51,6 +54,15 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=None,
         help="Output HTML path (default: DATA_DIR/report.html)",
+    )
+    parser.add_argument(
+        "--left-data-dir",
+        type=Path,
+        default=DEFAULT_LEFT_DATA_DIR,
+        help=(
+            "Directory containing fingerprinted left_singular_vectors.jsonl and metadata "
+            "(default: predictive_words_scan, whose V/S bank matches this FineWeb scan)"
+        ),
     )
     parser.add_argument(
         "--top",
@@ -230,6 +242,162 @@ def safe_script_json(value: Any) -> str:
     )
 
 
+def direction_bank_fingerprint(data_dir: Path) -> tuple[str, dict[str, float]]:
+    try:
+        import numpy as np
+    except ImportError as exc:
+        raise SystemExit("NumPy is required to validate the left-vector basis") from exc
+
+    digest = hashlib.sha256()
+    digest.update(b"jlens-vs-bank-v1\0")
+    spectral_fractions: dict[str, float] = {}
+
+    def update(key: str, array: Any) -> None:
+        contiguous = np.ascontiguousarray(array)
+        digest.update(key.encode("ascii") + b"\0")
+        digest.update(contiguous.dtype.str.encode("ascii") + b"\0")
+        digest.update(
+            json.dumps(list(contiguous.shape), separators=(",", ":")).encode("ascii")
+        )
+        digest.update(b"\0")
+        digest.update(contiguous.tobytes())
+
+    paths = sorted((data_dir / "directions").glob("L[0-9][0-9].npz"))
+    if not paths:
+        raise SystemExit(f"No LXX.npz direction banks found under {data_dir / 'directions'}")
+    for path in paths:
+        layer = int(path.stem[1:])
+        with np.load(path) as saved:
+            if not {"V", "S"}.issubset(saved.files):
+                raise SystemExit(f"{path} must contain V and S arrays")
+            V = np.ascontiguousarray(saved["V"], dtype=np.float32)
+            S = np.ascontiguousarray(saved["S"].reshape(-1), dtype=np.float32)
+        digest.update(f"L{layer:02d}\0".encode("ascii"))
+        update("V", V)
+        update("S", S)
+        energy = float(np.sum(np.square(S, dtype=np.float64)))
+        for sv0, singular_value in enumerate(S):
+            spectral_fractions[f"L{layer:02d}_SV{sv0:02d}"] = (
+                float(float(singular_value) ** 2 / energy) if energy > 0 else 0.0
+            )
+    return digest.hexdigest(), spectral_fractions
+
+
+def compact_left_token_geometry(raw: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not raw:
+        return None
+
+    def compact(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        return [
+            {
+                "id": item.get("token_id"),
+                "token": item.get("token"),
+                "decoded": item.get("decoded"),
+                "cosine": item.get("cosine"),
+                "dot_product": item.get("dot_product"),
+            }
+            for item in items[:LEFT_TOKEN_NEIGHBORS_PER_SIDE]
+        ]
+
+    return {
+        "vocab": raw.get("vocab_rows_considered"),
+        "mean": raw.get("cosine_mean"),
+        "std": raw.get("cosine_std"),
+        "max_abs": raw.get("max_abs_token_cosine"),
+        "nearest_z": raw.get("nearest_token_z"),
+        "farthest_z": raw.get("farthest_token_z"),
+        "nearest": compact(raw.get("nearest_tokens") or []),
+        "farthest": compact(raw.get("farthest_tokens") or []),
+    }
+
+
+def load_left_singular_payload(
+    artifact_dir: Path,
+    broad_data_dir: Path,
+    selectivity_data_dir: Path,
+    display_candidates: set[str],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    metadata_path = artifact_dir / "left_singular_vectors_metadata.json"
+    records_path = artifact_dir / "left_singular_vectors.jsonl"
+    for path in (metadata_path, records_path):
+        if not path.is_file():
+            raise SystemExit(f"Missing required left-vector artifact: {path}")
+
+    broad_fingerprint, spectral_fractions = direction_bank_fingerprint(broad_data_dir)
+    selective_fingerprint, _ = direction_bank_fingerprint(selectivity_data_dir)
+    if broad_fingerprint != selective_fingerprint:
+        raise SystemExit(
+            "Broad and selective FineWeb direction banks differ; left vectors cannot be shared"
+        )
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    artifact_fingerprint = metadata.get("basis_fingerprint_sha256")
+    if artifact_fingerprint != broad_fingerprint:
+        raise SystemExit(
+            "Left-vector artifact basis fingerprint does not match the FineWeb V/S bank"
+        )
+
+    records: dict[str, Any] = {}
+    with records_path.open(encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, 1):
+            if not line.strip():
+                continue
+            raw = json.loads(line)
+            layer = int(raw["layer"])
+            sv0 = int(raw["sv_index_0"])
+            candidate = f"L{layer:02d}_SV{sv0:02d}"
+            if candidate not in display_candidates:
+                continue
+            if candidate in records:
+                raise SystemExit(f"Duplicate left-vector record on {records_path}:{line_number}")
+            records[candidate] = {
+                "source": raw.get("reconstruction_method"),
+                "singular_value": raw.get("stored_singular_value"),
+                "saved_spectral_energy_fraction": spectral_fractions[candidate],
+                "source_v_norm": raw.get("source_v_norm_before_normalization"),
+                "saved_u_norm": raw.get("stored_u_norm_before_normalization"),
+                "actual_transport_gain": raw.get("actual_transport_gain"),
+                "gain_over_stored_singular_value": raw.get(
+                    "gain_over_stored_singular_value"
+                ),
+                "paired_u_v_cosine": raw.get("left_right_coordinate_cosine"),
+                "transport_vs_stored_u_cosine": raw.get(
+                    "transport_vs_stored_u_cosine"
+                ),
+                "transport_vs_sigma_stored_u_relative_error": raw.get(
+                    "transport_vs_sigma_stored_u_relative_error"
+                ),
+                "max_other_u_abs_cosine": raw.get(
+                    "largest_abs_left_cosine_with_other_sv_same_layer"
+                ),
+                "max_other_u_sv0": raw.get(
+                    "most_overlapping_left_sv_index_0_same_layer"
+                ),
+                "max_other_u_cosine": raw.get(
+                    "most_overlapping_left_sv_cosine_same_layer"
+                ),
+                "previous_layer_match": raw.get("previous_layer_left_match"),
+                "next_layer_match": raw.get("next_layer_left_match"),
+                "token_geometry": compact_left_token_geometry(
+                    raw.get("left_token_geometry")
+                ),
+                "right_left_token_overlap": raw.get("right_left_token_overlap"),
+            }
+
+    missing = sorted(display_candidates - records.keys())
+    if missing:
+        raise SystemExit(f"Left-vector artifact is missing {len(missing)} dashboard candidates")
+    token_meta = metadata.get("token_geometry") or {}
+    return records, {
+        "basis_fingerprint_sha256": broad_fingerprint,
+        "candidate_count": len(records),
+        "source": str(records_path),
+        "reconstruction": metadata.get("reconstruction"),
+        "token_geometry": token_meta,
+        "embedded_token_neighbors_per_side": LEFT_TOKEN_NEIGHBORS_PER_SIDE,
+        "forward_passes": 0,
+    }
+
+
 def zero_based_candidate(row: dict[str, Any]) -> str:
     return f"L{int(row['layer']):02d}_SV{int(row['sv_index_0']):02d}"
 
@@ -340,6 +508,7 @@ def build_mode_payload(
 def build_payload(
     data_dir: Path,
     selectivity_data_dir: Path,
+    left_data_dir: Path,
     top_n: int,
     selectivity_top_n: int,
 ) -> dict[str, Any]:
@@ -388,6 +557,12 @@ def build_payload(
         zero_based_candidate(source_rows[source_candidate]): source_unembedding[source_candidate]
         for source_candidate in source_candidates
     }
+    left_singular, left_meta = load_left_singular_payload(
+        left_data_dir,
+        data_dir,
+        selectivity_data_dir,
+        set(display_unembedding),
+    )
 
     overlap = len(
         {row["candidate"] for row in broad["rankings"]}
@@ -407,9 +582,11 @@ def build_payload(
             "unembedding_domain_max": unembedding_meta["domain_max"],
             "embedded_candidate_union": len(display_unembedding),
             "embedded_candidate_overlap": overlap,
+            "left_singular": left_meta,
         },
         "modes": {"broad": broad, "selective": selective},
         "unembedding": display_unembedding,
+        "left_singular": left_singular,
     }
 
 
@@ -575,6 +752,40 @@ HTML_TEMPLATE = r'''<!doctype html>
     .all-metric span { min-width: 0; color: var(--muted); font-size: 10px; }
     .all-metric b { flex: 0 0 auto; font: 600 10px/1.4 var(--mono); }
 
+    .left-section { padding: clamp(20px, 3vw, 34px); border-bottom: 1px solid var(--line); background: #eef4f1; }
+    .left-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 22px; }
+    .left-heading h3 { margin: 0; font: 500 25px/1.15 var(--serif); }
+    .left-heading p { max-width: 820px; margin: 7px 0 0; color: var(--muted); font-size: 11px; }
+    .left-badge { flex: 0 0 auto; border-radius: 99px; background: var(--green-soft); color: var(--green); padding: 6px 10px; font: 750 9px/1.2 var(--mono); }
+    .sv-map { display: grid; grid-template-columns: minmax(0, 1fr) 170px minmax(0, 1fr); gap: 10px; margin-top: 19px; }
+    .sv-node, .sv-operator { display: grid; align-content: center; min-height: 88px; border: 1px solid var(--line); background: var(--surface); padding: 12px 14px; }
+    .sv-node span, .sv-operator span { color: var(--muted); font-size: 8px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+    .sv-node b { margin-top: 5px; color: var(--ink); font: 650 16px/1.2 var(--mono); }
+    .sv-node small { margin-top: 4px; color: var(--muted); font-size: 8px; }
+    .sv-node.left { border-color: color-mix(in srgb, var(--green) 45%, var(--line)); box-shadow: inset 3px 0 0 var(--green); }
+    .sv-operator { justify-items: center; background: #17251f; color: white; text-align: center; }
+    .sv-operator b { margin: 4px 0; color: white; font: 650 13px/1.2 var(--mono); }
+    .sv-operator span, .sv-operator small { color: #b3c0ba; }
+    .left-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; margin-top: 12px; border: 1px solid var(--line); background: var(--line); }
+    .left-metric { min-width: 0; background: var(--surface); padding: 11px 12px; }
+    .left-metric span { display: block; min-height: 22px; color: var(--muted); font-size: 8px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .left-metric b { display: block; overflow: hidden; color: var(--ink-2); font: 650 12px/1.2 var(--mono); text-overflow: ellipsis; }
+    .left-relations { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+    .left-relation { border: 1px solid var(--line); background: rgba(255,253,248,.78); padding: 11px 12px; }
+    .left-relation h4 { margin: 0; color: var(--ink-2); font: 700 9px/1.2 var(--mono); text-transform: uppercase; }
+    .left-relation b { display: block; margin-top: 6px; color: var(--green); font: 650 11px/1.3 var(--mono); }
+    .left-relation p { margin: 4px 0 0; color: var(--muted); font-size: 8px; }
+    .left-note { margin: 11px 0 0; border-left: 3px solid var(--blue); padding-left: 9px; color: var(--muted); font-size: 9px; }
+    .left-token-details { margin-top: 15px; border: 1px solid var(--line); background: rgba(255,253,248,.76); }
+    .left-token-details > summary { cursor: pointer; list-style: none; padding: 13px 14px; }
+    .left-token-details > summary::-webkit-details-marker { display: none; }
+    .left-token-summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .left-token-summary h4 { margin: 0; font: 500 20px/1.15 var(--serif); }
+    .left-token-summary p { margin: 4px 0 0; color: var(--muted); font-size: 9px; }
+    .left-token-summary b { color: var(--green); font: 650 10px/1.2 var(--mono); }
+    .left-token-content { padding: 0 14px 14px; }
+    .left-token-toolbar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+
     .token-space-section { padding: clamp(20px, 3vw, 34px); border-bottom: 1px solid var(--line); background: #fbfaf5; }
     .token-space-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 22px; }
     .token-space-heading h3 { margin: 0; font: 500 25px/1.15 var(--serif); }
@@ -667,6 +878,7 @@ HTML_TEMPLATE = r'''<!doctype html>
     :focus-visible { outline: 3px solid rgba(23,106,83,.28); outline-offset: 2px; }
     @media (max-width: 1120px) {
       .metric-grid { grid-template-columns: repeat(3, 1fr); }
+      .left-metrics { grid-template-columns: repeat(3, 1fr); }
       .tail-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .all-metrics { grid-template-columns: repeat(2, 1fr); }
       .unembed-stats { grid-template-columns: repeat(2, 1fr); }
@@ -693,6 +905,9 @@ HTML_TEMPLATE = r'''<!doctype html>
       .toolbar-inner { grid-template-columns: 1fr; }
       .search-control { grid-column: auto; }
       .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .left-metrics { grid-template-columns: repeat(2, 1fr); }
+      .sv-map, .left-relations { grid-template-columns: 1fr; }
+      .left-token-summary, .left-heading { align-items: flex-start; flex-direction: column; }
       .all-metrics { grid-template-columns: 1fr; }
       .token-space-heading { align-items: flex-start; flex-direction: column; }
       .token-limit { width: 100%; flex-basis: auto; }
@@ -701,7 +916,7 @@ HTML_TEMPLATE = r'''<!doctype html>
       .tail-profile-grid { grid-template-columns: 1fr; }
       .context-controls { grid-template-columns: 1fr 1fr; }
       .context-controls .context-search { grid-column: 1 / -1; }
-      .detail-hero, .token-space-section, .context-section { padding: 20px 16px; }
+      .detail-hero, .left-section, .token-space-section, .context-section { padding: 20px 16px; }
       .section-heading { align-items: flex-start; flex-direction: column; }
     }
     @media print {
@@ -724,7 +939,7 @@ HTML_TEMPLATE = r'''<!doctype html>
         <div>
           <p class="eyebrow">Interpretability workbench · FineWeb</p>
           <h1>Singular Vector <em>Atlas</em></h1>
-          <p class="subtitle">Explore one shared bank of singular directions through two ranking lenses, then inspect token-space neighbors and the FineWeb contexts at each activation extreme.</p>
+          <p class="subtitle">Explore one shared bank of singular directions through two ranking lenses, compare each right vector with its transported left vector, then inspect both token geometries and the FineWeb contexts at each activation extreme.</p>
         </div>
       </div>
       <div class="dataset-facts" id="datasetFacts" aria-label="Dataset summary"></div>
@@ -859,7 +1074,8 @@ HTML_TEMPLATE = r'''<!doctype html>
       contextQuery: "",
       contextLimit: 6,
       dedupe: false,
-      tokenLimit: Math.min(8, DATA.meta.unembedding_neighbors_per_side || 8)
+      tokenLimit: Math.min(8, DATA.meta.unembedding_neighbors_per_side || 8),
+      leftTokenLimit: Math.min(8, DATA.meta.left_singular?.embedded_token_neighbors_per_side || 8)
     };
 
     const candidateIndexes = Object.fromEntries(Object.entries(DATA.modes).map(([mode, payload]) => [mode, new Map(payload.rankings.map(row => [row.candidate, row]))]));
@@ -973,7 +1189,7 @@ HTML_TEMPLATE = r'''<!doctype html>
       $("#layerFilter").value = view.layer;
       $("#sortMetric").value = view.metric;
       $("#rowLimit").value = String(view.limit);
-      $("#footerNote").innerHTML = `SV identifiers are zero-based (<code>SV00</code> is the first singular vector); all rank numbers remain one-based. Both lenses scan the same ${integer.format(meta.total_candidates)} directions over the same ${integer.format(meta.documents)} FineWeb windows. This file embeds the top <b>${integer.format(DATA.modes.broad.meta.embedded_candidates)}</b> broad and <b>${integer.format(DATA.modes.selective.meta.embedded_candidates)}</b> selective candidates (${integer.format(DATA.meta.embedded_candidate_union)} unique; ${integer.format(DATA.meta.embedded_candidate_overlap)} shared), with mode-specific contexts and one shared token-neighbor map. Model: <code>${esc(meta.model)}</code>.`;
+      $("#footerNote").innerHTML = `SV identifiers are zero-based (<code>SV00</code> is the first singular vector); all rank numbers remain one-based. Both lenses scan the same ${integer.format(meta.total_candidates)} directions over the same ${integer.format(meta.documents)} FineWeb windows. This file embeds the top <b>${integer.format(DATA.modes.broad.meta.embedded_candidates)}</b> broad and <b>${integer.format(DATA.modes.selective.meta.embedded_candidates)}</b> selective candidates (${integer.format(DATA.meta.embedded_candidate_union)} unique; ${integer.format(DATA.meta.embedded_candidate_overlap)} shared), with mode-specific contexts, right-vector token neighbors, and fingerprint-validated J·V left-vector geometry plus ${integer.format(DATA.meta.left_singular.embedded_token_neighbors_per_side)} U-token neighbors per side. The left enrichment uses zero transformer forward passes. Model: <code>${esc(meta.model)}</code>.`;
     }
 
     function switchMode(mode) {
@@ -1108,11 +1324,41 @@ HTML_TEMPLATE = r'''<!doctype html>
       return `<div class="metric-card" title="${esc(title || "")}"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;
     }
 
+    function leftMetric(label, value, title="") {
+      return `<div class="left-metric" title="${esc(title)}"><span>${esc(label)}</span><b>${esc(value)}</b></div>`;
+    }
+
+    function svCandidate(layer, sv0) {
+      return Number.isFinite(Number(layer)) && Number.isFinite(Number(sv0))
+        ? `L${String(layer).padStart(2,"0")}_SV${String(sv0).padStart(2,"0")}`
+        : "—";
+    }
+
+    function leftSingularSection(row) {
+      const data=DATA.left_singular?.[row.candidate];
+      if(!data) return "";
+      const previous=data.previous_layer_match;
+      const next=data.next_layer_match;
+      const previousText=previous ? `${svCandidate(previous.layer,previous.sv_index_0)} · |cos| ${decimal(previous.abs_cosine,4)}` : "first saved layer";
+      const nextText=next ? `${svCandidate(next.layer,next.sv_index_0)} · |cos| ${decimal(next.abs_cosine,4)}` : "last saved layer";
+      const overlap=data.right_left_token_overlap || {};
+      const alignedOverlap=overlap.positive_to_positive?.count;
+      const opposedOverlap=overlap.negative_to_negative?.count;
+      const flippedOverlap=(Number(overlap.positive_to_negative?.count)||0)+(Number(overlap.negative_to_positive?.count)||0);
+      const tokens=data.token_geometry;
+      const tokenPanel=tokens ? `<details class="left-token-details" open><summary><div class="left-token-summary"><div><p class="eyebrow">Output-side vocabulary geometry · U</p><h4>Left-vector token directions</h4><p>Cosine similarity between normalized J·V and every normalized lm_head row. These are geometric neighbors, not probabilities or observed activations.</p></div><b>max |cos| ${decimal(tokens.max_abs,4)} · ${integer.format(tokens.vocab)} tokens</b></div></summary><div class="left-token-content"><div class="left-token-toolbar"><label class="control token-limit">Tokens per side<select id="leftTokenLimit"></select></label></div><div class="neighbor-grid"><section class="neighbor-column aligned"><div class="neighbor-head"><h4>+ Aligned with U</h4><span id="leftAlignedTokenCount"></span></div><div class="neighbor-list" id="leftAlignedTokenList"></div></section><section class="neighbor-column opposed"><div class="neighbor-head"><h4>− Opposed to U</h4><span id="leftOpposedTokenCount"></span></div><div class="neighbor-list" id="leftOpposedTokenList"></div></section></div></div></details>` : `<p class="left-note">Full-vocabulary U token geometry is unavailable for this direction.</p>`;
+      return `<section class="left-section"><div class="left-heading"><div><p class="eyebrow">Paired SVD output direction</p><h3>Corresponding left singular vector</h3><p>The FineWeb scan ranks and activates the right vector V. The fingerprint-matched enrichment reconstructs the paired output direction directly as normalized J·V, checks it against the saved SVD U, and projects it into vocabulary space.</p></div><span class="left-badge">J·V reconstructed · basis exact</span></div>
+        <div class="sv-map"><div class="sv-node"><span>Right singular vector · input side</span><b>V · ${esc(row.candidate)}</b><small>Projected against FineWeb residual states by both dashboard lenses</small></div><div class="sv-operator"><span>J-Lens transport</span><b>J · V = σU</b><small>σ ${decimal(data.singular_value,4)}</small></div><div class="sv-node left"><span>Left singular vector · output side</span><b>U · ${esc(row.candidate)}</b><small>Normalized direct J·V, checked against the scanner's saved U</small></div></div>
+        <div class="left-metrics">${leftMetric("Singular value σ",decimal(data.singular_value,5),"Stored singular value for this V/U pair.")}${leftMetric("Top-64 σ² share",percent(data.saved_spectral_energy_fraction,2),"Share of squared singular-value mass within the saved top-64 bank.")}${leftMetric("Actual ||J·V||",decimal(data.actual_transport_gain,5),"Transport gain computed directly from the J-Lens and saved V.")}${leftMetric("Actual gain / σ",decimal(data.gain_over_stored_singular_value,7),"Agreement between direct transport gain and the stored singular value.")}${leftMetric("Source ||V||",decimal(data.source_v_norm,7),"Right-vector norm before reconstruction normalization.")}${leftMetric("Saved ||U||",decimal(data.saved_u_norm,7),"Saved SVD left-vector norm before comparison.")}${leftMetric("paired cos(U,V)",signed(data.paired_u_v_cosine,5),"Raw residual-coordinate cosine; descriptive, not the SVD pairing criterion.")}${leftMetric("cos(J·V, saved U)",decimal(data.transport_vs_stored_u_cosine,7),"Directional agreement between direct transport and saved SVD U.")}${leftMetric("σU relative error",decimal(data.transport_vs_sigma_stored_u_relative_error,7),"Relative error between direct J·V and stored σU.")}${leftMetric("Max other-U |cos|",decimal(data.max_other_u_abs_cosine,6),"Largest absolute cosine with another directly reconstructed J·V direction in this layer.")}</div>
+        <div class="left-relations"><article class="left-relation"><h4>Closest other U in this layer</h4><b>${svCandidate(row.layer,data.max_other_u_sv0)} · cos ${signed(data.max_other_u_cosine,5)}</b><p>Nonzero overlap exposes approximation leakage between reconstructed transported directions.</p></article><article class="left-relation"><h4>Left-vector continuity across layers</h4><b>← ${previousText}</b><b>→ ${nextText}</b><p>Best absolute-cosine reconstructed-U match in each adjacent layer; signs may flip.</p></article><article class="left-relation"><h4>Right ↔ left token overlap · top ${integer.format(overlap.k)}</h4><b>same sign + ${integer.format(alignedOverlap)} / − ${integer.format(opposedOverlap)}</b><p>${integer.format(flippedOverlap)} cross-sign overlaps. Low overlap means U and V point toward different vocabulary neighborhoods.</p></article></div>
+        <p class="left-note">U and V share residual coordinates but have different roles: V identifies an input direction the J-Lens responds to; U identifies the output direction that input becomes. Their sign is joint and arbitrary—flipping both leaves the singular pair unchanged.</p>${tokenPanel}</section>`;
+    }
+
     function unembeddingSection(data, row) {
       if (!data) return "";
       return `<section class="token-space-section">
         <div class="token-space-heading">
-          <div><p class="eyebrow">Vocabulary geometry</p><h3>Token-space neighbors</h3><p>Cosine similarity between this SV and each normalized output-token unembedding row. These are geometric neighbors—not observed activations, generated tokens, or proof of a semantic label.</p><span class="sign-note">The +/− orientation is arbitrary. The spectrum uses one shared scale across all ${integer.format(DATA.meta.unembedding_candidates)} directions.</span></div>
+          <div><p class="eyebrow">Input-side vocabulary geometry · V</p><h3>Right-vector token-space neighbors</h3><p>Cosine similarity between this right singular vector and each normalized output-token unembedding row. These are geometric neighbors—not observed activations, generated tokens, or proof of a semantic label.</p><span class="sign-note">The +/− orientation is arbitrary. The spectrum uses one shared scale across all ${integer.format(DATA.meta.unembedding_candidates)} directions.</span></div>
           <label class="control token-limit">Tokens per side<select id="tokenLimit"></select></label>
         </div>
         <div class="unembed-stats">
@@ -1128,8 +1374,8 @@ HTML_TEMPLATE = r'''<!doctype html>
           <div class="spectrum-legend"><span><i class="legend-dot opposed"></i>opposed tokens</span><span><i class="legend-band"></i>vocab mean ±1σ</span><span><i class="legend-dot aligned"></i>aligned tokens</span></div>
         </div>
         <div class="neighbor-grid">
-          <section class="neighbor-column aligned"><div class="neighbor-head"><h4>+ Aligned tokens</h4><span id="alignedTokenCount"></span></div><div class="neighbor-list" id="alignedTokenList"></div></section>
-          <section class="neighbor-column opposed"><div class="neighbor-head"><h4>− Opposed tokens</h4><span id="opposedTokenCount"></span></div><div class="neighbor-list" id="opposedTokenList"></div></section>
+          <section class="neighbor-column aligned"><div class="neighbor-head"><h4>+ Aligned with V</h4><span id="alignedTokenCount"></span></div><div class="neighbor-list" id="alignedTokenList"></div></section>
+          <section class="neighbor-column opposed"><div class="neighbor-head"><h4>− Opposed to V</h4><span id="opposedTokenCount"></span></div><div class="neighbor-list" id="opposedTokenList"></div></section>
         </div>
       </section>`;
     }
@@ -1149,6 +1395,7 @@ HTML_TEMPLATE = r'''<!doctype html>
       const zeroPosition = (0 - lo) / spread * 100;
       const meanPosition = Math.max(0, Math.min(100, (Number(row.mean_activation) - lo) / spread * 100));
       const tokenData = DATA.unembedding[view.selected];
+      const leftData = DATA.left_singular?.[view.selected];
       const isSelective = state.mode === "selective";
       const rankLabel = isSelective ? "Global tail-selectivity rank" : "Global mean |cosine| rank";
       const summary = isSelective
@@ -1178,6 +1425,7 @@ HTML_TEMPLATE = r'''<!doctype html>
         </div>
         <details class="metric-details"><summary>Inspect all ${integer.format(Object.keys(row).length - 1)} ranking metrics</summary>${allMetricGroups(row)}</details>
       </section>
+      ${leftSingularSection(row)}
       ${unembeddingSection(tokenData, row)}
       <section class="context-section">
         <div class="section-heading"><div><p class="eyebrow">Observed examples · ${esc(modeConfig().label)}</p><h3>${isSelective ? "Extreme tail contexts" : "Top activation contexts"}</h3><p>${isSelective ? "Contexts are ordered by raw projection extremes; the displayed tail z is derived from this scan's median and robust MAD scale. The score-driving tail is highlighted, while both orientations remain available for comparison." : "Contexts are ordered by signed projection activation. Each highlight marks the activating token; cosine is normalized by the layer residual norm."}</p><span class="sign-note">High (+) and low (−) are arbitrary SVD orientations, not sentiment labels. ${isSelective ? "High selectivity or kurtosis can still reflect lexical, formatting, or data artifacts." : ""}</span></div></div>
@@ -1211,6 +1459,16 @@ HTML_TEMPLATE = r'''<!doctype html>
         $("#tokenLimit").value = String(state.tokenLimit);
         $("#tokenLimit").addEventListener("change", event => { state.tokenLimit = Number(event.target.value); renderUnembedding(tokenData); });
         renderUnembedding(tokenData);
+      }
+      if (leftData?.token_geometry && $("#leftTokenLimit")) {
+        const leftTokens=leftData.token_geometry;
+        const maxLeftNeighbors=Math.max(leftTokens.nearest.length,leftTokens.farthest.length);
+        const leftLimits=[...new Set([8,16,maxLeftNeighbors].filter(value=>value>0&&value<=maxLeftNeighbors))].sort((a,b)=>a-b);
+        if(!leftLimits.includes(state.leftTokenLimit)) state.leftTokenLimit=leftLimits[0]||maxLeftNeighbors;
+        $("#leftTokenLimit").innerHTML=leftLimits.map(value=>`<option value="${value}">${value===maxLeftNeighbors?`All ${value}`:value}</option>`).join("");
+        $("#leftTokenLimit").value=String(state.leftTokenLimit);
+        $("#leftTokenLimit").addEventListener("change",event=>{state.leftTokenLimit=Number(event.target.value);renderLeftUnembedding(leftTokens);});
+        renderLeftUnembedding(leftTokens);
       }
       renderContexts();
     }
@@ -1335,6 +1593,11 @@ HTML_TEMPLATE = r'''<!doctype html>
       renderNeighborColumn("opposed", data.farthest, data);
     }
 
+    function renderLeftUnembedding(data) {
+      renderNeighborColumn("aligned",data.nearest,data,state.leftTokenLimit,"#leftAlignedTokenList","#leftAlignedTokenCount");
+      renderNeighborColumn("opposed",data.farthest,data,state.leftTokenLimit,"#leftOpposedTokenList","#leftOpposedTokenCount");
+    }
+
     function renderUnembeddingSpectrum(data) {
       const track = $("#unembeddingSpectrum");
       if (!track) return;
@@ -1377,11 +1640,11 @@ HTML_TEMPLATE = r'''<!doctype html>
       $("#spectrumMax").textContent = signed(domain, 4);
     }
 
-    function renderNeighborColumn(side, items, data) {
-      const list = $(`#${side}TokenList`);
+    function renderNeighborColumn(side, items, data, limit=state.tokenLimit, listSelector=`#${side}TokenList`, countSelector=`#${side}TokenCount`) {
+      const list = $(listSelector);
       if (!list) return;
-      const shown = items.slice(0, state.tokenLimit);
-      $(`#${side}TokenCount`).textContent = `${shown.length} of ${items.length}`;
+      const shown = items.slice(0, limit);
+      $(countSelector).textContent = `${shown.length} of ${items.length}`;
       list.replaceChildren();
       shown.forEach((item, index) => {
         const row = document.createElement("article");
@@ -1405,7 +1668,7 @@ HTML_TEMPLATE = r'''<!doctype html>
         const z = (Number(item.cosine) - Number(data.mean)) / Math.max(Number(data.std), 1e-9);
         const values = document.createElement("span");
         values.className = "neighbor-values";
-        values.innerHTML = `<span>cos<b class="cosine">${esc(signed(item.cosine, 4))}</b></span><span>z<b>${esc(signed(z, 2))}σ</b></span>`;
+        values.innerHTML = `<span>cos<b class="cosine">${esc(signed(item.cosine, 4))}</b></span><span>z<b>${esc(signed(z, 2))}σ</b></span>${item.dot_product==null?"":`<span>dot<b>${esc(signed(item.dot_product,4))}</b></span>`}`;
         main.append(rank, name, values);
 
         const bar = document.createElement("span");
@@ -1540,8 +1803,15 @@ def main() -> None:
     args = parse_args()
     data_dir = args.data_dir.expanduser().resolve()
     selectivity_data_dir = args.selectivity_data_dir.expanduser().resolve()
+    left_data_dir = args.left_data_dir.expanduser().resolve()
     output = (args.output or data_dir / "report.html").expanduser().resolve()
-    payload = build_payload(data_dir, selectivity_data_dir, args.top, args.selectivity_top)
+    payload = build_payload(
+        data_dir,
+        selectivity_data_dir,
+        left_data_dir,
+        args.top,
+        args.selectivity_top,
+    )
     html = HTML_TEMPLATE.replace("__DASHBOARD_PAYLOAD__", safe_script_json(payload))
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(html, encoding="utf-8")
@@ -1561,12 +1831,20 @@ def main() -> None:
         for group in payload["unembedding"].values()
         for side in ("nearest", "farthest")
     )
+    embedded_left_neighbors = sum(
+        len(items)
+        for record in payload["left_singular"].values()
+        for side, items in (record.get("token_geometry") or {}).items()
+        if side in ("nearest", "farthest")
+    )
     print(f"Wrote {output}")
     print(
         f"Embedded {broad['meta']['embedded_candidates']:,} broad and "
         f"{selective['meta']['embedded_candidates']:,} selective candidates "
         f"({payload['meta']['embedded_candidate_union']:,} unique), "
-        f"{embedded_neighbors:,} token neighbors, and "
+        f"{embedded_neighbors:,} right-token neighbors, "
+        f"{len(payload['left_singular']):,} paired left vectors with "
+        f"{embedded_left_neighbors:,} left-token neighbors, and "
         f"{contexts_by_mode['broad'] + contexts_by_mode['selective']:,} contexts "
         f"({contexts_by_mode['broad']:,} broad + {contexts_by_mode['selective']:,} selective)"
     )
