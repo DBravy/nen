@@ -16,3 +16,11 @@ jlens_rlens_matrix_analysis.json
 /predictive_words_scan/top_contexts.jsonl
 /predictive_cot_medium/checkpoint.pkl
 /predictive_cot_medium/top_contexts.jsonl
+# heavy scan outputs (all regenerable from seeds; checkpoints are 100MB+)
+checkpoint.pkl
+top_contexts.jsonl
+*.npz
+# keep the canonical J-SV source bank versioned (~33MB total);
+# delete the next line to exclude it as well
+!unrealized_words_fineweb/directions/*.npz
+__pycache__/
