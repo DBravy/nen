@@ -355,8 +355,10 @@ def mann_whitney_greater(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
     return 1.0 - _NORM.cdf(z), rbc
 
 
-POS_STRATA = {"top1", "high"}
+POS_STRATA = {"topk", "top01"}          # rank-defined positives (new harvest)
+LEGACY_POS = {"top1", "high"}           # quantile positives (old harvest; base-rate confounded)
 NEG_STRATA = {"mid", "low", "distractor"}
+PROFILE = ("topk", "top01", "top1", "high", "mid", "low", "distractor")
 
 
 def score_candidate(bid: str, truth_items: list[dict], ratings: dict[str, float], meta: dict) -> dict:
@@ -366,22 +368,26 @@ def score_candidate(bid: str, truth_items: list[dict], ratings: dict[str, float]
     peaks = set(meta.get("peak_tokens", []))
     lex = np.array([1.0 if t["token"] in peaks else 0.0 for t in truth_items])
     ok = ~np.isnan(rat)
-    pos = np.array([st in POS_STRATA for st in strata]) & ok
+    has_rank = any(st in POS_STRATA for st in strata)
+    pos_set = POS_STRATA if has_rank else LEGACY_POS
+    pos = np.array([st in pos_set for st in strata]) & ok
     neg = np.array([st in NEG_STRATA for st in strata]) & ok
     dis = (strata == "distractor") & ok
+    topk = (strata == "topk") & ok
+    profile = {f"mean_rating_{st}": (float(np.nanmean(rat[(strata == st) & ok])) if ((strata == st) & ok).sum() else math.nan) for st in PROFILE}
     return {
         "blind_id": bid,
+        "positives": "rank(topk+top01)" if has_rank else "LEGACY quantile(top1+high)",
         "n_items": int(ok.sum()),
         "n_pos": int(pos.sum()),
         "n_neg": int(neg.sum()),
         "n_distractor": int(dis.sum()),
         "auc": auc(rat[pos], rat[neg]),
+        "precision_at_k": (float(np.mean(rat[topk] >= 5.0)) if topk.sum() else math.nan),
         "spearman": spearman(rat, s),
         "distractor_auc": auc(rat[pos], rat[dis]) if dis.sum() >= 3 else math.nan,
         "lexical_auc": auc(lex[pos], lex[neg]),
-        "mean_rating_pos": float(np.nanmean(rat[pos])) if pos.sum() else math.nan,
-        "mean_rating_mid_low": float(np.nanmean(rat[neg & ~dis])) if (neg & ~dis).sum() else math.nan,
-        "mean_rating_distractor": float(np.nanmean(rat[dis])) if dis.sum() else math.nan,
+        **profile,
     }
 
 
@@ -460,7 +466,7 @@ def main() -> None:
     by_cond: dict[str, list[dict]] = {}
     for r in scores:
         by_cond.setdefault(r["condition"], []).append(r)
-    for metric in ("auc", "distractor_auc", "spearman", "lexical_auc"):
+    for metric in ("auc", "precision_at_k", "distractor_auc", "spearman", "lexical_auc"):
         lines.append(f"\n{metric}:")
         for c in ("svd", "rotated", "random"):
             if c in by_cond:
@@ -474,8 +480,16 @@ def main() -> None:
     for r in by_cond.get("svd", []):
         d_ok = math.isnan(r["distractor_auc"]) or r["distractor_auc"] >= args.finalist_distractor_auc
         if not math.isnan(r["auc"]) and r["auc"] >= args.finalist_auc and d_ok:
-            lines.append(f"  {r['candidate']:>10} rank={r['sv_rank']:>3} auc={r['auc']:.3f} distr={r['distractor_auc']:.3f} "
+            lines.append(f"  {r['candidate']:>10} rank={r['sv_rank']:>3} auc={r['auc']:.3f} p@k={r['precision_at_k']:.2f} distr={r['distractor_auc']:.3f} "
                          f"lex={r['lexical_auc']:.3f} | {hyps[r['blind_id']][:60]}")
+    lines.append("\nMean judge rating by stratum (median over candidates); pure sparse feature = high topk, decaying by rank:")
+    lines.append("  " + " ".join(f"{st:>10}" for st in ("cond",) + PROFILE))
+    for c in ("svd", "rotated", "random"):
+        if c in by_cond:
+            vals = [float(np.nanmedian([r.get(f"mean_rating_{st}", math.nan) for r in by_cond[c]])) for st in PROFILE]
+            lines.append("  " + f"{c:>10}" + " ".join(f"{v:>10.2f}" for v in vals))
+    if any(r["positives"].startswith("LEGACY") for r in scores):
+        lines.append("\n[WARN] Some candidates were scored with LEGACY quantile positives (old harvest); AUC is base-rate confounded for sparse features. Re-harvest or --restratify-from.")
     lines.append("\nRead: AUC ~0.5 = coherent tail, no off-tail prediction (illusion signature).")
     lines.append("      AUC high but lexical_auc equally high = the hypothesis is a string match.")
     lines.append("      AUC high, distractor_auc high, lexical_auc lower = sense/condition-level feature.")

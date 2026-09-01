@@ -22,14 +22,21 @@ Corpus: streamed like the scanner but with a DIFFERENT --seed (and optional
 --skip-docs) so the documents are disjoint from the 2,000 used to derive the
 hypotheses. Or pass --input-jsonl with {"text": ...} lines.
 
-Strata on the polarity-signed activation s (per direction, exact quantiles
-over all harvested content tokens):
-  top1        s >= q99
-  high        q90 <= s < q99
+Strata on the polarity-signed activation s (per direction):
+  topk        the --top-k highest-activation tokens (absolute rank)
+  top01       remaining tokens with s >= q99.9
+  top1        q99 <= s < q99.9        (profile only, not a positive)
+  high        q90 <= s < q99          (profile only, not a positive)
   mid         q40 <= s < q60
   low         s < q20
   distractor  token string is one of the direction's peak tokens AND s < q60
-Ground truth for scoring: positives = top1+high, negatives = mid+low+distractor.
+Ground truth for scoring: positives = topk+top01, negatives = mid+low+distractor.
+Quantile strata are mostly noise for sparse features (a 0.1%-base-rate feature
+occupies ~10% of the top-1% band), which is why positives are rank-defined.
+
+Raw activations are saved (raw_acts.npy etc.), so items can be rebuilt with
+different --top-k / --per-stratum via --restratify-from <previous out dir>
+without touching the model.
 
 Layer convention: --hs-offset 1 means lens layer L == hidden_states[L+1]
 (output of block L), which matches a lens fitted on layers 0..n_layers-2.
@@ -62,7 +69,7 @@ from pathlib import Path
 
 import numpy as np
 
-STRATA = ("top1", "high", "mid", "low", "distractor")
+STRATA = ("topk", "top01", "top1", "high", "mid", "low", "distractor")
 
 
 # ------------------------------------------------------------------ CLI ----
@@ -70,8 +77,9 @@ STRATA = ("top1", "high", "mid", "low", "distractor")
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    p.add_argument("--candidates", required=True)
-    p.add_argument("--hypotheses", required=True)
+    p.add_argument("--candidates", default=None)
+    p.add_argument("--hypotheses", default=None)
+    p.add_argument("--restratify-from", default=None, help="Rebuild items from a previous harvest's raw_*.npy without the model.")
     p.add_argument("--min-conf", type=int, default=2)
     p.add_argument("--conditions", nargs="+", default=["svd", "rotated", "random"])
     p.add_argument("--out", required=True)
@@ -93,6 +101,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--context-radius", type=int, default=20)
     # sampling
     p.add_argument("--per-stratum", type=int, default=10)
+    p.add_argument("--top-k", type=int, default=15, help="Absolute top-K tokens per direction (positives).")
     p.add_argument("--n-distractors", type=int, default=10)
     p.add_argument("--n-peak-tokens", type=int, default=5)
     p.add_argument("--peak-rank-max", type=int, default=32)
@@ -303,8 +312,14 @@ def render_context(tokenizer, ids: list[int], pos: int, radius: int) -> tuple[st
     return center, f"{left}⟦{center}⟧{right}"
 
 
-def build_items(cands, acts, tokpos, windows, tokenizer, per_stratum, n_distractors, radius, seed):
-    """Stratify each direction's signed activations and sample contexts."""
+def build_items(cands, acts, tokpos, windows, tokenizer, per_stratum, n_distractors, radius, seed, top_k=15):
+    """Stratify each direction's signed activations and sample contexts.
+
+    Positives for scoring are the ABSOLUTE-rank strata (topk = the top_k
+    highest tokens, top01 = the rest of the top 0.1%). Quantile strata
+    (top1, high) are kept for the rating-by-stratum profile but are not
+    positives: for a feature with a 0.1% base rate they are mostly noise.
+    """
     rng = random.Random(seed)
     n_tok = acts.shape[0]
     # decode each token string once (needed for distractor matching)
@@ -319,9 +334,13 @@ def build_items(cands, acts, tokpos, windows, tokenizer, per_stratum, n_distract
     results = []
     for j, c in enumerate(cands):
         s = acts[:, j] * c["sign"]
-        q = {k: float(np.quantile(s, v)) for k, v in (("q20", 0.2), ("q40", 0.4), ("q60", 0.6), ("q90", 0.9), ("q99", 0.99))}
+        q = {k: float(np.quantile(s, v)) for k, v in (("q20", 0.2), ("q40", 0.4), ("q60", 0.6), ("q90", 0.9), ("q99", 0.99), ("q999", 0.999))}
+        order = np.argsort(-s)
+        topk_idx = order[:top_k]
         pools = {
-            "top1": np.where(s >= q["q99"])[0],
+            "topk": topk_idx,
+            "top01": np.array([i for i in order[top_k:] if s[i] >= q["q999"]], dtype=int),
+            "top1": np.where((s >= q["q99"]) & (s < q["q999"]))[0],
             "high": np.where((s >= q["q90"]) & (s < q["q99"]))[0],
             "mid": np.where((s >= q["q40"]) & (s < q["q60"]))[0],
             "low": np.where(s < q["q20"])[0],
@@ -329,10 +348,12 @@ def build_items(cands, acts, tokpos, windows, tokenizer, per_stratum, n_distract
         peak = set(c.get("peak_tokens", []))
         used: set[int] = set()
         items = []
-        for stratum in ("top1", "high", "mid", "low"):
+        for stratum in ("topk", "top01", "top1", "high", "mid", "low"):
             pool = [int(i) for i in pools[stratum] if int(i) not in used]
-            rng.shuffle(pool)
-            for i in pool[:per_stratum]:
+            if stratum != "topk":
+                rng.shuffle(pool)
+            take = top_k if stratum == "topk" else per_stratum
+            for i in pool[:take]:
                 used.add(i)
                 items.append((stratum, i))
         if peak:
@@ -424,16 +445,43 @@ def write_outputs(out_dir: Path, results, args, rms_rows) -> None:
     print(f"[out] {out_dir}/judging_items.jsonl (blind), truth.jsonl, harvest_meta.json")
 
 
+def save_raw(out_dir: Path, cands, windows, metas, acts, tokpos, model_name: str) -> None:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    np.save(out_dir / "raw_acts.npy", acts.astype(np.float32))
+    np.save(out_dir / "raw_tokpos.npy", np.asarray(tokpos, dtype=np.int64))
+    (out_dir / "raw_windows.json").write_text(json.dumps({"model": model_name, "windows": windows, "metas": metas}), encoding="utf-8")
+    (out_dir / "raw_cands.json").write_text(json.dumps(cands), encoding="utf-8")
+    print(f"[raw] saved activations for re-stratification: {out_dir}/raw_acts.npy ({acts.shape[0]:,} x {acts.shape[1]})")
+
+
+def load_raw(src: Path):
+    from transformers import AutoTokenizer  # noqa: PLC0415
+
+    acts = np.load(src / "raw_acts.npy")
+    tokpos = [tuple(x) for x in np.load(src / "raw_tokpos.npy").tolist()]
+    w = json.loads((src / "raw_windows.json").read_text(encoding="utf-8"))
+    cands = json.loads((src / "raw_cands.json").read_text(encoding="utf-8"))
+    tokenizer = AutoTokenizer.from_pretrained(w["model"])
+    return tokenizer, w["windows"], w["metas"], acts, tokpos, cands
+
+
 def main() -> None:
     args = parse_args()
-    cands = select_candidates(args)
-    print(f"[select] {len(cands)} candidates with conf >= {args.min_conf}: "
-          + ", ".join(f"{k}={v}" for k, v in sorted(collections.Counter(c['run'] for c in cands).items())))
-    load_peak_tokens(cands, args.n_peak_tokens, args.peak_rank_max)
-    tokenizer, windows, metas, acts, tokpos = collect_activations(args, cands)
-    print(f"[harvest] done: {len(windows)} windows, {acts.shape[0]:,} content tokens")
+    if args.restratify_from:
+        src = Path(args.restratify_from)
+        tokenizer, windows, metas, acts, tokpos, cands = load_raw(src)
+        print(f"[restratify] loaded {acts.shape[0]:,} tokens x {acts.shape[1]} directions from {src}")
+    else:
+        cands = select_candidates(args)
+        print(f"[select] {len(cands)} candidates with conf >= {args.min_conf}: "
+              + ", ".join(f"{k}={v}" for k, v in sorted(collections.Counter(c['run'] for c in cands).items())))
+        load_peak_tokens(cands, args.n_peak_tokens, args.peak_rank_max)
+        tokenizer, windows, metas, acts, tokpos = collect_activations(args, cands)
+        print(f"[harvest] done: {len(windows)} windows, {acts.shape[0]:,} content tokens")
+        save_raw(Path(args.out), cands, windows, metas, acts, tokpos, args.model)
     results = build_items(cands, acts, tokpos, windows, tokenizer,
-                          args.per_stratum, args.n_distractors, args.context_radius, args.sample_seed)
+                          args.per_stratum, args.n_distractors, args.context_radius, args.sample_seed,
+                          top_k=args.top_k)
     rms_rows = rms_check(results)
     write_outputs(Path(args.out), results, args, rms_rows)
 
