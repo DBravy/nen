@@ -24,3 +24,6 @@ top_contexts.jsonl
 # delete the next line to exclude it as well
 !unrealized_words_fineweb/directions/*.npz
 __pycache__/
+# second-moment harvests and any other torch tensor dumps (hundreds of MB to GB)
+*.pt
+*.pkl

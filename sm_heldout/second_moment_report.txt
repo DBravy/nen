@@ -1,0 +1,114 @@
+==============================================================================
+Second-moment analysis: openai/gpt-oss-20b  prompts=100  probes/prompt=128  layers=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+==============================================================================
+
+Consistency check (mean over prompts of our probe gradient vs lens Jbar^T r, per shared probe):
+layer     cos  |ours|/|lens|   (cos near 1 and ratio near 1 => same estimator & dtype; G is meaningful)
+    0   0.217          0.560
+    1   0.241          0.567
+    2   0.255          0.524
+    3   0.270          0.508
+    4   0.314          0.558
+    5   0.393          0.626
+    6   0.436          0.676
+    7   0.499          0.748
+    8   0.534          0.747
+    9   0.613          0.834
+   10   0.654          0.862
+   11   0.679          0.864
+   12   0.695          0.870
+   13   0.736          0.904
+   14   0.759          0.919
+   15   0.783          0.938
+   16   0.803          0.943
+   17   0.833          0.938
+   18   0.851          0.927
+   19   0.888          0.956
+   20   0.899          0.989
+   21   0.916          0.982
+   22   0.945          1.013
+
+Per-layer transport decomposition: trace(S) = total gain, trace(Jbar^T Jbar) = invariant gain,
+gated fraction = 1 - invariant/total. neg_mass = |sum of negative eigenvalues of G| / trace(G+),
+a symptom of estimator noise or inconsistency (should be small).
+layer        total    invariant  gated_frac  neg_mass   top eig S   top eig G
+    0    8.924e+06    3.418e+06       0.617     0.353   6.527e+05   6.472e+05
+    1    3.859e+06    1.727e+06       0.552     0.419   3.625e+05   3.602e+05
+    2    2.283e+06    1.453e+06       0.364     0.612     2.5e+05   2.466e+05
+    3      1.2e+06    8.124e+05       0.323     0.657   1.144e+05   1.137e+05
+    4    8.703e+05    5.428e+05       0.376     0.597   9.172e+04   9.102e+04
+    5    5.496e+05    2.933e+05       0.466     0.494   5.107e+04   4.764e+04
+    6    4.293e+05    2.036e+05       0.526     0.424   4.162e+04   3.911e+04
+    7    3.213e+05    1.239e+05       0.614     0.318   2.651e+04   2.544e+04
+    8    2.494e+05    1.061e+05       0.575     0.349   2.255e+04   2.173e+04
+    9    1.999e+05    5.841e+04       0.708     0.193   2.147e+04   2.061e+04
+   10    1.846e+05    4.741e+04       0.743     0.145   2.112e+04   2.028e+04
+   11    1.735e+05    4.326e+04       0.751     0.128   2.077e+04   1.981e+04
+   12    1.694e+05    4.015e+04       0.763     0.110   2.065e+04   1.975e+04
+   13    1.631e+05    3.421e+04       0.790     0.073   2.037e+04   1.952e+04
+   14    1.594e+05    3.185e+04       0.800     0.058   2.063e+04   1.997e+04
+   15    1.503e+05    2.857e+04       0.810     0.039   2.048e+04   1.995e+04
+   16    1.445e+05    2.693e+04       0.814     0.030   2.022e+04   1.967e+04
+   17    1.318e+05    2.528e+04       0.808     0.028   1.826e+04   1.769e+04
+   18     1.21e+05    2.262e+04       0.813     0.029   1.625e+04   1.579e+04
+   19    1.124e+05    1.774e+04       0.842     0.022   1.588e+04    1.54e+04
+   20    9.389e+04    1.167e+04       0.876     0.020   1.729e+04   1.695e+04
+   21    4.843e+04         7417       0.847     0.037   1.217e+04   1.177e+04
+   22    4.506e+04         5795       0.871     0.029   1.184e+04   1.138e+04
+
+Top-64 subspace overlap: mean squared cosine of Jbar's top-k right singular vectors within
+S's top-k eigenspace (1 = identical subspace) and within G's top-k eigenspace (0 = G found new directions).
+layer  Jbar in S  Jbar in G
+    0      0.216      0.172
+    1      0.209      0.156
+    2      0.256      0.183
+    3      0.253      0.185
+    4      0.315      0.236
+    5      0.398      0.320
+    6      0.454      0.381
+    7      0.549      0.469
+    8      0.626      0.549
+    9      0.726      0.669
+   10      0.748      0.695
+   11      0.771      0.720
+   12      0.776      0.725
+   13      0.789      0.739
+   14      0.796      0.747
+   15      0.818      0.771
+   16      0.838      0.788
+   17      0.852      0.812
+   18      0.862      0.829
+   19      0.872      0.846
+   20      0.869      0.844
+   21      0.837      0.803
+   22      0.784      0.753
+
+Gatedness ratio  (f^T S f - |Jbar f|^2) / |Jbar f|^2  for bank axes, rotated axes, random directions.
+High = effect large but inconsistent across contexts. Bank axis values listed per layer as ranks.
+  L00: bank median=4.925 (min -0.989, max 10.785) | rotated median=-0.199 | random median=3.324, 95th=10.620
+  L01: bank median=3.495 (min -0.991, max 11.044) | rotated median=-0.539 | random median=2.036, 95th=7.695
+  L02: bank median=2.882 (min -0.993, max 17.421) | rotated median=-0.379 | random median=1.122, 95th=7.672
+  L03: bank median=3.168 (min -0.993, max 8.944) | rotated median=-0.653 | random median=1.177, 95th=9.401
+  L04: bank median=3.688 (min -0.991, max 9.535) | rotated median=-0.483 | random median=1.852, 95th=9.977
+  L05: bank median=3.973 (min -0.974, max 7.990) | rotated median=-0.167 | random median=2.643, 95th=8.277
+  L06: bank median=4.195 (min -0.970, max 8.848) | rotated median=0.082 | random median=2.074, 95th=7.762
+  L07: bank median=4.466 (min -0.975, max 11.394) | rotated median=0.598 | random median=2.051, 95th=7.169
+  L08: bank median=4.777 (min -0.976, max 10.121) | rotated median=0.414 | random median=2.433, 95th=6.858
+  L09: bank median=5.629 (min -0.951, max 10.930) | rotated median=1.870 | random median=3.590, 95th=7.788
+  L10: bank median=5.824 (min -0.918, max 14.086) | rotated median=2.360 | random median=4.438, 95th=7.384
+  L11: bank median=6.061 (min -0.868, max 14.267) | rotated median=2.866 | random median=4.006, 95th=7.596
+  L12: bank median=6.175 (min -0.834, max 14.650) | rotated median=2.833 | random median=3.800, 95th=7.103
+  L13: bank median=6.255 (min -0.688, max 13.597) | rotated median=3.282 | random median=4.050, 95th=7.311
+  L14: bank median=6.597 (min -0.609, max 10.753) | rotated median=3.651 | random median=4.438, 95th=6.902
+  L15: bank median=6.463 (min -0.395, max 15.448) | rotated median=3.769 | random median=4.508, 95th=7.435
+  L16: bank median=6.198 (min -0.256, max 15.022) | rotated median=3.915 | random median=4.177, 95th=6.955
+  L17: bank median=6.396 (min -0.193, max 14.546) | rotated median=4.506 | random median=4.013, 95th=7.059
+  L18: bank median=6.854 (min -0.326, max 12.617) | rotated median=4.540 | random median=4.444, 95th=7.825
+  L19: bank median=8.646 (min 0.052, max 17.447) | rotated median=6.287 | random median=5.073, 95th=8.438
+  L20: bank median=11.726 (min 0.325, max 20.628) | rotated median=9.808 | random median=6.347, 95th=10.437
+  L21: bank median=14.775 (min -0.322, max 26.667) | rotated median=10.028 | random median=5.562, 95th=9.697
+  L22: bank median=22.809 (min 2.045, max 53.857) | rotated median=13.660 | random median=7.138, 95th=13.449
+  -> per-axis values in sm_heldout/bank_gatedness.csv
+
+Exported top-64 eigenvector banks: sm_heldout/S_bank (total gain) and sm_heldout/G_bank (gated gain),
+scanner-compatible (--directions-dir). S values are sqrt(eigenvalue), i.e. RMS gain.

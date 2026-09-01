@@ -311,8 +311,12 @@ def cmd_analyze(args: argparse.Namespace) -> None:
     if npz_path.exists():
         z = np.load(npz_path)
         cfg = json.loads(str(z["config_json"]))
-        S_all = {int(k[3:]): np.asarray(z[k], dtype=np.float64) for k in z.files if k.startswith("S_L")}
-        shared_means = {int(k[15:]): np.asarray(z[k]) for k in z.files if k.startswith("shared_means_L")}
+        import re as _re
+
+        S_all = {int(m.group(1)): np.asarray(z[k], dtype=np.float64)
+                 for k in z.files if (m := _re.fullmatch(r"S_L(\d+)", k))}
+        shared_means = {int(m.group(1)): np.asarray(z[k])
+                        for k in z.files if (m := _re.fullmatch(r"shared_means_L(\d+)", k))}
         shared_probes = np.asarray(z["shared_probes"])
         n_prompts = int(z["n_prompts"])
     else:

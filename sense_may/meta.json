@@ -1,0 +1,41 @@
+{
+  "word": "may",
+  "variant_ids": {
+    " may": 1340,
+    " May": 4273,
+    "May": 13561,
+    "may": 21065
+  },
+  "main_variant": " may",
+  "axes": [
+    "L07_SV39",
+    "L08_SV39"
+  ],
+  "layers": [
+    7,
+    8
+  ],
+  "offsets": [
+    0,
+    1,
+    2
+  ],
+  "d_model": 2880,
+  "model": "openai/gpt-oss-20b",
+  "lens": [
+    "solarkyle/jspace-lenses",
+    "gpt-oss-20b/lens.pt"
+  ],
+  "seed": 1,
+  "documents_seen": 3225,
+  "occurrences": 1500,
+  "background_vectors": 3000,
+  "left_ctx": 190,
+  "right_ctx": 64,
+  "dataset": [
+    "HuggingFaceFW/fineweb",
+    "sample-10BT",
+    "train"
+  ],
+  "final_norm_found": true
+}

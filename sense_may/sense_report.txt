@@ -1,0 +1,149 @@
+==============================================================================
+Sense-selectivity report: word='may'  axes=['L07_SV39', 'L08_SV39']  offsets=[0, 1, 2]
+occurrences=1500 docs=921 background=3000
+label counts: {'deontic': 215, 'epistemic': 1023, 'month': 188, 'optative': 24, 'other': 49, 'uncertain': 1}
+==============================================================================
+
+------------------------------------------------------------------------------
+L07_SV39  offset 0  (residual 0 token(s) after the target; n_valid=1500)
+------------------------------------------------------------------------------
+AUC = P(score of first class > score of second class); 0.5 = no separation. Sign of the SVD axis is
+arbitrary, so read |AUC-0.5|; the row/lens directions have a meaningful sign (higher = more 'may').
+direction                    tok/bg  de-vs-ep AUC                 de-vs-mo AUC                 ep-vs-mo AUC               
+SVD axis L07_SV39             0.997   0.659 [0.61,0.70]  d=+0.53   0.984 [0.97,1.00]  d=+3.30   0.964 [0.95,0.98]  d=+2.42
+J-lens row (own token)        0.252   0.511 [0.46,0.56]  d=-0.00   0.221 [0.17,0.28]  d=-0.67   0.200 [0.15,0.25]  d=-0.93
+J-lens row (' may')           0.245   0.514              d=+0.06   0.224              d=-1.05   0.197              d=-1.24
+lens logit (own token)        0.390   0.505              d=-0.07   0.288              d=-0.30   0.273              d=-0.34
+contrast-mean (2-fold CV)             0.904              <- linear ceiling for deontic vs epistemic
+    |cos(contrast-mean, SVD axis)| = 0.034   |cos(contrast-mean, J-lens row)| = 0.007
+random directions           |AUC-0.5| for deontic vs epistemic: median=0.059  95th=0.187  max=0.247  (n=200);  SVD axis: 0.159
+bank axes (k=64)            this axis ranks 12/64 on deontic vs epistemic separation; best = SV46 (0.305), median axis 0.085
+per-sense mean (SVD axis / row_main)
+    deontic    n= 215  axis= +53.557±7.011   row=  +8.554±5.195
+    epistemic  n=1023  axis= +49.671±7.396   row=  +8.274±4.421
+    month      n= 188  axis= +32.325±5.653   row= +13.827±4.828
+    optative   n=  24  axis= +33.141±6.216   row=  +6.347±5.364
+    other      n=  49  axis= +35.411±10.470   row= +10.321±5.667
+    uncertain  n=   1  axis= +43.859±0.000   row= +15.195±0.000
+    background n=3000  axis=  -9.149±16.283   row= +14.682±6.470
+
+------------------------------------------------------------------------------
+L07_SV39  offset 1  (residual 1 token(s) after the target; n_valid=1500)
+------------------------------------------------------------------------------
+AUC = P(score of first class > score of second class); 0.5 = no separation. Sign of the SVD axis is
+arbitrary, so read |AUC-0.5|; the row/lens directions have a meaningful sign (higher = more 'may').
+direction                    tok/bg  de-vs-ep AUC                 de-vs-mo AUC                 ep-vs-mo AUC               
+SVD axis L07_SV39             0.772   0.612 [0.57,0.66]  d=+0.33   0.843 [0.80,0.89]  d=+1.30   0.762 [0.74,0.79]  d=+0.75
+J-lens row (own token)        0.325   0.559 [0.51,0.60]  d=+0.10   0.522 [0.47,0.58]  d=-0.07   0.470 [0.43,0.52]  d=-0.19
+J-lens row (' may')           0.327   0.567              d=+0.22   0.544              d=+0.07   0.481              d=-0.14
+lens logit (own token)        0.439   0.550              d=+0.08   0.475              d=-0.21   0.422              d=-0.31
+contrast-mean (2-fold CV)             0.913              <- linear ceiling for deontic vs epistemic
+    |cos(contrast-mean, SVD axis)| = 0.052   |cos(contrast-mean, J-lens row)| = 0.010
+random directions           |AUC-0.5| for deontic vs epistemic: median=0.053  95th=0.135  max=0.175  (n=200);  SVD axis: 0.112
+bank axes (k=64)            this axis ranks 6/64 on deontic vs epistemic separation; best = SV25 (0.171), median axis 0.049
+per-sense mean (SVD axis / row_main)
+    deontic    n= 215  axis= +15.469±17.313   row= +11.857±5.071
+    epistemic  n=1023  axis=  +9.823±17.293   row= +10.748±4.989
+    month      n= 188  axis=  -2.342±7.664   row= +11.464±5.667
+    optative   n=  24  axis=  -7.894±18.840   row= +10.979±6.034
+    other      n=  49  axis= -12.576±17.562   row= +11.449±6.324
+    uncertain  n=   1  axis= +10.699±0.000   row=  +9.031±0.000
+    background n=3000  axis=  -9.149±16.283   row= +14.682±6.470
+
+------------------------------------------------------------------------------
+L07_SV39  offset 2  (residual 2 token(s) after the target; n_valid=1500)
+------------------------------------------------------------------------------
+AUC = P(score of first class > score of second class); 0.5 = no separation. Sign of the SVD axis is
+arbitrary, so read |AUC-0.5|; the row/lens directions have a meaningful sign (higher = more 'may').
+direction                    tok/bg  de-vs-ep AUC                 de-vs-mo AUC                 ep-vs-mo AUC               
+SVD axis L07_SV39             0.594   0.619 [0.58,0.66]  d=+0.40   0.803 [0.76,0.85]  d=+1.18   0.699 [0.66,0.74]  d=+0.74
+J-lens row (own token)        0.384   0.467 [0.42,0.51]  d=-0.18   0.433 [0.37,0.50]  d=-0.22   0.460 [0.40,0.52]  d=-0.10
+J-lens row (' may')           0.385   0.469              d=-0.10   0.409              d=-0.34   0.441              d=-0.24
+lens logit (own token)        0.443   0.494              d=-0.09   0.469              d=-0.01   0.485              d=+0.07
+contrast-mean (2-fold CV)             0.865              <- linear ceiling for deontic vs epistemic
+    |cos(contrast-mean, SVD axis)| = 0.054   |cos(contrast-mean, J-lens row)| = 0.004
+random directions           |AUC-0.5| for deontic vs epistemic: median=0.060  95th=0.152  max=0.205  (n=200);  SVD axis: 0.119
+bank axes (k=64)            this axis ranks 3/64 on deontic vs epistemic separation; best = SV31 (0.164), median axis 0.041
+per-sense mean (SVD axis / row_main)
+    deontic    n= 215  axis=  +3.712±15.582   row= +11.533±5.184
+    epistemic  n=1023  axis=  -2.765±16.350   row= +12.070±5.640
+    month      n= 188  axis= -14.832±15.854   row= +13.400±5.681
+    optative   n=  24  axis= -21.026±16.567   row= +10.573±7.867
+    other      n=  49  axis= -15.486±14.772   row= +15.117±6.116
+    uncertain  n=   1  axis=  +7.250±0.000   row= +13.295±0.000
+    background n=3000  axis=  -9.149±16.283   row= +14.682±6.470
+
+------------------------------------------------------------------------------
+L08_SV39  offset 0  (residual 0 token(s) after the target; n_valid=1500)
+------------------------------------------------------------------------------
+AUC = P(score of first class > score of second class); 0.5 = no separation. Sign of the SVD axis is
+arbitrary, so read |AUC-0.5|; the row/lens directions have a meaningful sign (higher = more 'may').
+direction                    tok/bg  de-vs-ep AUC                 de-vs-mo AUC                 ep-vs-mo AUC               
+SVD axis L08_SV39             0.008   0.352 [0.31,0.40]  d=-0.54   0.034 [0.02,0.05]  d=-2.45   0.083 [0.06,0.10]  d=-1.73
+J-lens row (own token)        0.308   0.473 [0.43,0.52]  d=-0.15   0.338 [0.28,0.40]  d=-0.43   0.347 [0.30,0.40]  d=-0.38
+J-lens row (' may')           0.300   0.474              d=-0.11   0.391              d=-0.39   0.413              d=-0.30
+lens logit (own token)        0.439   0.481              d=-0.16   0.317              d=-0.40   0.317              d=-0.36
+contrast-mean (2-fold CV)             0.911              <- linear ceiling for deontic vs epistemic
+    |cos(contrast-mean, SVD axis)| = 0.031   |cos(contrast-mean, J-lens row)| = 0.006
+random directions           |AUC-0.5| for deontic vs epistemic: median=0.067  95th=0.172  max=0.217  (n=200);  SVD axis: 0.148
+bank axes (k=64)            this axis ranks 12/64 on deontic vs epistemic separation; best = SV51 (0.289), median axis 0.085
+per-sense mean (SVD axis / row_main)
+    deontic    n= 215  axis= -50.904±8.020   row=  +9.449±7.809
+    epistemic  n=1023  axis= -46.438±8.289   row= +10.239±6.914
+    month      n= 188  axis= -32.420±6.895   row= +12.312±6.560
+    optative   n=  24  axis= -27.314±8.568   row=  +7.858±7.968
+    other      n=  49  axis= -30.649±12.898   row= +11.595±8.872
+    uncertain  n=   1  axis= -42.563±0.000   row= +20.781±0.000
+    background n=3000  axis=  +3.154±16.317   row= +16.401±8.966
+
+------------------------------------------------------------------------------
+L08_SV39  offset 1  (residual 1 token(s) after the target; n_valid=1500)
+------------------------------------------------------------------------------
+AUC = P(score of first class > score of second class); 0.5 = no separation. Sign of the SVD axis is
+arbitrary, so read |AUC-0.5|; the row/lens directions have a meaningful sign (higher = more 'may').
+direction                    tok/bg  de-vs-ep AUC                 de-vs-mo AUC                 ep-vs-mo AUC               
+SVD axis L08_SV39             0.225   0.377 [0.34,0.42]  d=-0.36   0.144 [0.11,0.19]  d=-1.46   0.225 [0.20,0.26]  d=-0.82
+J-lens row (own token)        0.327   0.511 [0.47,0.56]  d=-0.02   0.509 [0.45,0.57]  d=-0.07   0.499 [0.45,0.55]  d=-0.07
+J-lens row (' may')           0.331   0.518              d=+0.05   0.528              d=+0.03   0.510              d=-0.01
+lens logit (own token)        0.419   0.513              d=-0.01   0.414              d=-0.33   0.406              d=-0.34
+contrast-mean (2-fold CV)             0.889              <- linear ceiling for deontic vs epistemic
+    |cos(contrast-mean, SVD axis)| = 0.053   |cos(contrast-mean, J-lens row)| = 0.005
+random directions           |AUC-0.5| for deontic vs epistemic: median=0.049  95th=0.125  max=0.230  (n=200);  SVD axis: 0.123
+bank axes (k=64)            this axis ranks 7/64 on deontic vs epistemic separation; best = SV16 (0.157), median axis 0.044
+per-sense mean (SVD axis / row_main)
+    deontic    n= 215  axis= -22.986±16.684   row= +11.516±8.064
+    epistemic  n=1023  axis= -16.793±17.417   row= +11.148±7.336
+    month      n= 188  axis=  -3.297±8.399   row= +11.250±8.310
+    optative   n=  24  axis=  +7.549±19.410   row= +12.172±8.193
+    other      n=  49  axis= +10.393±16.945   row= +14.769±9.670
+    uncertain  n=   1  axis=  -3.516±0.000   row= +16.825±0.000
+    background n=3000  axis=  +3.154±16.317   row= +16.401±8.966
+
+------------------------------------------------------------------------------
+L08_SV39  offset 2  (residual 2 token(s) after the target; n_valid=1500)
+------------------------------------------------------------------------------
+AUC = P(score of first class > score of second class); 0.5 = no separation. Sign of the SVD axis is
+arbitrary, so read |AUC-0.5|; the row/lens directions have a meaningful sign (higher = more 'may').
+direction                    tok/bg  de-vs-ep AUC                 de-vs-mo AUC                 ep-vs-mo AUC               
+SVD axis L08_SV39             0.394   0.393 [0.35,0.43]  d=-0.36   0.169 [0.13,0.21]  d=-1.34   0.259 [0.22,0.30]  d=-0.94
+J-lens row (own token)        0.387   0.467 [0.42,0.51]  d=-0.16   0.457 [0.40,0.52]  d=-0.14   0.492 [0.44,0.54]  d=+0.01
+J-lens row (' may')           0.387   0.472              d=-0.10   0.465              d=-0.10   0.495              d=+0.01
+lens logit (own token)        0.451   0.490              d=-0.09   0.419              d=-0.18   0.443              d=-0.11
+contrast-mean (2-fold CV)             0.849              <- linear ceiling for deontic vs epistemic
+    |cos(contrast-mean, SVD axis)| = 0.043   |cos(contrast-mean, J-lens row)| = 0.006
+random directions           |AUC-0.5| for deontic vs epistemic: median=0.052  95th=0.146  max=0.231  (n=200);  SVD axis: 0.107
+bank axes (k=64)            this axis ranks 5/64 on deontic vs epistemic separation; best = SV31 (0.165), median axis 0.048
+per-sense mean (SVD axis / row_main)
+    deontic    n= 215  axis= -11.554±16.463   row= +12.294±8.073
+    epistemic  n=1023  axis=  -5.229±17.559   row= +13.093±8.197
+    month      n= 188  axis= +11.389±17.886   row= +13.011±6.856
+    optative   n=  24  axis= +18.663±16.376   row= +12.006±11.695
+    other      n=  49  axis= +13.013±15.121   row= +18.361±8.188
+    uncertain  n=   1  axis= -14.998±0.000   row= +19.629±0.000
+    background n=3000  axis=  +3.154±16.317   row= +16.401±8.966
+
+Reading the result: the J-lens row is token-indexed, so it should separate the token from background
+strongly and the senses from each other weakly. If the SVD axis shows deontic-vs-epistemic AUC far from
+0.5, above the random-direction 95th percentile and near the contrast-mean ceiling, while the row sits
+near 0.5, the axis resolves a sense the token dictionary conflates. Offsets 1-2 show how much of the
+separation waits for the continuation to be read (causal model).
