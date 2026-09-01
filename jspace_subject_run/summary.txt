@@ -1,0 +1,84 @@
+Mean delta log-prob of the clean top-1 answer (last position), by relation and band.
+More negative = more broken. Random = matched-count random-direction control.
+
+== band 9-13 ==
+relation              jspace    random  jspace-rand  top1 changed (js)
+birth_city             -0.87      0.04        -0.90         2/6
+birth_year              0.01      0.01         0.00         0/6
+birth_country          -0.05     -0.00        -0.05         0/6
+death_year              0.00     -0.01         0.01         0/6
+occupation             -0.07      0.00        -0.08         1/6
+profession_of          -0.09      0.00        -0.10         1/6
+instrument             -0.15     -0.04        -0.11         1/6
+famous_for             -0.01      0.00        -0.02         0/6
+language                0.02      0.01         0.00         0/6
+spouse                 -0.81     -0.02        -0.79         1/6
+education              -0.37      0.03        -0.40         0/6
+citizenship            -0.11     -0.01        -0.10         1/6
+copy_first_name         0.06     -0.01         0.07         0/6
+copy_last_name         -0.81     -0.05        -0.76         3/6
+
+Per subject (mean over relations):
+  Miles Davis            jspace -0.12   random +0.01
+  Marie Curie            jspace +0.01   random -0.02
+  Albert Einstein        jspace -0.65   random +0.00
+  Serena Williams        jspace -0.51   random -0.00
+  Ludwig van Beethoven   jspace -0.06   random +0.00
+  Barack Obama           jspace -0.06   random +0.00
+
+== band 9-17 ==
+relation              jspace    random  jspace-rand  top1 changed (js)
+birth_city             -0.94     -0.12        -0.82         2/6
+birth_year              0.00      0.01        -0.00         0/6
+birth_country          -0.13      0.01        -0.13         0/6
+death_year              0.01     -0.00         0.01         0/6
+occupation             -0.13     -0.02        -0.11         2/6
+profession_of          -0.25     -0.04        -0.21         3/6
+instrument             -0.30     -0.04        -0.26         2/6
+famous_for              0.00      0.01        -0.01         0/6
+language                0.02      0.01         0.01         0/6
+spouse                 -0.84     -0.06        -0.78         1/6
+education              -0.36      0.02        -0.38         0/6
+citizenship            -0.14     -0.03        -0.10         1/6
+copy_first_name         0.02     -0.04         0.06         0/6
+copy_last_name         -1.07     -0.27        -0.80         4/6
+
+Per subject (mean over relations):
+  Miles Davis            jspace -0.13   random +0.00
+  Marie Curie            jspace -0.03   random -0.01
+  Albert Einstein        jspace -0.66   random -0.05
+  Serena Williams        jspace -0.61   random -0.15
+  Ludwig van Beethoven   jspace -0.14   random +0.01
+  Barack Obama           jspace -0.18   random -0.04
+
+== band 6-20 ==
+relation              jspace    random  jspace-rand  top1 changed (js)
+birth_city             -1.06     -0.27        -0.79         2/6
+birth_year             -0.03      0.00        -0.03         0/6
+birth_country          -0.07      0.01        -0.08         0/6
+death_year             -0.02      0.03        -0.05         0/6
+occupation             -0.26      0.00        -0.27         1/6
+profession_of          -0.08      0.02        -0.10         2/6
+instrument             -0.58     -0.11        -0.47         2/6
+famous_for              0.01      0.00         0.00         0/6
+language               -0.03      0.04        -0.07         1/6
+spouse                 -1.19     -0.15        -1.04         2/6
+education              -0.50     -0.08        -0.41         1/6
+citizenship            -0.27     -0.05        -0.22         2/6
+copy_first_name        -0.68     -0.07        -0.62         2/6
+copy_last_name         -2.75     -0.25        -2.50         5/6
+
+Per subject (mean over relations):
+  Miles Davis            jspace -0.35   random -0.04
+  Marie Curie            jspace -0.06   random -0.03
+  Albert Einstein        jspace -0.71   random -0.14
+  Serena Williams        jspace -0.85   random -0.15
+  Ludwig van Beethoven   jspace -0.26   random +0.00
+  Barack Obama           jspace -0.99   random -0.02
+
+J-lens tokens removed at the subject token (first band, first subject shown; full log in JSON):
+  L09: [' famously', ' Philadelphia', ' Indianapolis', ' Booker', ' pitched', ' seventy', ' flagship', ' frig', ' Vanderbilt', ' camp']
+  L10: ['’)', '”).', '”)', '”),', ')”', '…”', '?”', '…”\n\n', '…).', '...”']
+  L11: [' radio', ' revolution', ' era', ' Nobel', ' seventy', ' radi', ' gold', ' hemis', ' Radio', ' television']
+  L12: [' jazz', 'Jazz', 'oleum', 'udio', 'ouille', '?”', 'encil', 'ormap', '.album', '&oacute']
+  L13: [' producing', ' utilizing', ' initialized', ' synthesized', ' Optimal', ' Orbit', ' Outstanding', ' incorporating', ' employing', ' releasing']
