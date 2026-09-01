@@ -108,6 +108,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--random-seed", type=int, default=0)
     p.add_argument("--n-random", type=int, default=2, help="Random-control replicates.")
     p.add_argument("--max-seq-len", type=int, default=64)
+    p.add_argument("--readout-topn", type=int, default=15,
+                   help="How many top J-lens tokens to record per layer at each position.")
     return p.parse_args()
 
 
@@ -275,21 +277,42 @@ class ResidualEditor:
 
 
 @torch.no_grad()
-def final_logits(model, input_ids: torch.Tensor, editor: ResidualEditor | None = None):
-    """Next-token logits at every position (float, cpu) and the final-layer
-    residual at the SUBJECT/last positions are not needed here; we only need
-    logits."""
+def run_pass(model, lens, input_ids: torch.Tensor, editor: ResidualEditor | None = None):
+    """One forward pass. Returns (logits [seq, vocab] float cpu, acts {layer: [seq, d]})
+    with acts recorded at every lens layer plus the final block. Editor hooks are
+    registered BEFORE the recorder's so recorded tensors are post-edit."""
     from jlens.hooks import ActivationRecorder
 
     final_layer = model.n_layers - 1
-    with ActivationRecorder(model.layers, at=[final_layer]) as rec:
-        if editor is not None:
-            with editor:
-                model.forward(input_ids)
-        else:
+    record_at = sorted(set(lens.source_layers) | {final_layer})
+
+    def _go():
+        with ActivationRecorder(model.layers, at=record_at) as rec:
             model.forward(input_ids)
-        resid = rec.activations[final_layer].detach()
-    return model.unembed(resid[0]).float()  # [seq, vocab]
+            return {i: rec.activations[i].detach()[0] for i in record_at}
+
+    if editor is not None:
+        with editor:
+            acts = _go()
+    else:
+        acts = _go()
+    logits = model.unembed(acts[final_layer]).float().cpu()  # [seq, vocab]
+    return logits, acts
+
+
+@torch.no_grad()
+def lens_topn(model, lens, h: torch.Tensor, layer: int, n: int, tok) -> list[list]:
+    """Top-n J-lens readout at residual h (layer-l space): [[token_str, lens_logprob], ...]."""
+    transported = lens.transport(h.float().unsqueeze(0), layer)
+    lp = torch.log_softmax(model.unembed(transported)[0].float(), dim=-1)
+    vals, idx = torch.topk(lp, n)
+    return [[tok.decode(int(i)), round(float(v), 3)] for v, i in zip(vals, idx)]
+
+
+def model_topn(logits_row: torch.Tensor, n: int, tok) -> list[list]:
+    lp = torch.log_softmax(logits_row.float(), dim=-1)
+    vals, idx = torch.topk(lp, n)
+    return [[tok.decode(int(i)), round(float(v), 3)] for v, i in zip(vals, idx)]
 
 
 def summarize(clean_logits_last: torch.Tensor, abl_logits_last: torch.Tensor) -> dict:
@@ -310,6 +333,45 @@ def summarize(clean_logits_last: torch.Tensor, abl_logits_last: torch.Tensor) ->
         "kl_clean_vs_abl": kl,
         "top1_changed": int(top_clean != top_abl),
     }
+
+
+def _fmt(entries: list[list], n: int = 12) -> str:
+    return "  ".join(f"{t!r}" for t, _ in entries[:n])
+
+
+def write_readouts_txt(path: Path, readouts: dict, bands: list[str], layers: list[int]) -> None:
+    """Human-readable J-lens readouts: subject position (clean, then post-edit under
+    each ablation band) and last position (clean, then under each band), per layer."""
+    lines: list[str] = []
+    for subject, R in readouts.items():
+        lines.append("=" * 100)
+        lines.append(f"SUBJECT: {subject}   (subject token read/ablated: {R.get('subject_token')!r})")
+        lines.append("=" * 100)
+        lines.append("\n-- J-lens at the SUBJECT token, clean (top tokens per layer) --")
+        for l in layers:
+            lines.append(f"  L{l:02d}: {_fmt(R['subject_position_clean'][str(l)])}")
+        first = next(iter(R["relations"].values()), None)
+        if first:
+            for spec in bands:
+                if spec in first["subject_position_jspace"]:
+                    lines.append(f"\n-- J-lens at the SUBJECT token, after J-space ablation there, band {spec} (post-edit; identical across relations) --")
+                    for l in layers:
+                        lines.append(f"  L{l:02d}: {_fmt(first['subject_position_jspace'][spec][str(l)])}")
+        for rel, X in R["relations"].items():
+            lines.append("\n" + "-" * 100)
+            lines.append(f"RELATION {rel}: {X['prompt']!r}")
+            lines.append(f"  model next-token, clean, at last position:    {_fmt(X['model_top_clean_last'], 8)}")
+            lines.append(f"  model next-token, clean, at subject position: {_fmt(X['model_top_clean_subject'], 8)}")
+            lines.append("  -- J-lens at the LAST position, clean --")
+            for l in layers:
+                lines.append(f"    L{l:02d}: {_fmt(X['last_position_clean'][str(l)])}")
+            for spec in bands:
+                if spec in X["last_position_jspace"]:
+                    lines.append(f"  -- J-lens at the LAST position, after J-space ablation at the subject token, band {spec} --")
+                    for l in layers:
+                        lines.append(f"    L{l:02d}: {_fmt(X['last_position_jspace'][spec][str(l)])}")
+        lines.append("")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def main() -> None:
@@ -336,10 +398,12 @@ def main() -> None:
 
     rows: list[dict] = []
     removed_log: dict[str, dict] = {}
+    readouts: dict[str, dict] = {}
     print("[3/3] running...")
 
     for subject in subjects:
         removed_log[subject] = {}
+        readouts[subject] = {"relations": {}}
         for rel_name, template in relations:
             prompt = template.format(S=subject)
             input_ids = model.encode(prompt, max_length=args.max_seq_len)
@@ -347,8 +411,23 @@ def main() -> None:
             pos = subject_last_token_index(tok, prompt, subject, input_ids) if args.position == "subject" else seq_len - 1
             pos_token = tok.decode(input_ids[0, pos])
 
-            clean = final_logits(model, input_ids)
+            clean, clean_acts = run_pass(model, lens, input_ids)
             clean_last = clean[-1]
+            last = seq_len - 1
+            rel_read = {
+                "prompt": prompt, "ablate_position": pos, "ablate_token": pos_token,
+                "model_top_clean_last": model_topn(clean[last], args.readout_topn, tok),
+                "model_top_clean_subject": model_topn(clean[pos], args.readout_topn, tok),
+                "last_position_clean": {str(l): lens_topn(model, lens, clean_acts[l][last], l, args.readout_topn, tok)
+                                        for l in lens.source_layers},
+                "last_position_jspace": {},
+                "subject_position_jspace": {},
+            }
+            if "subject_position_clean" not in readouts[subject]:
+                readouts[subject]["subject_position_clean"] = {
+                    str(l): lens_topn(model, lens, clean_acts[l][pos], l, args.readout_topn, tok)
+                    for l in lens.source_layers}
+                readouts[subject]["subject_token"] = pos_token
             # Exclusion set: the ablated position's own clean top-N next tokens.
             exclude = set(torch.topk(clean[pos], args.exclude_clean_topn).indices.tolist())
 
@@ -361,8 +440,14 @@ def main() -> None:
                 editor = ResidualEditor(model, lens, layers=layers, position=pos, k=args.k,
                                         mode="jspace", exclude_token_ids=exclude,
                                         use_norm_weight=not args.no_norm_weight)
-                abl = final_logits(model, input_ids, editor)
+                abl, abl_acts = run_pass(model, lens, input_ids, editor)
                 stats = summarize(clean_last, abl[-1])
+                rel_read["last_position_jspace"][spec] = {
+                    str(l): lens_topn(model, lens, abl_acts[l][last], l, args.readout_topn, tok)
+                    for l in lens.source_layers}
+                rel_read["subject_position_jspace"][spec] = {
+                    str(l): lens_topn(model, lens, abl_acts[l][pos], l, args.readout_topn, tok)
+                    for l in lens.source_layers}
                 rows.append({**base, "band": spec, "condition": "jspace", "replicate": 0, **stats,
                              "clean_top1_str": tok.decode(stats["clean_top1"]),
                              "abl_top1_str": tok.decode(stats["abl_top1"])})
@@ -376,12 +461,13 @@ def main() -> None:
                     editor_r = ResidualEditor(model, lens, layers=layers, position=pos, k=args.k,
                                               mode="random", exclude_token_ids=exclude,
                                               use_norm_weight=not args.no_norm_weight, rng=gen)
-                    abl_r = final_logits(model, input_ids, editor_r)
+                    abl_r, _ = run_pass(model, lens, input_ids, editor_r)
                     stats_r = summarize(clean_last, abl_r[-1])
                     rows.append({**base, "band": spec, "condition": "random", "replicate": rep, **stats_r,
                                  "clean_top1_str": tok.decode(stats_r["clean_top1"]),
                                  "abl_top1_str": tok.decode(stats_r["abl_top1"])})
 
+            readouts[subject]["relations"][rel_name] = rel_read
             r0 = [r for r in rows if r["subject"] == subject and r["relation"] == rel_name and r["condition"] == "jspace"]
             line = " | ".join(f"{r['band']}: {r['delta_logp_clean_top1']:+.2f} -> {r['abl_top1_str']!r}" for r in r0)
             print(f"  {subject:<22} {rel_name:<16} clean={r0[0]['clean_top1_str']!r} p={math.exp(r0[0]['clean_top1_logp']):.2f} | {line}")
@@ -399,6 +485,10 @@ def main() -> None:
         w.writerows(rows)
     with (out_dir / "removed_lens_tokens.json").open("w", encoding="utf-8") as f:
         json.dump(removed_log, f, indent=1, ensure_ascii=False)
+
+    with (out_dir / "lens_readouts.json").open("w", encoding="utf-8") as f:
+        json.dump(readouts, f, indent=1, ensure_ascii=False)
+    write_readouts_txt(out_dir / "lens_readouts.txt", readouts, list(bands), lens.source_layers)
 
     # ---- summary: per relation, mean delta under jspace vs random, per band ----
     lines = []
@@ -428,7 +518,8 @@ def main() -> None:
     summary = "\n".join(lines)
     print("\n" + summary)
     (out_dir / "summary.txt").write_text(summary + "\n", encoding="utf-8")
-    print(f"\n[out] {csv_path}\n[out] {out_dir / 'removed_lens_tokens.json'}\n[out] {out_dir / 'summary.txt'}")
+    print(f"\n[out] {csv_path}\n[out] {out_dir / 'removed_lens_tokens.json'}\n[out] {out_dir / 'summary.txt'}"
+          f"\n[out] {out_dir / 'lens_readouts.json'}\n[out] {out_dir / 'lens_readouts.txt'}")
 
 
 if __name__ == "__main__":
