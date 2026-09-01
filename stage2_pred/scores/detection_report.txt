@@ -1,0 +1,35 @@
+
+========================================================================
+Detection test — per-condition report
+========================================================================
+
+auc:
+       svd: n= 32 median=0.600  q25=0.552  q75=0.677
+   rotated: n= 27 median=0.575  q25=0.525  q75=0.650
+    random: n= 11 median=0.660  q25=0.565  q75=0.716
+  svd > rotated: rbc=+0.147  p=1.69e-01
+
+distractor_auc:
+       svd: n= 32 median=0.537  q25=0.406  q75=0.594
+   rotated: n= 27 median=0.244  q25=0.206  q75=0.407
+    random: n= 11 median=0.422  q25=0.392  q75=0.454
+  svd > rotated: rbc=+0.528  p=7.44e-02
+
+spearman:
+       svd: n= 32 median=0.353  q25=0.265  q75=0.493
+   rotated: n= 27 median=0.386  q25=0.234  q75=0.496
+    random: n= 11 median=0.360  q25=0.242  q75=0.487
+  svd > rotated: rbc=+0.004  p=4.94e-01
+
+lexical_auc:
+       svd: n= 32 median=0.500  q25=0.500  q75=0.525
+   rotated: n= 27 median=0.500  q25=0.500  q75=0.517
+    random: n= 11 median=0.500  q25=0.435  q75=0.500
+  svd > rotated: rbc=+0.074  p=3.06e-01
+
+Finalists (svd, AUC >= 0.80 and distractor AUC >= 0.70 or n/a):
+    L02_SV19 rank= 19 auc=0.820 distr=nan lex=0.500 | alphanumeric code/acronym continuation fragments (NBXR463, Y
+
+Read: AUC ~0.5 = coherent tail, no off-tail prediction (illusion signature).
+      AUC high but lexical_auc equally high = the hypothesis is a string match.
+      AUC high, distractor_auc high, lexical_auc lower = sense/condition-level feature.
