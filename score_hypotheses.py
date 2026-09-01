@@ -122,47 +122,99 @@ def load_ratings(path: Path) -> dict[str, float]:
         for line in path.read_text(encoding="utf-8").splitlines():
             if line.strip():
                 o = json.loads(line)
-                out[o["item_id"]] = float(o["rating"])
+                r = float(o["rating"]) if o.get("rating") is not None else math.nan
+                if not math.isnan(r):
+                    out[o["item_id"]] = r  # NaN = failed batch; leave uncached
     return out
 
 
 # ---------------------------------------------------------------- judges ---
 
 
+def _balanced_objects(text: str):
+    start = text.find("{")
+    while start != -1:
+        depth = 0
+        end = -1
+        for i in range(start, len(text)):
+            ch = text[i]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i
+                    break
+        if end == -1:
+            return
+        yield text[start : end + 1]
+        start = text.find("{", end + 1)
+
+
 def parse_rating_json(text: str, n: int) -> dict[int, float] | None:
+    """Accept {"1": 7, ...}, {"snippet 1": "7", ...}, or [7, 0, ...]."""
     text = text.strip()
-    text = re.sub(r"^```(?:json)?|```$", "", text, flags=re.M).strip()
-    m = re.search(r"\{.*\}", text, flags=re.S)
-    if not m:
-        return None
-    try:
-        obj = json.loads(m.group(0))
-    except json.JSONDecodeError:
-        return None
-    out = {}
-    for k, v in obj.items():
+    text = re.sub(r"```(?:json)?", "", text).strip()
+    obj = None
+    for cand in [text, *_balanced_objects(text)]:
         try:
-            i = int(str(k).strip())
-            out[i] = float(v)
-        except (ValueError, TypeError):
+            parsed = json.loads(cand)
+        except json.JSONDecodeError:
             continue
-    return out if len(out) >= max(1, int(0.8 * n)) else None
+        if isinstance(parsed, (dict, list)):
+            obj = parsed
+            break
+    if obj is None:
+        m = re.search(r"\[[\d\s,.\-]+\]", text)
+        if m:
+            try:
+                obj = json.loads(m.group(0))
+            except json.JSONDecodeError:
+                obj = None
+    if obj is None:
+        return None
+    out: dict[int, float] = {}
+    if isinstance(obj, list):
+        for i, v in enumerate(obj, 1):
+            try:
+                out[i] = float(v)
+            except (TypeError, ValueError):
+                continue
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            km = re.search(r"\d+", str(k))
+            if not km:
+                continue
+            if isinstance(v, dict):  # e.g. {"rating": 7, "reason": ...}
+                v = v.get("rating", v.get("score"))
+            try:
+                out[int(km.group(0))] = float(v)
+            except (TypeError, ValueError):
+                continue
+    return out if len(out) >= max(1, int(0.5 * n)) else None
 
 
-def call_anthropic(model: str, prompt: str) -> str:
+def call_anthropic(model: str, prompt: str, max_tokens: int = 8000) -> str:
     import anthropic  # noqa: PLC0415
 
     client = anthropic.Anthropic()
-    msg = client.messages.create(model=model, max_tokens=1500, temperature=0,
-                                 messages=[{"role": "user", "content": prompt}])
-    return "".join(getattr(b, "text", "") for b in msg.content)
+    msg = client.messages.create(
+        model=model, max_tokens=max_tokens,
+        system="You output only a JSON object mapping snippet numbers to integer ratings 0-10. No prose, no code fences.",
+        messages=[{"role": "user", "content": prompt}],
+    )
+    text = "".join(getattr(b, "text", "") for b in msg.content if getattr(b, "type", "") == "text")
+    if not text.strip():
+        kinds = [getattr(b, "type", "?") for b in msg.content]
+        text = f"<<EMPTY stop_reason={getattr(msg, 'stop_reason', '?')} blocks={kinds}>>"
+    return text
 
 
 def call_openai(model: str, prompt: str) -> str:
     from openai import OpenAI  # noqa: PLC0415
 
     client = OpenAI()
-    r = client.chat.completions.create(model=model, temperature=0,
+    r = client.chat.completions.create(model=model,
                                        messages=[{"role": "user", "content": prompt}])
     return r.choices[0].message.content or ""
 
@@ -180,9 +232,15 @@ def judge_batch(args, hyp: str, batch: list[dict], mock_ctx: dict | None) -> dic
             out[it["item_id"]] = max(0.0, min(10.0, base + rng.gauss(0, 1.5)))
         return out
 
+    return _judge_recursive(args, hyp, batch)
+
+
+def _judge_once(args, hyp: str, batch: list[dict]) -> tuple[dict[int, float] | None, bool]:
+    """One API call. Returns (parsed ratings by 1-based index or None, refused flag)."""
     prompt = PROMPT_HEADER.format(hyp=hyp)
     for k, it in enumerate(batch, 1):
         prompt += f"{k}. {it['context_marked'].replace(chr(10), ' ')}\n"
+    raw_log = Path(args.out) / "judge_raw.log"
     for attempt in range(args.max_retries):
         try:
             text = call_anthropic(args.judge_model, prompt) if args.judge == "anthropic" else call_openai(args.judge_model, prompt)
@@ -191,11 +249,32 @@ def judge_batch(args, hyp: str, batch: list[dict], mock_ctx: dict | None) -> dic
             print(f"[judge] API error ({exc}); retry in {wait}s", file=sys.stderr)
             time.sleep(wait)
             continue
+        with raw_log.open("a", encoding="utf-8") as fl:
+            fl.write(json.dumps({"batch_first": batch[0]["item_id"], "n": len(batch), "attempt": attempt, "raw": text}, ensure_ascii=False) + "\n")
+        if text.startswith("<<EMPTY stop_reason=refusal"):
+            return None, True  # deterministic; do not retry
         parsed = parse_rating_json(text, len(batch))
         if parsed is not None:
-            return {it["item_id"]: parsed.get(k, math.nan) for k, it in enumerate(batch, 1)}
-        print("[judge] unparseable response; retrying", file=sys.stderr)
-    return {it["item_id"]: math.nan for it in batch}
+            return parsed, False
+        print(f"[judge] unparseable (attempt {attempt+1}, n={len(batch)}); excerpt: {text[:200].replace(chr(10),' ')!r}", file=sys.stderr)
+    return None, False
+
+
+def _judge_recursive(args, hyp: str, batch: list[dict]) -> dict[str, float]:
+    parsed, refused = _judge_once(args, hyp, batch)
+    if parsed is not None:
+        return {it["item_id"]: parsed.get(k, math.nan) for k, it in enumerate(batch, 1)}
+    if len(batch) == 1:
+        it = batch[0]
+        with (Path(args.out) / "judge_refused.log").open("a", encoding="utf-8") as fl:
+            fl.write(json.dumps({"item_id": it["item_id"], "refused": refused, "context_marked": it["context_marked"]}, ensure_ascii=False) + "\n")
+        print(f"[judge] item {it['item_id']} {'refused' if refused else 'unparseable'} -> NaN", file=sys.stderr)
+        return {it["item_id"]: math.nan}
+    mid = len(batch) // 2
+    print(f"[judge] batch of {len(batch)} {'refused' if refused else 'unparseable'}; bisecting", file=sys.stderr)
+    out = _judge_recursive(args, hyp, batch[:mid])
+    out.update(_judge_recursive(args, hyp, batch[mid:]))
+    return out
 
 
 def run_manual(out_dir: Path, items: dict[str, dict], hyps: dict[str, str], ratings: dict[str, float]) -> dict[str, float]:
