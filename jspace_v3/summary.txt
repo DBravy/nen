@@ -1,0 +1,108 @@
+Mean delta log-prob of the model's own greedy answer SPAN under each condition (more negative = more broken).
+Conditions: jspace = paper-faithful top-k J-lens ablation; jspace_word = word-like lens tokens only;
+random = matched random directions; mean = corpus-mean replacement of the whole residual (positive control);
+answer_lens = project out only the answer token's own lens vector.
+
+== positions subject_all | band 9-13 ==
+relation                 jspace  jspace_keep_name  jspace_restore_rest    name_lens   content flips(js)
+birth_city                -1.86             -0.98                -0.57        -0.54              4/12
+birth_year                -1.10             -0.66                -0.41        -0.43              0/12
+birth_country             -0.26             -0.13                -0.04        -0.05              0/12
+death_year                -1.33             -0.48                -0.65        -0.90              3/12
+occupation                -0.91             -0.48                -0.44        -0.53              5/12
+profession_of             -0.28             -0.03                -0.29        -0.25              0/12
+instrument                -0.40             -0.29                -0.16        -0.14              2/12
+famous_for                -0.42             -0.22                -0.11        -0.10              2/12
+language                  -0.43             -0.12                -0.23        -0.27              3/12
+spouse                    -2.41             -1.15                -0.90        -0.96              5/12
+education                 -0.68             -0.34                -0.37        -0.44              1/12
+citizenship               -0.31             -0.21                -0.01        -0.02              3/12
+copy_first_name           -0.99             -0.35                -0.45        -0.52              5/12
+copy_last_name            -1.60             -0.64                -0.35        -0.55              4/12
+per subject:
+  Miles Davis                     -0.62             -0.35                -0.30        -0.30
+  Marie Curie                     -0.71             -0.38                 0.03         0.02
+  Albert Einstein                 -1.41             -0.57                -0.64        -0.53
+  Serena Williams                 -1.28             -1.13                -0.65        -0.31
+  Ludwig van Beethoven            -0.76             -0.12                -0.21        -0.39
+  Barack Obama                    -0.46             -0.12                -0.21        -0.32
+  Isaac Newton                    -0.79             -0.41                -0.18        -0.18
+  Charles Darwin                  -1.45             -0.44                -0.27        -0.51
+  Abraham Lincoln                 -0.79             -0.42                -0.27        -0.28
+  Wolfgang Amadeus Mozart         -0.98             -0.42                -0.80        -1.32
+  Nelson Mandela                  -0.89             -0.55                -0.47        -0.53
+  Winston Churchill               -0.98             -0.30                -0.31        -0.25
+
+== positions subject_all | band 9-17 ==
+relation                 jspace  jspace_keep_name  jspace_restore_rest    name_lens   content flips(js)
+birth_city                -2.39             -1.61                -0.89        -0.79              6/12
+birth_year                -1.48             -1.42                -0.48        -0.63              1/12
+birth_country             -0.38             -0.22                -0.02        -0.06              1/12
+death_year                -1.36             -0.93                -0.72        -1.02              3/12
+occupation                -1.07             -0.87                -0.56        -0.65              4/12
+profession_of             -0.75             -0.27                -0.36        -0.31              6/12
+instrument                -0.60             -0.37                -0.10        -0.18              3/12
+famous_for                -0.42             -0.35                -0.11        -0.12              2/12
+language                  -0.34             -0.19                -0.26        -0.26              3/12
+spouse                    -3.20             -2.17                -1.48        -1.36              6/12
+education                 -0.94             -0.52                -0.47        -0.61              2/12
+citizenship               -0.37             -0.21                -0.01        -0.01              2/12
+copy_first_name           -1.96             -1.13                -0.77        -1.24             10/12
+copy_last_name            -2.50             -1.52                -0.62        -1.00              5/12
+per subject:
+  Miles Davis                     -0.61             -0.54                -0.20        -0.30
+  Marie Curie                     -1.60             -1.00                -0.06        -0.09
+  Albert Einstein                 -2.08             -1.24                -1.00        -0.73
+  Serena Williams                 -1.61             -1.50                -0.60        -0.36
+  Ludwig van Beethoven            -0.95             -0.40                -0.41        -0.61
+  Barack Obama                    -1.10             -0.31                -0.40        -0.74
+  Isaac Newton                    -1.12             -1.07                -0.24        -0.27
+  Charles Darwin                  -1.29             -0.69                -0.48        -0.69
+  Abraham Lincoln                 -1.22             -0.88                -0.79        -0.61
+  Wolfgang Amadeus Mozart         -1.40             -0.76                -0.67        -1.44
+  Nelson Mandela                  -1.19             -0.94                -0.48        -0.81
+  Winston Churchill               -1.05             -0.78                -0.53        -0.41
+
+== positions subject_all | band 6-20 ==
+relation                 jspace  jspace_keep_name  jspace_restore_rest    name_lens   content flips(js)
+birth_city                -5.25             -3.16                -1.76        -2.09             10/12
+birth_year                -2.55             -2.40                -1.08        -1.64              6/12
+birth_country             -1.51             -0.97                -0.40        -0.89              3/12
+death_year                -2.31             -1.68                -1.54        -1.98              4/12
+occupation                -2.54             -2.05                -1.17        -1.89              7/12
+profession_of             -0.65             -0.55                -0.34        -0.59              7/12
+instrument                -1.12             -1.09                -0.86        -1.78              3/12
+famous_for                -0.97             -0.65                -0.25        -0.78              4/12
+language                  -0.88             -0.53                -0.91        -1.82              3/12
+spouse                    -6.42             -3.96                -2.60        -3.34              6/12
+education                 -2.04             -1.01                -1.18        -1.62              7/12
+citizenship               -1.31             -0.77                -0.35        -1.36              2/12
+copy_first_name           -4.85             -2.48                -2.41        -3.01             11/12
+copy_last_name            -4.60             -2.93                -2.05        -2.33              9/12
+per subject:
+  Miles Davis                     -0.78             -0.64                -0.40        -0.54
+  Marie Curie                     -3.55             -2.19                -0.78        -0.44
+  Albert Einstein                 -5.71             -2.02                -1.00        -2.43
+  Serena Williams                 -2.46             -2.53                -1.04        -0.69
+  Ludwig van Beethoven            -2.39             -1.75                -1.14        -1.17
+  Barack Obama                    -2.58             -0.83                -0.93        -1.41
+  Isaac Newton                    -2.30             -2.29                -0.56        -0.78
+  Charles Darwin                  -1.80             -1.43                -0.92        -1.37
+  Abraham Lincoln                 -2.44             -2.78                -1.56        -1.14
+  Wolfgang Amadeus Mozart         -3.02             -1.48                -3.56        -5.03
+  Nelson Mandela                  -1.88             -1.35                -1.88        -5.77
+  Winston Churchill               -2.78             -1.47                -0.70        -0.79
+
+Was the subject's own (last) name token among the ablated lens tokens? (jspace, subject_last, per band: layers)
+  Miles Davis              token 'Davis'        9-13: — | 9-17: — | 6-20: —
+  Marie Curie              token 'ie'           9-13: — | 9-17: — | 6-20: —
+  Albert Einstein          token 'Einstein'     9-13: — | 9-17: — | 6-20: —
+  Serena Williams          token 'Williams'     9-13: — | 9-17: — | 6-20: —
+  Ludwig van Beethoven     token 'Beethoven'    9-13: — | 9-17: — | 6-20: —
+  Barack Obama             token 'Obama'        9-13: — | 9-17: — | 6-20: —
+  Isaac Newton             token 'Newton'       9-13: — | 9-17: — | 6-20: —
+  Charles Darwin           token 'Darwin'       9-13: — | 9-17: — | 6-20: —
+  Abraham Lincoln          token 'Lincoln'      9-13: — | 9-17: — | 6-20: —
+  Wolfgang Amadeus Mozart  token 'Mozart'       9-13: — | 9-17: — | 6-20: —
+  Nelson Mandela           token 'Mandela'      9-13: — | 9-17: — | 6-20: —
+  Winston Churchill        token 'Churchill'    9-13: — | 9-17: — | 6-20: —
