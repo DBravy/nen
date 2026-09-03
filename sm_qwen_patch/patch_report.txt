@@ -51,55 +51,58 @@ layer      set  a=0.05     a=0.1      a=0.2      a=0.5      a=1          sym/ant
 Per-direction: g0 = median antisym |dh_target|/eps at the smallest alpha (the
 measured per-context linear gain); moment check g2/fSf compares mean g0^2 to the
 harvest's f'S f (same order expected, not equality: S sums future targets while
-patches read one position); alpha* = first alpha whose antisym departs >25% from
-linear scaling (nan: linear through the whole tested range); corr_pred = does
-the small-alpha response predict the largest-
-alpha response, context by context; stability = mean pairwise cos of antisym
+patches read one position); tail^2/fSf does the same with the response summed
+over positions >= p (closer to S's future-summed convention, includes a small
+symmetric part); alpha* = first alpha whose antisym departs >25% from linear
+scaling (nan: linear through the whole tested range); corr_lin = per-context
+gain at the smallest alpha predicting the mid-alpha antisym (foreseeability in
+the linear regime); corr_sat = same predictor against the raw largest-alpha
+response (saturation predictability); stability = mean pairwise cos of antisym
 dlogit sketches across contexts (the output template).
 
-  L02 set medians (gamma_J | g0 | g0^2/fSf | alpha* | corr_pred | stability | SNR):
-       gnotj: 12490.66 |      5.61 |    0.01 |    0.5 |   0.20 |   0.02 | 11257241249084471793487278243840.0
-       jpriv:  9851.11 |       5.8 |    0.01 |    0.5 |   0.18 |   0.01 | 11175767660140991413098232414208.0
-       pairH:  1498.74 |      5.49 |    0.01 |    0.5 |   0.10 |   0.01 | 10711390733718871268681746219008.0
-       pairL:    79.19 |      5.75 |    0.01 |    0.5 |   0.18 |   0.01 | 10863739728927610543772016836608.0
-        rand:   271.08 |      4.69 |    0.05 |    0.5 |   0.44 |   0.02 | 9009841203689574035833665617920.0
-      shared:  5235.51 |       5.8 |    0.01 |   0.35 |   0.04 |   0.00 | 11295121669769285755024154034176.0
-        topG:  2691.59 |      5.66 |    0.01 |    0.5 |   0.07 |   0.01 | 11295121669769285755024154034176.0
-      topG_R:    36.19 |      5.32 |    0.01 |    0.2 |   0.10 |   0.01 | 10958971738815305942675056754688.0
-     topJbar:    10.35 |      10.5 |    0.02 |    0.5 |   0.11 |   0.24 | 16017415523529052595816824307712.0
+  L02 set medians (gamma_J | g0 | g0^2/fSf | tail^2/fSf | alpha* | corr_lin | corr_sat | stability):
+       gnotj: 12490.66 |      5.61 |    0.01 |    0.08 |    0.5 |   0.84 |   0.20 |   0.02
+       jpriv:  9851.11 |       5.8 |    0.01 |    0.10 |    0.5 |   0.90 |   0.18 |   0.01
+       pairH:  1498.74 |      5.49 |    0.01 |    0.21 |    0.5 |   0.90 |   0.10 |   0.01
+       pairL:    79.19 |      5.75 |    0.01 |    0.25 |    0.5 |   0.86 |   0.18 |   0.01
+        rand:   271.08 |      4.69 |    0.05 |    3.69 |    0.5 |   0.95 |   0.44 |   0.02
+      shared:  5235.51 |       5.8 |    0.01 |    0.14 |   0.35 |   0.58 |   0.04 |   0.00
+        topG:  2691.59 |      5.66 |    0.01 |    0.10 |    0.5 |   0.76 |   0.07 |   0.01
+      topG_R:    36.19 |      5.32 |    0.01 |    0.35 |    0.2 |   0.66 |   0.10 |   0.01
+     topJbar:    10.35 |      10.5 |    0.02 |    0.45 |    0.5 |   0.86 |   0.11 |   0.24
 
-  L10 set medians (gamma_J | g0 | g0^2/fSf | alpha* | corr_pred | stability | SNR):
-       gnotj:   479.41 |      2.84 |    0.03 |      1 |   0.13 |   0.05 | 19975424289703365814502207520768.0
-       jpriv:    56.06 |      3.27 |    0.05 |      1 |   0.24 |   0.07 | 22763315677642818658022893551616.0
-       pairH:    85.51 |      3.48 |    0.04 |   0.75 |   0.23 |   0.05 | 23701146602630610897712869015552.0
-       pairL:    11.39 |      3.17 |    0.02 |      1 |   0.27 |   0.08 | 21610735416412349066060446564352.0
-        rand:    39.26 |      1.89 |    0.11 |      1 |   0.45 |   0.05 | 13184118509292599649955980771328.0
-      shared:    70.93 |      3.28 |    0.03 |   0.75 |   0.37 |   0.04 | 21978123664855956225130403725312.0
-        topG:    49.99 |      3.21 |    0.03 |      1 |   0.28 |   0.05 | 22227093696594236727849769762816.0
-      topG_R:    14.82 |      2.91 |    0.03 |      1 |   0.33 |   0.08 | 19817931652069089507587531997184.0
-     topJbar:     6.07 |      3.33 |    0.06 |    0.2 |   0.31 |   0.15 | 22518063545227049170821699338240.0
+  L10 set medians (gamma_J | g0 | g0^2/fSf | tail^2/fSf | alpha* | corr_lin | corr_sat | stability):
+       gnotj:   479.41 |      2.84 |    0.03 |    0.22 |      1 |   0.96 |   0.13 |   0.05
+       jpriv:    56.06 |      3.27 |    0.05 |    0.30 |      1 |   0.96 |   0.24 |   0.07
+       pairH:    85.51 |      3.48 |    0.04 |    0.34 |   0.75 |   0.86 |   0.23 |   0.05
+       pairL:    11.39 |      3.17 |    0.02 |    0.29 |      1 |   0.94 |   0.27 |   0.08
+        rand:    39.26 |      1.89 |    0.11 |    2.90 |      1 |   0.96 |   0.45 |   0.05
+      shared:    70.93 |      3.28 |    0.03 |    0.29 |   0.75 |   0.87 |   0.37 |   0.04
+        topG:    49.99 |      3.21 |    0.03 |    0.23 |      1 |   0.95 |   0.28 |   0.05
+      topG_R:    14.82 |      2.91 |    0.03 |    0.33 |      1 |   0.91 |   0.33 |   0.08
+     topJbar:     6.07 |      3.33 |    0.06 |    0.40 |    0.2 |   0.93 |   0.31 |   0.15
 
-  L17 set medians (gamma_J | g0 | g0^2/fSf | alpha* | corr_pred | stability | SNR):
-       gnotj:   108.73 |      2.76 |    0.05 |      1 |   0.58 |   0.10 | 23813376426696778698115503882240.0
-       jpriv:    12.83 |      3.58 |    0.11 |    nan |   0.45 |   0.16 | 31214479446411132992461754859520.0
-       pairH:    30.60 |      3.43 |    0.08 |   0.75 |   0.37 |   0.15 | 29447592258453365582426955317248.0
-       pairL:     4.34 |      4.16 |    0.11 |      1 |   0.51 |   0.26 | 34433801651000973734288809787392.0
-        rand:     8.37 |      1.68 |    0.24 |    nan |   0.69 |   0.14 | 15951961278915403824215336419328.0
-      shared:    63.78 |      3.08 |    0.06 |      1 |   0.58 |   0.13 | 27368761539459228257107664961536.0
-        topG:    20.00 |      3.06 |    0.05 |      1 |   0.49 |   0.18 | 26807432651519770811325199941632.0
-      topG_R:    23.60 |      2.17 |    0.03 |      1 |   0.73 |   0.17 | 19702684879302978393103430320128.0
-     topJbar:     3.37 |      4.57 |    0.17 |      1 |   0.45 |   0.34 | 38383556365966797580210093948928.0
+  L17 set medians (gamma_J | g0 | g0^2/fSf | tail^2/fSf | alpha* | corr_lin | corr_sat | stability):
+       gnotj:   108.73 |      2.76 |    0.05 |    0.32 |      1 |   0.98 |   0.58 |   0.10
+       jpriv:    12.83 |      3.58 |    0.11 |    0.56 |    nan |   0.99 |   0.45 |   0.16
+       pairH:    30.60 |      3.43 |    0.08 |    0.37 |   0.75 |   0.92 |   0.37 |   0.15
+       pairL:     4.34 |      4.16 |    0.11 |    0.49 |      1 |   0.94 |   0.51 |   0.26
+        rand:     8.37 |      1.68 |    0.24 |    3.85 |    nan |   0.98 |   0.69 |   0.14
+      shared:    63.78 |      3.08 |    0.06 |    0.31 |      1 |   0.98 |   0.58 |   0.13
+        topG:    20.00 |      3.06 |    0.05 |    0.32 |      1 |   0.98 |   0.49 |   0.18
+      topG_R:    23.60 |      2.17 |    0.03 |    0.33 |      1 |   0.99 |   0.73 |   0.17
+     topJbar:     3.37 |      4.57 |    0.17 |    0.58 |      1 |   0.89 |   0.45 |   0.34
 
-  L25 set medians (gamma_J | g0 | g0^2/fSf | alpha* | corr_pred | stability | SNR):
-       gnotj:    48.95 |      1.28 |    0.02 |    nan |   0.54 |   0.66 | 37187130928039546656660006109184.0
-       jpriv:    11.33 |      1.74 |    0.19 |      1 |   0.50 |   0.42 | 42459366798400876204251460665344.0
-       pairH:    32.19 |      1.23 |    0.04 |      1 |   0.48 |   0.52 | 32805660724639886981007807610880.0
-       pairL:     3.01 |      3.71 |    0.38 |    0.5 |   0.07 |   0.29 | 73593328475952142901797558681600.0
-        rand:     1.17 |      1.21 |    0.48 |    nan |   0.58 |   0.62 | 34217785835266110808262512214016.0
-      shared:    47.40 |      1.37 |    0.02 |      1 |   0.56 |   0.66 | 39507637023925777743382466002944.0
-        topG:    43.93 |      1.37 |    0.02 |      1 |   0.56 |   0.66 | 38831747055053705454821371281408.0
-      topG_R:    47.38 |      1.31 |    0.02 |      1 |   0.59 |   0.64 | 37222131729125976855103406080000.0
-     topJbar:     0.97 |       1.8 |    0.33 |    0.5 |   0.29 |   0.71 | 70083755493164058067667911704576.0
+  L25 set medians (gamma_J | g0 | g0^2/fSf | tail^2/fSf | alpha* | corr_lin | corr_sat | stability):
+       gnotj:    48.95 |      1.28 |    0.02 |    0.04 |    nan |   1.00 |   0.54 |   0.66
+       jpriv:    11.33 |      1.74 |    0.19 |    0.31 |      1 |   0.90 |   0.50 |   0.42
+       pairH:    32.19 |      1.23 |    0.04 |    0.12 |      1 |   0.95 |   0.48 |   0.52
+       pairL:     3.01 |      3.71 |    0.38 |    0.47 |    0.5 |   0.60 |   0.07 |   0.29
+        rand:     1.17 |      1.21 |    0.48 |    1.24 |    nan |   1.00 |   0.58 |   0.62
+      shared:    47.40 |      1.37 |    0.02 |    0.04 |      1 |   0.99 |   0.56 |   0.66
+        topG:    43.93 |      1.37 |    0.02 |    0.04 |      1 |   0.99 |   0.56 |   0.66
+      topG_R:    47.38 |      1.31 |    0.02 |    0.04 |      1 |   0.99 |   0.59 |   0.64
+     topJbar:     0.97 |       1.8 |    0.33 |    0.56 |    0.5 |   0.84 |   0.29 |   0.71
 
 Decodability (nearest-centroid on antisym dlogit sketches, chance = 1/K over
 all directions at the layer). within: match a +patch against the same context's
