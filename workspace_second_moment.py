@@ -212,17 +212,39 @@ STREAM_NORM_SUFFIXES = ("input_layernorm", "post_attention_layernorm",
 def _relp_rmsnorm_forward(mod):
     """RMSNorm with the normalization factor detached (LN-rule).
 
-    Mirrors the transformers Qwen-family RMSNorm forward exactly (fp32 upcast,
-    weight applied after downcast) so forward values are unchanged.
+    Two parametrizations exist in the wild and are auto-detected from the
+    class forward's source code:
+      plain:  y = weight * norm(x).to(dtype)            (Llama, Qwen3)
+      offset: y = (norm(x.float()) * (1+weight)).type_as(x)   (Gemma, Qwen3.5;
+              weight is stored zero-centered and applied in fp32 before downcast)
+    Forward values are unchanged in both cases; only the rsqrt factor is
+    detached so the backward treats the norm as a fixed linear scaling.
     """
+    import inspect
+    try:
+        src = inspect.getsource(type(mod).forward)
+    except (OSError, TypeError):
+        src = ""
+    offset = ("1.0 + self.weight" in src) or ("1 + self.weight" in src)
+    if not offset and "self.weight" not in src:
+        raise SystemExit(f"unrecognized RMSNorm forward in {type(mod).__name__}; "
+                         f"patcher needs adapting. Source:\n{src}")
     eps = getattr(mod, "variance_epsilon", getattr(mod, "eps", 1e-6))
 
-    def forward(hidden_states):
-        dt = hidden_states.dtype
-        h = hidden_states.to(torch.float32)
-        var = h.pow(2).mean(-1, keepdim=True)
-        h = h * torch.rsqrt(var + eps).detach()          # LN-rule
-        return mod.weight * h.to(dt)
+    if offset:
+        def forward(hidden_states):
+            h = hidden_states.to(torch.float32)
+            var = h.pow(2).mean(-1, keepdim=True)
+            h = h * torch.rsqrt(var + eps).detach()      # LN-rule
+            h = h * (1.0 + mod.weight.float())           # zero-centered weight, fp32
+            return h.type_as(hidden_states)
+    else:
+        def forward(hidden_states):
+            dt = hidden_states.dtype
+            h = hidden_states.to(torch.float32)
+            var = h.pow(2).mean(-1, keepdim=True)
+            h = h * torch.rsqrt(var + eps).detach()      # LN-rule
+            return mod.weight * h.to(dt)
 
     return forward
 
@@ -267,9 +289,6 @@ class relp_rules:
             leaf = name.rsplit(".", 1)[-1]
             cls = type(mod).__name__
             if "RMSNorm" in cls and leaf in STREAM_NORM_SUFFIXES:
-                if "Gemma" in cls:
-                    raise SystemExit("Gemma-style (1+w) RMSNorm detected; this patcher "
-                                     "implements the Qwen-family norm only")
                 self._patch(mod, _relp_rmsnorm_forward(mod))
                 n_norm += 1
             elif all(hasattr(mod, a) for a in ("gate_proj", "up_proj", "down_proj")):
