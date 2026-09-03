@@ -31,3 +31,11 @@ __pycache__/
 sm_qwen/second_moment.pt
 sm_qwen/second_moment_ckpt.pt
 *.pt.tmp.*
+# large jlens artifacts
+sm/
+local_lens*.pt
+*_ckpt.pt
+g_bank/
+g_scan_*/checkpoint.pkl
+g_scan_*/directions/
+g_scan_*/top_contexts.jsonl
