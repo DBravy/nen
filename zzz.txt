@@ -25,3 +25,20 @@ python probe_semantic_slot_direction.py \
 
 python3 cot_intervention_server.py --host 0.0.0.0 --port 5002
 
+python extract_stage2_contexts.py --svd g_scan_sparse --rotated g_scan_rot_r0 g_scan_rot_r1 --random scan_rand_r0 --out g_stage2_set --markdown
+[bars] q0.99 from 2944 rotated directions over 23 layers
+[select]     svd g_scan_sparse: 40 above bar, keeping 40
+[select] rotated g_scan_rot_r0: 19 above bar, keeping 19
+[select] rotated g_scan_rot_r1: 27 above bar, keeping 27
+[select]  random scan_rand_r0: 71 above bar, keeping 71
+
+Original scan (J matrix):
+
+svd: 55
+rot_r0: 22
+rot_r1: 24
+rand: 33
+
+we scored every direction on how sparsely and reproducibly it activates over a large corpus, and kept only those exceeding the 99th percentile of identically-scored random rotations of the same direction set — so each "above bar" direction is one whose specific orientation, not merely the subspace it lives in, carries unusually selective activation structure.
+
+the excess of above-bar directions over the rotation null is evidence that the construction that produced the bank (the SVD of J̄, or of G) places axes onto selectively-activating structure at better than chance — and everything beyond that claim has to be earned per-direction by the follow-up tests.

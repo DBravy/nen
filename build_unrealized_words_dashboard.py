@@ -669,7 +669,7 @@ HTML_TEMPLATE = r'''<!doctype html>
     .mode-tab small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.35; }
 
     .toolbar { position: sticky; top: 0; z-index: 20; background: rgba(242, 239, 231, .96); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
-    .toolbar-inner { width: min(1640px, 94vw); margin: 0 auto; display: grid; grid-template-columns: minmax(220px, 1.4fr) repeat(3, minmax(145px, .55fr)) auto; gap: 11px; align-items: end; padding: 13px 0; }
+    .toolbar-inner { width: min(1640px, 94vw); margin: 0 auto; display: grid; grid-template-columns: repeat(2, minmax(190px, 1.1fr)) repeat(3, minmax(125px, .5fr)) auto; gap: 11px; align-items: end; padding: 13px 0; }
     .control { display: block; min-width: 0; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
     .control input, .control select { width: 100%; height: 38px; margin-top: 4px; border: 1px solid var(--line-dark); border-radius: 2px; outline: none; background: var(--surface); color: var(--ink); padding: 0 11px; text-transform: none; letter-spacing: normal; font-size: 12px; }
     .control input:focus, .control select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,106,83,.12); }
@@ -706,6 +706,8 @@ HTML_TEMPLATE = r'''<!doctype html>
     body[data-mode="selective"] .mini-track i { background: var(--blue); }
     .tail-pill { display: inline-block; margin-left: 6px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); color: var(--blue); padding: 2px 5px; font: 750 8px/1 var(--mono); text-transform: uppercase; vertical-align: 1px; }
     .rank-diagnostic { display: block; margin-top: 5px; color: var(--muted); font: 8px/1.3 var(--mono); }
+    .token-match-diagnostic { display: block; margin-top: 6px; color: var(--green); font: 750 9px/1.3 var(--mono); }
+    body[data-mode="selective"] .token-match-diagnostic { color: var(--blue); }
     .empty { padding: 32px 20px; color: var(--muted); text-align: center; }
 
     .detail-panel { min-width: 0; }
@@ -896,7 +898,7 @@ HTML_TEMPLATE = r'''<!doctype html>
       .tail-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .all-metrics { grid-template-columns: repeat(2, 1fr); }
       .unembed-stats { grid-template-columns: repeat(2, 1fr); }
-      .toolbar-inner { grid-template-columns: minmax(210px, 1.3fr) repeat(3, minmax(125px, .55fr)) auto; }
+      .toolbar-inner { grid-template-columns: repeat(2, minmax(170px, 1fr)) repeat(3, minmax(110px, .5fr)) auto; }
     }
     @media (max-width: 880px) {
       .masthead-inner { align-items: flex-start; flex-direction: column; min-height: 0; }
@@ -975,6 +977,9 @@ HTML_TEMPLATE = r'''<!doctype html>
     <div class="toolbar-inner">
       <label class="control search-control">Find a direction
         <span class="search-wrap"><input id="candidateSearch" type="search" placeholder="Candidate ID, layer, or SV index…" autocomplete="off"><kbd class="shortcut">/</kbd></span>
+      </label>
+      <label class="control search-control" id="contextTokenControl">Activating token
+        <span class="search-wrap"><input id="contextTokenSearch" type="search" placeholder="Exact center token…" autocomplete="off" title="Filter directions by an exact activating token in their retained top contexts"></span>
       </label>
       <label class="control">Layer<select id="layerFilter"></select></label>
       <label class="control">Rank by<select id="sortMetric"></select></label>
@@ -1080,6 +1085,7 @@ HTML_TEMPLATE = r'''<!doctype html>
       mode: DATA.default_mode || "broad",
       views: Object.fromEntries(Object.entries(DATA.modes).map(([mode, payload]) => [mode, {
         query: "",
+        contextToken: "",
         layer: "all",
         metric: MODE_CONFIG[mode].defaultMetric,
         limit: Math.min(50, payload.rankings.length),
@@ -1101,6 +1107,46 @@ HTML_TEMPLATE = r'''<!doctype html>
     const modeConfig = () => MODE_CONFIG[state.mode];
     const viewState = () => state.views[state.mode];
     const byCandidate = () => candidateIndexes[state.mode];
+
+    function normalizeContextToken(value) {
+      let normalized = String(value ?? "").normalize("NFKC").trim();
+      if (normalized.length >= 2 && normalized.startsWith('"') && normalized.endsWith('"')) {
+        try {
+          const parsed = JSON.parse(normalized);
+          if (typeof parsed === "string") normalized = parsed.normalize("NFKC").trim();
+        } catch (_) {}
+      }
+      return normalized.toLocaleLowerCase();
+    }
+
+    const contextTokenIndexes = Object.fromEntries(Object.entries(DATA.modes).map(([mode, payload]) => {
+      const index = new Map();
+      Object.entries(payload.contexts || {}).forEach(([candidate, grouped]) => {
+        ["positive", "negative"].forEach(polarity => {
+          (grouped[polarity] || []).forEach(item => {
+            const token = normalizeContextToken(item.token);
+            if (!token) return;
+            if (!index.has(token)) index.set(token, new Map());
+            const candidates = index.get(token);
+            const match = candidates.get(candidate) || { count: 0, positive: 0, negative: 0, bestRank: Infinity, bestPolarity: polarity };
+            match.count += 1;
+            match[polarity] += 1;
+            const rank = Number(item.rank);
+            if (Number.isFinite(rank) && rank < match.bestRank) {
+              match.bestRank = rank;
+              match.bestPolarity = polarity;
+            }
+            candidates.set(candidate, match);
+          });
+        });
+      });
+      return [mode, index];
+    }));
+
+    function contextTokenMatch(candidate) {
+      const token = normalizeContextToken(viewState().contextToken);
+      return token ? contextTokenIndexes[state.mode].get(token)?.get(candidate) || null : null;
+    }
 
     function decimal(value, digits = 3) {
       const number = Number(value);
@@ -1143,6 +1189,7 @@ HTML_TEMPLATE = r'''<!doctype html>
 
       document.querySelectorAll(".mode-tab").forEach(button => button.addEventListener("click", () => switchMode(button.dataset.mode)));
       $("#candidateSearch").addEventListener("input", event => { viewState().query = event.target.value.trim().toLowerCase(); render(); });
+      $("#contextTokenSearch").addEventListener("input", event => { viewState().contextToken = event.target.value; render(); });
       $("#layerFilter").addEventListener("change", event => { viewState().layer = event.target.value; render(); });
       $("#sortMetric").addEventListener("change", event => { viewState().metric = event.target.value; render(); });
       $("#rowLimit").addEventListener("change", event => { viewState().limit = Number(event.target.value); render(); });
@@ -1205,6 +1252,9 @@ HTML_TEMPLATE = r'''<!doctype html>
       $("#rowLimit").innerHTML = [...new Set(limits)].map(value => `<option value="${value}">${value === payload.rankings.length ? `All ${integer.format(value)}` : `Top ${value}`}</option>`).join("");
       if (view.limit > payload.rankings.length) view.limit = payload.rankings.length;
       $("#candidateSearch").value = view.query;
+      $("#contextTokenControl").hidden = !meta.contexts_available;
+      $("#contextTokenSearch").disabled = !meta.contexts_available;
+      $("#contextTokenSearch").value = view.contextToken;
       $("#layerFilter").value = view.layer;
       $("#sortMetric").value = view.metric;
       $("#rowLimit").value = String(view.limit);
@@ -1234,10 +1284,12 @@ HTML_TEMPLATE = r'''<!doctype html>
     function resetFilters() {
       const view = viewState();
       view.query = "";
+      view.contextToken = "";
       view.layer = "all";
       view.metric = modeConfig().defaultMetric;
       view.limit = Math.min(50, modeData().rankings.length);
       $("#candidateSearch").value = "";
+      $("#contextTokenSearch").value = "";
       $("#layerFilter").value = "all";
       $("#sortMetric").value = view.metric;
       $("#rowLimit").value = String(view.limit);
@@ -1247,17 +1299,29 @@ HTML_TEMPLATE = r'''<!doctype html>
     function filteredRows(applyLimit = true) {
       const view = viewState();
       const query = view.query;
+      const tokenQuery = normalizeContextToken(view.contextToken);
       const rows = modeData().rankings.filter(row => {
         if (view.layer !== "all" && Number(row.layer) !== Number(view.layer)) return false;
-        if (!query) return true;
-        const haystack = `${row.candidate} layer ${row.layer} l${String(row.layer).padStart(2,"0")} sv ${row.sv_index_0} sv${String(row.sv_index_0).padStart(2,"0")}`.toLowerCase();
-        return haystack.includes(query);
+        if (tokenQuery && !contextTokenMatch(row.candidate)) return false;
+        if (query) {
+          const haystack = `${row.candidate} layer ${row.layer} l${String(row.layer).padStart(2,"0")} sv ${row.sv_index_0} sv${String(row.sv_index_0).padStart(2,"0")}`.toLowerCase();
+          if (!haystack.includes(query)) return false;
+        }
+        return true;
       }).sort(compareRows);
       return applyLimit ? rows.slice(0, view.limit) : rows;
     }
 
     function compareRows(a, b) {
       const view = viewState();
+      if (normalizeContextToken(view.contextToken)) {
+        const aMatch = contextTokenMatch(a.candidate);
+        const bMatch = contextTokenMatch(b.candidate);
+        const countDifference = Number(bMatch?.count || 0) - Number(aMatch?.count || 0);
+        if (countDifference) return countDifference;
+        const rankDifference = Number(aMatch?.bestRank || Infinity) - Number(bMatch?.bestRank || Infinity);
+        if (rankDifference) return rankDifference;
+      }
       const metric = modeConfig().metrics[view.metric];
       const direction = metric.direction === "asc" ? 1 : -1;
       const av = Number(a[view.metric]);
@@ -1285,7 +1349,10 @@ HTML_TEMPLATE = r'''<!doctype html>
       const minValue = values.length ? Math.min(...values) : 0;
       const maxValue = values.length ? Math.max(...values) : 0;
       $("#rankingCount").textContent = `${integer.format(rows.length)} / ${integer.format(matchCount)}`;
-      $("#rankingCaption").textContent = `${metric.label} · ${metric.direction === "asc" ? "ascending" : "descending"}. ${modeConfig().caption} SV indices are zero-based.`;
+      const tokenQuery = normalizeContextToken(view.contextToken);
+      $("#rankingCaption").textContent = tokenQuery
+        ? `Exact activating token ${visibleToken(view.contextToken)} · ${integer.format(matchCount)} matching directions · most retained-context hits first, then best context rank.`
+        : `${metric.label} · ${metric.direction === "asc" ? "ascending" : "descending"}. ${modeConfig().caption} SV indices are zero-based.`;
       if (!rows.length) {
         $("#rankingList").innerHTML = `<div class="empty">No directions match these filters.</div>`;
         return;
@@ -1297,12 +1364,15 @@ HTML_TEMPLATE = r'''<!doctype html>
         const width = values.length === 1 ? 100 : Math.max(2, Math.min(100, normalized * 100));
         const tail = state.mode === "selective" ? `<span class="tail-pill">${row.selected_tail_polarity === "positive" ? "+ high" : "− low"} tail</span>` : "";
         const diagnostic = state.mode === "selective" ? `<span class="rank-diagnostic">${percent(row.selected_tail_top_context_largest_center_token_share, 1)} largest center token · broad #${integer.format(row.rank_global_mean_abs_cosine)}</span>` : "";
+        const tokenMatch = contextTokenMatch(row.candidate);
+        const tokenDiagnostic = tokenMatch ? `<span class="token-match-diagnostic">${integer.format(tokenMatch.count)} ${tokenMatch.count === 1 ? "match" : "matches"} · +${integer.format(tokenMatch.positive)} / −${integer.format(tokenMatch.negative)} · best ${tokenMatch.bestPolarity === "positive" ? "+" : "−"}#${integer.format(tokenMatch.bestRank)}</span>` : "";
         return `<button class="rank-row ${row.candidate === view.selected ? "active" : ""}" type="button" ${row.candidate === view.selected ? 'aria-current="true"' : ""} data-candidate="${esc(row.candidate)}">
           <span class="rank-number">#${integer.format(row[modeConfig().primaryRank])}</span>
           <span>
             <span class="rank-topline"><span class="candidate">${esc(row.candidate)}${tail}</span><span class="layer-note">L${String(row.layer).padStart(2,"0")} · SV${String(row.sv_index_0).padStart(2,"0")}</span></span>
             <span class="rank-measure"><span>${esc(metric.short)}</span><b>${formatMetric(value, metric.kind)}</b></span>
             <span class="mini-track" aria-hidden="true"><i style="width:${width.toFixed(2)}%"></i></span>
+            ${tokenDiagnostic}
             ${diagnostic}
           </span>
         </button>`;
