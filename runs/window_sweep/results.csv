@@ -1,0 +1,211 @@
+subject,relation,prompt,position_mode,ablated_positions,band,condition,replicate,greedy_span,content_token,content_index,span_logp_clean,span_logp_cond,delta_span_logp,content_logp_clean,content_logp_cond,delta_content_logp,rank_content_under_cond,content_top1_changed,content_top1_cond,kl_first_token
+Nelson Mandela,birth_city,Nelson Mandela was born in the city of,subject_all,1 2 3,6-8,name_lens,0," Johannesburg, South Africa", Johannesburg,0,-2.8388,-6.9688,-4.13,-1.5788,-3.0874,-1.5086,1,1, Cape,0.4392
+Nelson Mandela,birth_city,Nelson Mandela was born in the city of,subject_all,1 2 3,6-9,name_lens,0," Johannesburg, South Africa", Johannesburg,0,-2.8388,-7.2757,-4.4369,-1.5788,-3.2002,-1.6214,3,1, Blo,0.5123
+Nelson Mandela,birth_city,Nelson Mandela was born in the city of,subject_all,1 2 3,7-20,name_lens,0," Johannesburg, South Africa", Johannesburg,0,-2.8388,-4.1647,-1.3259,-1.5788,-2.4053,-0.8265,2,1, Blo,0.552
+Nelson Mandela,birth_city,Nelson Mandela was born in the city of,subject_all,1 2 3,8-20,name_lens,0," Johannesburg, South Africa", Johannesburg,0,-2.8388,-3.9546,-1.1157,-1.5788,-2.2608,-0.682,2,1, Blo,0.5309
+Nelson Mandela,birth_city,Nelson Mandela was born in the city of,subject_all,1 2 3,9-20,name_lens,0," Johannesburg, South Africa", Johannesburg,0,-2.8388,-3.5633,-0.7245,-1.5788,-2.1562,-0.5774,1,0, Johannesburg,0.5149
+Nelson Mandela,birth_year,Nelson Mandela was born in the year,subject_all,1 2 3,6-8,name_lens,0, 1918.,191,1,-1.6783,-4.1086,-2.4303,-0.1251,-0.3615,-0.2364,1,0,191,0.8212
+Nelson Mandela,birth_year,Nelson Mandela was born in the year,subject_all,1 2 3,6-9,name_lens,0, 1918.,191,1,-1.6783,-4.2888,-2.6105,-0.1251,-0.3989,-0.2738,1,0,191,0.8545
+Nelson Mandela,birth_year,Nelson Mandela was born in the year,subject_all,1 2 3,7-20,name_lens,0, 1918.,191,1,-1.6783,-4.0328,-2.3544,-0.1251,-0.678,-0.553,1,0,191,0.2384
+Nelson Mandela,birth_year,Nelson Mandela was born in the year,subject_all,1 2 3,8-20,name_lens,0, 1918.,191,1,-1.6783,-3.7451,-2.0668,-0.1251,-0.7197,-0.5946,1,0,191,0.0902
+Nelson Mandela,birth_year,Nelson Mandela was born in the year,subject_all,1 2 3,9-20,name_lens,0, 1918.,191,1,-1.6783,-3.7383,-2.06,-0.1251,-0.7626,-0.6375,1,0,191,0.0224
+Nelson Mandela,birth_country,Nelson Mandela was born in the country of,subject_all,1 2 3,6-8,name_lens,0, South Africa. He, South,0,-3.3744,-7.5107,-4.1363,-0.1919,-1.0785,-0.8867,1,0, South,0.6061
+Nelson Mandela,birth_country,Nelson Mandela was born in the country of,subject_all,1 2 3,6-9,name_lens,0, South Africa. He, South,0,-3.3744,-9.23,-5.8556,-0.1919,-1.2216,-1.0298,1,0, South,0.722
+Nelson Mandela,birth_country,Nelson Mandela was born in the country of,subject_all,1 2 3,7-20,name_lens,0, South Africa. He, South,0,-3.3744,-3.7446,-0.3702,-0.1919,-0.2863,-0.0945,1,0, South,0.0514
+Nelson Mandela,birth_country,Nelson Mandela was born in the country of,subject_all,1 2 3,8-20,name_lens,0, South Africa. He, South,0,-3.3744,-3.6736,-0.2992,-0.1919,-0.2798,-0.088,1,0, South,0.0464
+Nelson Mandela,birth_country,Nelson Mandela was born in the country of,subject_all,1 2 3,9-20,name_lens,0, South Africa. He, South,0,-3.3744,-3.6815,-0.3071,-0.1919,-0.298,-0.1062,1,0, South,0.0357
+Nelson Mandela,death_year,Nelson Mandela died in the year,subject_all,1 2 3,6-8,name_lens,0, 2013.,201,1,-2.5373,-8.7648,-6.2275,-0.2994,-2.672,-2.3726,5,1,199,0.805
+Nelson Mandela,death_year,Nelson Mandela died in the year,subject_all,1 2 3,6-9,name_lens,0, 2013.,201,1,-2.5373,-8.9218,-6.3845,-0.2994,-2.8458,-2.5463,5,1,199,0.8165
+Nelson Mandela,death_year,Nelson Mandela died in the year,subject_all,1 2 3,7-20,name_lens,0, 2013.,201,1,-2.5373,-7.7208,-5.1835,-0.2994,-1.8336,-1.5341,3,1,199,0.6713
+Nelson Mandela,death_year,Nelson Mandela died in the year,subject_all,1 2 3,8-20,name_lens,0, 2013.,201,1,-2.5373,-6.2991,-3.7618,-0.2994,-1.7535,-1.4541,3,1,199,0.2161
+Nelson Mandela,death_year,Nelson Mandela died in the year,subject_all,1 2 3,9-20,name_lens,0, 2013.,201,1,-2.5373,-5.1176,-2.5803,-0.2994,-1.3064,-1.0069,2,1,199,0.0259
+Nelson Mandela,occupation,Nelson Mandela worked as a,subject_all,1 2 3,6-8,name_lens,0, lawyer in South Africa, lawyer,0,-3.6745,-8.7433,-5.0687,-1.0007,-2.7704,-1.7698,1,0, lawyer,0.8413
+Nelson Mandela,occupation,Nelson Mandela worked as a,subject_all,1 2 3,6-9,name_lens,0, lawyer in South Africa, lawyer,0,-3.6745,-10.0263,-6.3518,-1.0007,-3.4166,-2.4159,1,0, lawyer,1.2138
+Nelson Mandela,occupation,Nelson Mandela worked as a,subject_all,1 2 3,7-20,name_lens,0, lawyer in South Africa, lawyer,0,-3.6745,-5.0139,-1.3394,-1.0007,-1.4407,-0.44,1,0, lawyer,0.153
+Nelson Mandela,occupation,Nelson Mandela worked as a,subject_all,1 2 3,8-20,name_lens,0, lawyer in South Africa, lawyer,0,-3.6745,-4.6913,-1.0168,-1.0007,-1.4252,-0.4245,1,0, lawyer,0.133
+Nelson Mandela,occupation,Nelson Mandela worked as a,subject_all,1 2 3,9-20,name_lens,0, lawyer in South Africa, lawyer,0,-3.6745,-4.4807,-0.8062,-1.0007,-1.3419,-0.3412,1,0, lawyer,0.0737
+Nelson Mandela,profession_of,The profession of Nelson Mandela was,subject_all,4 5,6-8,name_lens,0, a lawyer. The, lawyer,1,-6.8913,-7.2895,-0.3982,-2.0742,-2.1885,-0.1143,1,0, lawyer,0.0291
+Nelson Mandela,profession_of,The profession of Nelson Mandela was,subject_all,4 5,6-9,name_lens,0, a lawyer. The, lawyer,1,-6.8913,-7.3328,-0.4415,-2.0742,-2.1542,-0.08,1,0, lawyer,0.0381
+Nelson Mandela,profession_of,The profession of Nelson Mandela was,subject_all,4 5,7-20,name_lens,0, a lawyer. The, lawyer,1,-6.8913,-7.1186,-0.2273,-2.0742,-1.9696,0.1046,1,0, lawyer,0.0564
+Nelson Mandela,profession_of,The profession of Nelson Mandela was,subject_all,4 5,8-20,name_lens,0, a lawyer. The, lawyer,1,-6.8913,-7.2653,-0.3739,-2.0742,-2.1105,-0.0363,1,0, lawyer,0.049
+Nelson Mandela,profession_of,The profession of Nelson Mandela was,subject_all,4 5,9-20,name_lens,0, a lawyer. The, lawyer,1,-6.8913,-7.0486,-0.1573,-2.0742,-2.2646,-0.1904,1,0, lawyer,0.0386
+Nelson Mandela,instrument,Nelson Mandela played the,subject_all,1 2 3,6-8,name_lens,0, role of a key, role,0,-4.2086,-12.0797,-7.8711,-0.3227,-1.1284,-0.8056,1,0, role,0.6103
+Nelson Mandela,instrument,Nelson Mandela played the,subject_all,1 2 3,6-9,name_lens,0, role of a key, role,0,-4.2086,-12.8951,-8.6865,-0.3227,-1.6746,-1.3518,1,0, role,1.0434
+Nelson Mandela,instrument,Nelson Mandela played the,subject_all,1 2 3,7-20,name_lens,0, role of a key, role,0,-4.2086,-6.1245,-1.9159,-0.3227,-0.5121,-0.1893,1,0, role,0.0718
+Nelson Mandela,instrument,Nelson Mandela played the,subject_all,1 2 3,8-20,name_lens,0, role of a key, role,0,-4.2086,-5.4217,-1.2131,-0.3227,-0.5375,-0.2148,1,0, role,0.0701
+Nelson Mandela,instrument,Nelson Mandela played the,subject_all,1 2 3,9-20,name_lens,0, role of a key, role,0,-4.2086,-4.5208,-0.3122,-0.3227,-0.4058,-0.0831,1,0, role,0.0177
+Nelson Mandela,famous_for,Nelson Mandela is famous for,subject_all,1 2 3,6-8,name_lens,0, his role in the, role,1,-4.5274,-9.9142,-5.3868,-2.4058,-3.6145,-1.2087,1,0, role,1.1689
+Nelson Mandela,famous_for,Nelson Mandela is famous for,subject_all,1 2 3,6-9,name_lens,0, his role in the, role,1,-4.5274,-10.1524,-5.625,-2.4058,-3.7055,-1.2996,1,1, ,1.2314
+Nelson Mandela,famous_for,Nelson Mandela is famous for,subject_all,1 2 3,7-20,name_lens,0, his role in the, role,1,-4.5274,-5.44,-0.9126,-2.4058,-2.6972,-0.2914,2,1, work,0.072
+Nelson Mandela,famous_for,Nelson Mandela is famous for,subject_all,1 2 3,8-20,name_lens,0, his role in the, role,1,-4.5274,-5.2175,-0.6901,-2.4058,-2.6174,-0.2116,2,1, work,0.0375
+Nelson Mandela,famous_for,Nelson Mandela is famous for,subject_all,1 2 3,9-20,name_lens,0, his role in the, role,1,-4.5274,-4.846,-0.3186,-2.4058,-2.5419,-0.1361,1,0, role,0.0203
+Nelson Mandela,language,Nelson Mandela spoke the language of,subject_all,1 2 3,6-8,name_lens,0," the people, and", people,1,-6.603,-16.7829,-10.1799,-1.4965,-6.2,-4.7034,34,1, **,2.5396
+Nelson Mandela,language,Nelson Mandela spoke the language of,subject_all,1 2 3,6-9,name_lens,0," the people, and", people,1,-6.603,-16.9742,-10.3712,-1.4965,-6.3271,-4.8306,36,1, **,2.5796
+Nelson Mandela,language,Nelson Mandela spoke the language of,subject_all,1 2 3,7-20,name_lens,0," the people, and", people,1,-6.603,-7.4484,-0.8454,-1.4965,-1.725,-0.2284,1,0, people,0.1227
+Nelson Mandela,language,Nelson Mandela spoke the language of,subject_all,1 2 3,8-20,name_lens,0," the people, and", people,1,-6.603,-6.7049,-0.1019,-1.4965,-1.5717,-0.0752,1,0, people,0.0753
+Nelson Mandela,language,Nelson Mandela spoke the language of,subject_all,1 2 3,9-20,name_lens,0," the people, and", people,1,-6.603,-6.7568,-0.1538,-1.4965,-1.5579,-0.0614,1,0, people,0.0453
+Nelson Mandela,spouse,Nelson Mandela was married to,subject_all,1 2 3,6-8,name_lens,0, Winnie Madikiz, Winnie,0,-1.6986,-5.2316,-3.5329,-1.2439,-1.9651,-0.7212,1,0, Winnie,0.2605
+Nelson Mandela,spouse,Nelson Mandela was married to,subject_all,1 2 3,6-9,name_lens,0, Winnie Madikiz, Winnie,0,-1.6986,-5.7179,-4.0192,-1.2439,-2.3354,-1.0915,1,1, a,0.3532
+Nelson Mandela,spouse,Nelson Mandela was married to,subject_all,1 2 3,7-20,name_lens,0, Winnie Madikiz, Winnie,0,-1.6986,-6.5084,-4.8098,-1.2439,-4.0251,-2.7812,6,1, a,0.8274
+Nelson Mandela,spouse,Nelson Mandela was married to,subject_all,1 2 3,8-20,name_lens,0, Winnie Madikiz, Winnie,0,-1.6986,-6.3174,-4.6187,-1.2439,-3.9221,-2.6782,6,1, a,0.7951
+Nelson Mandela,spouse,Nelson Mandela was married to,subject_all,1 2 3,9-20,name_lens,0, Winnie Madikiz, Winnie,0,-1.6986,-6.2836,-4.5849,-1.2439,-4.9674,-3.7235,20,1, a,1.0702
+Nelson Mandela,education,Nelson Mandela studied at the University of,subject_all,1 2 3,6-8,name_lens,0," South Africa, where", South,0,-4.0406,-8.8058,-4.7652,-1.1117,-1.5682,-0.4564,1,0, South,0.2433
+Nelson Mandela,education,Nelson Mandela studied at the University of,subject_all,1 2 3,6-9,name_lens,0," South Africa, where", South,0,-4.0406,-9.0064,-4.9658,-1.1117,-1.6836,-0.5719,2,1, the,0.2938
+Nelson Mandela,education,Nelson Mandela studied at the University of,subject_all,1 2 3,7-20,name_lens,0," South Africa, where", South,0,-4.0406,-5.7265,-1.6859,-1.1117,-2.1313,-1.0195,3,1, Cape,0.3964
+Nelson Mandela,education,Nelson Mandela studied at the University of,subject_all,1 2 3,8-20,name_lens,0," South Africa, where", South,0,-4.0406,-5.7748,-1.7342,-1.1117,-2.1792,-1.0674,3,1, Cape,0.4212
+Nelson Mandela,education,Nelson Mandela studied at the University of,subject_all,1 2 3,9-20,name_lens,0," South Africa, where", South,0,-4.0406,-5.6723,-1.6317,-1.1117,-2.5047,-1.393,4,1, Cape,0.5737
+Nelson Mandela,citizenship,Nelson Mandela was a citizen of,subject_all,1 2 3,6-8,name_lens,0, South Africa. He, South,0,-3.8105,-12.8285,-9.018,-0.5936,-6.2865,-5.6929,60,1, the,3.3747
+Nelson Mandela,citizenship,Nelson Mandela was a citizen of,subject_all,1 2 3,6-9,name_lens,0, South Africa. He, South,0,-3.8105,-14.2463,-10.4359,-0.5936,-6.1313,-5.5377,52,1, the,3.3841
+Nelson Mandela,citizenship,Nelson Mandela was a citizen of,subject_all,1 2 3,7-20,name_lens,0, South Africa. He, South,0,-3.8105,-4.5594,-0.7489,-0.5936,-1.0818,-0.4881,1,0, South,0.2088
+Nelson Mandela,citizenship,Nelson Mandela was a citizen of,subject_all,1 2 3,8-20,name_lens,0, South Africa. He, South,0,-3.8105,-4.2997,-0.4892,-0.5936,-0.7555,-0.1618,1,0, South,0.0686
+Nelson Mandela,citizenship,Nelson Mandela was a citizen of,subject_all,1 2 3,9-20,name_lens,0, South Africa. He, South,0,-3.8105,-4.1023,-0.2919,-0.5936,-0.7888,-0.1952,1,0, South,0.0354
+Nelson Mandela,copy_first_name,The first name of Nelson Mandela is,subject_all,5 6,6-8,name_lens,0, Nelson. The last, Nelson,0,-5.001,-5.1861,-0.1851,-1.9746,-2.0116,-0.0369,1,0, Nelson,0.0642
+Nelson Mandela,copy_first_name,The first name of Nelson Mandela is,subject_all,5 6,6-9,name_lens,0, Nelson. The last, Nelson,0,-5.001,-5.6079,-0.6069,-1.9746,-2.3957,-0.421,1,0, Nelson,0.0689
+Nelson Mandela,copy_first_name,The first name of Nelson Mandela is,subject_all,5 6,7-20,name_lens,0, Nelson. The last, Nelson,0,-5.001,-9.7175,-4.7165,-1.9746,-6.4739,-4.4993,82,1,?,0.5199
+Nelson Mandela,copy_first_name,The first name of Nelson Mandela is,subject_all,5 6,8-20,name_lens,0, Nelson. The last, Nelson,0,-5.001,-10.1408,-5.1398,-1.9746,-7.0469,-5.0722,132,1,:,0.5522
+Nelson Mandela,copy_first_name,The first name of Nelson Mandela is,subject_all,5 6,9-20,name_lens,0, Nelson. The last, Nelson,0,-5.001,-9.8367,-4.8357,-1.9746,-6.9468,-4.9722,118,1,?,0.5412
+Nelson Mandela,copy_last_name,The last name of Nelson Mandela is,subject_all,5 6,6-8,name_lens,0, not a surname., not,0,-9.2532,-9.3223,-0.069,-2.7719,-2.7335,0.0384,1,1," """,0.098
+Nelson Mandela,copy_last_name,The last name of Nelson Mandela is,subject_all,5 6,6-9,name_lens,0, not a surname., not,0,-9.2532,-9.4259,-0.1727,-2.7719,-2.7855,-0.0137,2,1," """,0.1237
+Nelson Mandela,copy_last_name,The last name of Nelson Mandela is,subject_all,5 6,7-20,name_lens,0, not a surname., not,0,-9.2532,-9.0904,0.1629,-2.7719,-2.4379,0.334,1,0, not,0.3418
+Nelson Mandela,copy_last_name,The last name of Nelson Mandela is,subject_all,5 6,8-20,name_lens,0, not a surname., not,0,-9.2532,-9.2095,0.0437,-2.7719,-2.5331,0.2388,1,0, not,0.2945
+Nelson Mandela,copy_last_name,The last name of Nelson Mandela is,subject_all,5 6,9-20,name_lens,0, not a surname., not,0,-9.2532,-8.9978,0.2555,-2.7719,-2.5032,0.2687,1,0, not,0.3133
+Wolfgang Amadeus Mozart,birth_city,Wolfgang Amadeus Mozart was born in the city of,subject_all,1 2 3 4 5 6,6-8,name_lens,0," Salzburg, Austria,", Salzburg,0,-3.6578,-4.5928,-0.935,-0.1723,-0.399,-0.2267,1,0, Salzburg,0.1083
+Wolfgang Amadeus Mozart,birth_city,Wolfgang Amadeus Mozart was born in the city of,subject_all,1 2 3 4 5 6,6-9,name_lens,0," Salzburg, Austria,", Salzburg,0,-3.6578,-5.2609,-1.6031,-0.1723,-0.5981,-0.4258,1,0, Salzburg,0.2438
+Wolfgang Amadeus Mozart,birth_city,Wolfgang Amadeus Mozart was born in the city of,subject_all,1 2 3 4 5 6,7-20,name_lens,0," Salzburg, Austria,", Salzburg,0,-3.6578,-5.1606,-1.5027,-0.1723,-0.6805,-0.5081,1,0, Salzburg,0.3183
+Wolfgang Amadeus Mozart,birth_city,Wolfgang Amadeus Mozart was born in the city of,subject_all,1 2 3 4 5 6,8-20,name_lens,0," Salzburg, Austria,", Salzburg,0,-3.6578,-4.7712,-1.1134,-0.1723,-0.5419,-0.3696,1,0, Salzburg,0.2219
+Wolfgang Amadeus Mozart,birth_city,Wolfgang Amadeus Mozart was born in the city of,subject_all,1 2 3 4 5 6,9-20,name_lens,0," Salzburg, Austria,", Salzburg,0,-3.6578,-4.3907,-0.7329,-0.1723,-0.4119,-0.2396,1,0, Salzburg,0.1406
+Wolfgang Amadeus Mozart,birth_year,Wolfgang Amadeus Mozart was born in the year,subject_all,1 2 3 4 5 6,6-8,name_lens,0, 1756.,175,1,-1.7394,-3.5432,-1.8038,-0.1518,-0.3325,-0.1807,1,0,175,0.4613
+Wolfgang Amadeus Mozart,birth_year,Wolfgang Amadeus Mozart was born in the year,subject_all,1 2 3 4 5 6,6-9,name_lens,0, 1756.,175,1,-1.7394,-4.1506,-2.4112,-0.1518,-0.4023,-0.2505,1,0,175,0.5737
+Wolfgang Amadeus Mozart,birth_year,Wolfgang Amadeus Mozart was born in the year,subject_all,1 2 3 4 5 6,7-20,name_lens,0, 1756.,175,1,-1.7394,-4.5702,-2.8308,-0.1518,-0.8205,-0.6687,1,0,175,0.53
+Wolfgang Amadeus Mozart,birth_year,Wolfgang Amadeus Mozart was born in the year,subject_all,1 2 3 4 5 6,8-20,name_lens,0, 1756.,175,1,-1.7394,-4.28,-2.5407,-0.1518,-0.7718,-0.62,1,0,175,0.4079
+Wolfgang Amadeus Mozart,birth_year,Wolfgang Amadeus Mozart was born in the year,subject_all,1 2 3 4 5 6,9-20,name_lens,0, 1756.,175,1,-1.7394,-3.3177,-1.5783,-0.1518,-0.6859,-0.534,1,0,175,0.0875
+Wolfgang Amadeus Mozart,birth_country,Wolfgang Amadeus Mozart was born in the country of,subject_all,1 2 3 4 5 6,6-8,name_lens,0, Austria. The city, Austria,0,-6.7267,-11.782,-5.0554,-0.6061,-0.6556,-0.0495,1,0, Austria,0.1085
+Wolfgang Amadeus Mozart,birth_country,Wolfgang Amadeus Mozart was born in the country of,subject_all,1 2 3 4 5 6,6-9,name_lens,0, Austria. The city, Austria,0,-6.7267,-12.1153,-5.3887,-0.6061,-0.5566,0.0494,1,0, Austria,0.1935
+Wolfgang Amadeus Mozart,birth_country,Wolfgang Amadeus Mozart was born in the country of,subject_all,1 2 3 4 5 6,7-20,name_lens,0, Austria. The city, Austria,0,-6.7267,-11.5477,-4.8211,-0.6061,-0.5769,0.0291,1,0, Austria,0.1583
+Wolfgang Amadeus Mozart,birth_country,Wolfgang Amadeus Mozart was born in the country of,subject_all,1 2 3 4 5 6,8-20,name_lens,0, Austria. The city, Austria,0,-6.7267,-10.9738,-4.2471,-0.6061,-0.4518,0.1542,1,0, Austria,0.1329
+Wolfgang Amadeus Mozart,birth_country,Wolfgang Amadeus Mozart was born in the country of,subject_all,1 2 3 4 5 6,9-20,name_lens,0, Austria. The city, Austria,0,-6.7267,-7.7692,-1.0425,-0.6061,-0.4335,0.1725,1,0, Austria,0.1085
+Wolfgang Amadeus Mozart,death_year,Wolfgang Amadeus Mozart died in the year,subject_all,1 2 3 4 5 6,6-8,name_lens,0, 1791.,179,1,-1.9643,-5.3819,-3.4176,-0.2809,-0.6814,-0.4005,1,0,179,0.8822
+Wolfgang Amadeus Mozart,death_year,Wolfgang Amadeus Mozart died in the year,subject_all,1 2 3 4 5 6,6-9,name_lens,0, 1791.,179,1,-1.9643,-5.9505,-3.9861,-0.2809,-0.776,-0.4951,1,0,179,0.8518
+Wolfgang Amadeus Mozart,death_year,Wolfgang Amadeus Mozart died in the year,subject_all,1 2 3 4 5 6,7-20,name_lens,0, 1791.,179,1,-1.9643,-6.264,-4.2997,-0.2809,-0.9705,-0.6896,1,0,179,0.98
+Wolfgang Amadeus Mozart,death_year,Wolfgang Amadeus Mozart died in the year,subject_all,1 2 3 4 5 6,8-20,name_lens,0, 1791.,179,1,-1.9643,-5.9788,-4.0144,-0.2809,-0.9547,-0.6738,1,0,179,0.8124
+Wolfgang Amadeus Mozart,death_year,Wolfgang Amadeus Mozart died in the year,subject_all,1 2 3 4 5 6,9-20,name_lens,0, 1791.,179,1,-1.9643,-5.2479,-3.2835,-0.2809,-0.7463,-0.4654,1,0,179,0.626
+Wolfgang Amadeus Mozart,occupation,Wolfgang Amadeus Mozart worked as a,subject_all,1 2 3 4 5 6,6-8,name_lens,0, composer in the , composer,0,-5.4746,-8.0059,-2.5313,-1.8982,-2.3343,-0.4361,2,1, musician,0.1867
+Wolfgang Amadeus Mozart,occupation,Wolfgang Amadeus Mozart worked as a,subject_all,1 2 3 4 5 6,6-9,name_lens,0, composer in the , composer,0,-5.4746,-8.8198,-3.3452,-1.8982,-2.5685,-0.6703,2,1, musician,0.2679
+Wolfgang Amadeus Mozart,occupation,Wolfgang Amadeus Mozart worked as a,subject_all,1 2 3 4 5 6,7-20,name_lens,0, composer in the , composer,0,-5.4746,-8.3001,-2.8255,-1.8982,-2.4468,-0.5487,2,1, musician,0.1807
+Wolfgang Amadeus Mozart,occupation,Wolfgang Amadeus Mozart worked as a,subject_all,1 2 3 4 5 6,8-20,name_lens,0, composer in the , composer,0,-5.4746,-7.3971,-1.9225,-1.8982,-2.0686,-0.1705,1,0, composer,0.1618
+Wolfgang Amadeus Mozart,occupation,Wolfgang Amadeus Mozart worked as a,subject_all,1 2 3 4 5 6,9-20,name_lens,0, composer in the , composer,0,-5.4746,-6.1016,-0.627,-1.8982,-2.0522,-0.1541,1,0, composer,0.101
+Wolfgang Amadeus Mozart,profession_of,The profession of Wolfgang Amadeus Mozart was,subject_all,4 5 6 7 8,6-8,name_lens,0, a composer. The, composer,1,-7.2171,-7.4498,-0.2327,-2.1117,-2.1145,-0.0028,1,0, composer,0.0337
+Wolfgang Amadeus Mozart,profession_of,The profession of Wolfgang Amadeus Mozart was,subject_all,4 5 6 7 8,6-9,name_lens,0, a composer. The, composer,1,-7.2171,-7.6318,-0.4147,-2.1117,-2.2211,-0.1094,1,0, composer,0.0198
+Wolfgang Amadeus Mozart,profession_of,The profession of Wolfgang Amadeus Mozart was,subject_all,4 5 6 7 8,7-20,name_lens,0, a composer. The, composer,1,-7.2171,-7.8056,-0.5885,-2.1117,-2.4868,-0.3751,1,0, composer,0.0274
+Wolfgang Amadeus Mozart,profession_of,The profession of Wolfgang Amadeus Mozart was,subject_all,4 5 6 7 8,8-20,name_lens,0, a composer. The, composer,1,-7.2171,-7.6865,-0.4694,-2.1117,-2.4395,-0.3277,1,0, composer,0.0241
+Wolfgang Amadeus Mozart,profession_of,The profession of Wolfgang Amadeus Mozart was,subject_all,4 5 6 7 8,9-20,name_lens,0, a composer. The, composer,1,-7.2171,-7.7179,-0.5008,-2.1117,-2.4466,-0.3349,1,0, composer,0.0187
+Wolfgang Amadeus Mozart,instrument,Wolfgang Amadeus Mozart played the,subject_all,1 2 3 4 5 6,6-8,name_lens,0, piano. The piano, piano,0,-7.2476,-14.8037,-7.5561,-0.381,-0.896,-0.5149,1,0, piano,0.1862
+Wolfgang Amadeus Mozart,instrument,Wolfgang Amadeus Mozart played the,subject_all,1 2 3 4 5 6,6-9,name_lens,0, piano. The piano, piano,0,-7.2476,-16.2758,-9.0282,-0.381,-1.1117,-0.7307,1,0, piano,0.3101
+Wolfgang Amadeus Mozart,instrument,Wolfgang Amadeus Mozart played the,subject_all,1 2 3 4 5 6,7-20,name_lens,0, piano. The piano, piano,0,-7.2476,-14.372,-7.1244,-0.381,-0.8156,-0.4346,1,0, piano,0.149
+Wolfgang Amadeus Mozart,instrument,Wolfgang Amadeus Mozart played the,subject_all,1 2 3 4 5 6,8-20,name_lens,0, piano. The piano, piano,0,-7.2476,-11.3147,-4.0671,-0.381,-0.812,-0.431,1,0, piano,0.1482
+Wolfgang Amadeus Mozart,instrument,Wolfgang Amadeus Mozart played the,subject_all,1 2 3 4 5 6,9-20,name_lens,0, piano. The piano, piano,0,-7.2476,-8.325,-1.0774,-0.381,-0.5794,-0.1984,1,0, piano,0.0569
+Wolfgang Amadeus Mozart,famous_for,Wolfgang Amadeus Mozart is famous for,subject_all,1 2 3 4 5 6,6-8,name_lens,0, his symphonies, sym,1,-2.3553,-2.4021,-0.0468,-1.4699,-1.2734,0.1965,1,0, sym,0.0711
+Wolfgang Amadeus Mozart,famous_for,Wolfgang Amadeus Mozart is famous for,subject_all,1 2 3 4 5 6,6-9,name_lens,0, his symphonies, sym,1,-2.3553,-3.7677,-1.4124,-1.4699,-1.3879,0.082,1,0, sym,0.6571
+Wolfgang Amadeus Mozart,famous_for,Wolfgang Amadeus Mozart is famous for,subject_all,1 2 3 4 5 6,7-20,name_lens,0, his symphonies, sym,1,-2.3553,-2.8928,-0.5375,-1.4699,-1.6534,-0.1835,1,0, sym,0.0624
+Wolfgang Amadeus Mozart,famous_for,Wolfgang Amadeus Mozart is famous for,subject_all,1 2 3 4 5 6,8-20,name_lens,0, his symphonies, sym,1,-2.3553,-2.6755,-0.3202,-1.4699,-1.5593,-0.0894,1,0, sym,0.0446
+Wolfgang Amadeus Mozart,famous_for,Wolfgang Amadeus Mozart is famous for,subject_all,1 2 3 4 5 6,9-20,name_lens,0, his symphonies, sym,1,-2.3553,-2.2967,0.0587,-1.4699,-1.3066,0.1633,1,0, sym,0.0292
+Wolfgang Amadeus Mozart,language,Wolfgang Amadeus Mozart spoke the language of,subject_all,1 2 3 4 5 6,6-8,name_lens,0," the gods, and", gods,1,-8.0491,-12.7429,-4.6938,-3.1314,-3.5813,-0.4499,3,1, people,0.7113
+Wolfgang Amadeus Mozart,language,Wolfgang Amadeus Mozart spoke the language of,subject_all,1 2 3 4 5 6,6-9,name_lens,0," the gods, and", gods,1,-8.0491,-14.5787,-6.5297,-3.1314,-4.5739,-1.4425,8,1, world,1.8382
+Wolfgang Amadeus Mozart,language,Wolfgang Amadeus Mozart spoke the language of,subject_all,1 2 3 4 5 6,7-20,name_lens,0," the gods, and", gods,1,-8.0491,-12.314,-4.265,-3.1314,-3.4879,-0.3565,3,1, universe,0.5707
+Wolfgang Amadeus Mozart,language,Wolfgang Amadeus Mozart spoke the language of,subject_all,1 2 3 4 5 6,8-20,name_lens,0," the gods, and", gods,1,-8.0491,-12.1211,-4.072,-3.1314,-3.4508,-0.3194,3,1, world,0.5121
+Wolfgang Amadeus Mozart,language,Wolfgang Amadeus Mozart spoke the language of,subject_all,1 2 3 4 5 6,9-20,name_lens,0," the gods, and", gods,1,-8.0491,-9.684,-1.635,-3.1314,-3.3667,-0.2353,1,0, gods,0.0675
+Wolfgang Amadeus Mozart,spouse,Wolfgang Amadeus Mozart was married to,subject_all,1 2 3 4 5 6,6-8,name_lens,0, a woman named Const, woman,1,-4.1076,-10.3663,-6.2587,-0.8499,-0.8517,-0.0018,1,0, woman,0.102
+Wolfgang Amadeus Mozart,spouse,Wolfgang Amadeus Mozart was married to,subject_all,1 2 3 4 5 6,6-9,name_lens,0, a woman named Const, woman,1,-4.1076,-13.4323,-9.3248,-0.8499,-0.8794,-0.0294,1,0, woman,0.2187
+Wolfgang Amadeus Mozart,spouse,Wolfgang Amadeus Mozart was married to,subject_all,1 2 3 4 5 6,7-20,name_lens,0, a woman named Const, woman,1,-4.1076,-12.1497,-8.0421,-0.8499,-0.9012,-0.0512,1,0, woman,0.3135
+Wolfgang Amadeus Mozart,spouse,Wolfgang Amadeus Mozart was married to,subject_all,1 2 3 4 5 6,8-20,name_lens,0, a woman named Const, woman,1,-4.1076,-9.7282,-5.6206,-0.8499,-0.9295,-0.0796,1,0, woman,0.3076
+Wolfgang Amadeus Mozart,spouse,Wolfgang Amadeus Mozart was married to,subject_all,1 2 3 4 5 6,9-20,name_lens,0, a woman named Const, woman,1,-4.1076,-6.409,-2.3014,-0.8499,-0.8449,0.005,1,0, woman,0.2507
+Wolfgang Amadeus Mozart,education,Wolfgang Amadeus Mozart studied at the University of,subject_all,1 2 3 4 5 6,6-8,name_lens,0, Vienna. The University, Vienna,0,-7.391,-11.6977,-4.3067,-1.0003,-0.7174,0.283,1,0, Vienna,0.2159
+Wolfgang Amadeus Mozart,education,Wolfgang Amadeus Mozart studied at the University of,subject_all,1 2 3 4 5 6,6-9,name_lens,0, Vienna. The University, Vienna,0,-7.391,-12.4226,-5.0316,-1.0003,-0.8165,0.1839,1,0, Vienna,0.2883
+Wolfgang Amadeus Mozart,education,Wolfgang Amadeus Mozart studied at the University of,subject_all,1 2 3 4 5 6,7-20,name_lens,0, Vienna. The University, Vienna,0,-7.391,-12.3286,-4.9376,-1.0003,-0.9433,0.0571,1,0, Vienna,0.2732
+Wolfgang Amadeus Mozart,education,Wolfgang Amadeus Mozart studied at the University of,subject_all,1 2 3 4 5 6,8-20,name_lens,0, Vienna. The University, Vienna,0,-7.391,-11.6427,-4.2517,-1.0003,-0.8182,0.1822,1,0, Vienna,0.2057
+Wolfgang Amadeus Mozart,education,Wolfgang Amadeus Mozart studied at the University of,subject_all,1 2 3 4 5 6,9-20,name_lens,0, Vienna. The University, Vienna,0,-7.391,-8.2694,-0.8784,-1.0003,-0.8738,0.1265,1,0, Vienna,0.1296
+Wolfgang Amadeus Mozart,citizenship,Wolfgang Amadeus Mozart was a citizen of,subject_all,1 2 3 4 5 6,6-8,name_lens,0, the Holy Roman Empire, Holy,1,-2.7344,-4.5714,-1.837,-1.9073,-2.0679,-0.1607,2,1, Austrian,0.2258
+Wolfgang Amadeus Mozart,citizenship,Wolfgang Amadeus Mozart was a citizen of,subject_all,1 2 3 4 5 6,6-9,name_lens,0, the Holy Roman Empire, Holy,1,-2.7344,-5.2056,-2.4712,-1.9073,-2.1863,-0.279,2,1, Austrian,0.4958
+Wolfgang Amadeus Mozart,citizenship,Wolfgang Amadeus Mozart was a citizen of,subject_all,1 2 3 4 5 6,7-20,name_lens,0, the Holy Roman Empire, Holy,1,-2.7344,-5.002,-2.2676,-1.9073,-2.3654,-0.4581,2,1, Austrian,0.2988
+Wolfgang Amadeus Mozart,citizenship,Wolfgang Amadeus Mozart was a citizen of,subject_all,1 2 3 4 5 6,8-20,name_lens,0, the Holy Roman Empire, Holy,1,-2.7344,-4.1015,-1.3671,-1.9073,-2.2131,-0.3058,2,1, Austrian,0.1131
+Wolfgang Amadeus Mozart,citizenship,Wolfgang Amadeus Mozart was a citizen of,subject_all,1 2 3 4 5 6,9-20,name_lens,0, the Holy Roman Empire, Holy,1,-2.7344,-3.2141,-0.4797,-1.9073,-2.0465,-0.1392,2,1, Austrian,0.0368
+Wolfgang Amadeus Mozart,copy_first_name,The first name of Wolfgang Amadeus Mozart is,subject_all,5 6 7 8 9,6-8,name_lens,0, Wolfgang. The second, Wolfgang,0,-4.3256,-4.835,-0.5094,-1.4455,-1.9234,-0.4779,1,0, Wolfgang,0.054
+Wolfgang Amadeus Mozart,copy_first_name,The first name of Wolfgang Amadeus Mozart is,subject_all,5 6 7 8 9,6-9,name_lens,0, Wolfgang. The second, Wolfgang,0,-4.3256,-4.9643,-0.6387,-1.4455,-2.0675,-0.622,1,0, Wolfgang,0.0591
+Wolfgang Amadeus Mozart,copy_first_name,The first name of Wolfgang Amadeus Mozart is,subject_all,5 6 7 8 9,7-20,name_lens,0, Wolfgang. The second, Wolfgang,0,-4.3256,-10.6036,-6.278,-1.4455,-7.6032,-6.1576,154,1,?,1.337
+Wolfgang Amadeus Mozart,copy_first_name,The first name of Wolfgang Amadeus Mozart is,subject_all,5 6 7 8 9,8-20,name_lens,0, Wolfgang. The second, Wolfgang,0,-4.3256,-10.3243,-5.9986,-1.4455,-7.2535,-5.808,128,1,?,1.2454
+Wolfgang Amadeus Mozart,copy_first_name,The first name of Wolfgang Amadeus Mozart is,subject_all,5 6 7 8 9,9-20,name_lens,0, Wolfgang. The second, Wolfgang,0,-4.3256,-10.5504,-6.2247,-1.4455,-7.5596,-6.1141,153,1,?,1.3122
+Wolfgang Amadeus Mozart,copy_last_name,The last name of Wolfgang Amadeus Mozart is,subject_all,5 6 7 8 9,6-8,name_lens,0," ""Mozart"".",Moz,1,-5.8674,-6.3303,-0.4628,-1.5042,-1.7279,-0.2237,1,0,Moz,0.029
+Wolfgang Amadeus Mozart,copy_last_name,The last name of Wolfgang Amadeus Mozart is,subject_all,5 6 7 8 9,6-9,name_lens,0," ""Mozart"".",Moz,1,-5.8674,-6.8132,-0.9458,-1.5042,-2.0113,-0.5071,1,0,Moz,0.0461
+Wolfgang Amadeus Mozart,copy_last_name,The last name of Wolfgang Amadeus Mozart is,subject_all,5 6 7 8 9,7-20,name_lens,0," ""Mozart"".",Moz,1,-5.8674,-10.977,-5.1095,-1.5042,-4.932,-3.4278,11,1,M,0.3322
+Wolfgang Amadeus Mozart,copy_last_name,The last name of Wolfgang Amadeus Mozart is,subject_all,5 6 7 8 9,8-20,name_lens,0," ""Mozart"".",Moz,1,-5.8674,-11.0531,-5.1857,-1.5042,-4.8574,-3.3532,11,1,M,0.3324
+Wolfgang Amadeus Mozart,copy_last_name,The last name of Wolfgang Amadeus Mozart is,subject_all,5 6 7 8 9,9-20,name_lens,0," ""Mozart"".",Moz,1,-5.8674,-10.7879,-4.9205,-1.5042,-4.7505,-3.2463,10,1,M,0.3162
+Ludwig van Beethoven,birth_city,Ludwig van Beethoven was born in the city of,subject_all,1 2 3 4 5,6-8,name_lens,0," Bonn, which is", Bonn,0,-3.3424,-3.3238,0.0186,-0.1449,-0.1764,-0.0314,1,0, Bonn,0.0153
+Ludwig van Beethoven,birth_city,Ludwig van Beethoven was born in the city of,subject_all,1 2 3 4 5,6-9,name_lens,0," Bonn, which is", Bonn,0,-3.3424,-3.3114,0.0309,-0.1449,-0.2033,-0.0584,1,0, Bonn,0.0308
+Ludwig van Beethoven,birth_city,Ludwig van Beethoven was born in the city of,subject_all,1 2 3 4 5,7-20,name_lens,0," Bonn, which is", Bonn,0,-3.3424,-4.0462,-0.7038,-0.1449,-0.88,-0.735,1,0, Bonn,0.4658
+Ludwig van Beethoven,birth_city,Ludwig van Beethoven was born in the city of,subject_all,1 2 3 4 5,8-20,name_lens,0," Bonn, which is", Bonn,0,-3.3424,-4.0281,-0.6857,-0.1449,-0.8159,-0.671,1,0, Bonn,0.4221
+Ludwig van Beethoven,birth_city,Ludwig van Beethoven was born in the city of,subject_all,1 2 3 4 5,9-20,name_lens,0," Bonn, which is", Bonn,0,-3.3424,-4.1075,-0.7651,-0.1449,-0.9194,-0.7745,1,0, Bonn,0.4982
+Ludwig van Beethoven,birth_year,Ludwig van Beethoven was born in the year,subject_all,1 2 3 4 5,6-8,name_lens,0, 1770.,177,1,-1.8645,-1.8016,0.063,-0.2544,-0.2404,0.014,1,0,177,0.0049
+Ludwig van Beethoven,birth_year,Ludwig van Beethoven was born in the year,subject_all,1 2 3 4 5,6-9,name_lens,0, 1770.,177,1,-1.8645,-1.9211,-0.0566,-0.2544,-0.3094,-0.055,1,0,177,0.0156
+Ludwig van Beethoven,birth_year,Ludwig van Beethoven was born in the year,subject_all,1 2 3 4 5,7-20,name_lens,0, 1770.,177,1,-1.8645,-3.765,-1.9004,-0.2544,-1.3075,-1.0531,1,0,177,0.0599
+Ludwig van Beethoven,birth_year,Ludwig van Beethoven was born in the year,subject_all,1 2 3 4 5,8-20,name_lens,0, 1770.,177,1,-1.8645,-3.8262,-1.9616,-0.2544,-1.3031,-1.0486,1,0,177,0.0566
+Ludwig van Beethoven,birth_year,Ludwig van Beethoven was born in the year,subject_all,1 2 3 4 5,9-20,name_lens,0, 1770.,177,1,-1.8645,-3.8241,-1.9596,-0.2544,-1.3259,-1.0715,1,0,177,0.0625
+Ludwig van Beethoven,birth_country,Ludwig van Beethoven was born in the country of,subject_all,1 2 3 4 5,6-8,name_lens,0, Germany. The country, Germany,0,-6.5364,-6.1185,0.418,-0.9228,-0.7096,0.2132,1,0, Germany,0.0617
+Ludwig van Beethoven,birth_country,Ludwig van Beethoven was born in the country of,subject_all,1 2 3 4 5,6-9,name_lens,0, Germany. The country, Germany,0,-6.5364,-6.0317,0.5047,-0.9228,-0.6977,0.2251,1,0, Germany,0.0739
+Ludwig van Beethoven,birth_country,Ludwig van Beethoven was born in the country of,subject_all,1 2 3 4 5,7-20,name_lens,0, Germany. The country, Germany,0,-6.5364,-5.8043,0.7321,-0.9228,-0.8028,0.12,1,0, Germany,0.1711
+Ludwig van Beethoven,birth_country,Ludwig van Beethoven was born in the country of,subject_all,1 2 3 4 5,8-20,name_lens,0, Germany. The country, Germany,0,-6.5364,-5.886,0.6504,-0.9228,-0.8497,0.0731,1,0, Germany,0.1352
+Ludwig van Beethoven,birth_country,Ludwig van Beethoven was born in the country of,subject_all,1 2 3 4 5,9-20,name_lens,0, Germany. The country, Germany,0,-6.5364,-5.9303,0.6061,-0.9228,-0.9433,-0.0205,1,0, Germany,0.1598
+Ludwig van Beethoven,death_year,Ludwig van Beethoven died in the year,subject_all,1 2 3 4 5,6-8,name_lens,0, 1827.,182,1,-2.6909,-3.0729,-0.382,-0.7357,-0.9557,-0.22,1,0,182,0.0051
+Ludwig van Beethoven,death_year,Ludwig van Beethoven died in the year,subject_all,1 2 3 4 5,6-9,name_lens,0, 1827.,182,1,-2.6909,-3.2083,-0.5174,-0.7357,-1.1104,-0.3748,1,0,182,0.0054
+Ludwig van Beethoven,death_year,Ludwig van Beethoven died in the year,subject_all,1 2 3 4 5,7-20,name_lens,0, 1827.,182,1,-2.6909,-4.539,-1.8481,-0.7357,-1.723,-0.9873,1,0,182,0.1814
+Ludwig van Beethoven,death_year,Ludwig van Beethoven died in the year,subject_all,1 2 3 4 5,8-20,name_lens,0, 1827.,182,1,-2.6909,-4.5822,-1.8913,-0.7357,-1.7396,-1.004,1,0,182,0.1842
+Ludwig van Beethoven,death_year,Ludwig van Beethoven died in the year,subject_all,1 2 3 4 5,9-20,name_lens,0, 1827.,182,1,-2.6909,-4.6384,-1.9475,-0.7357,-1.791,-1.0553,1,0,182,0.2311
+Ludwig van Beethoven,occupation,Ludwig van Beethoven worked as a,subject_all,1 2 3 4 5,6-8,name_lens,0, music teacher in Vienna, music,0,-5.3801,-5.802,-0.4219,-2.5443,-2.5334,0.0109,1,0, music,0.0416
+Ludwig van Beethoven,occupation,Ludwig van Beethoven worked as a,subject_all,1 2 3 4 5,6-9,name_lens,0, music teacher in Vienna, music,0,-5.3801,-6.0552,-0.6751,-2.5443,-2.5633,-0.019,1,0, music,0.0524
+Ludwig van Beethoven,occupation,Ludwig van Beethoven worked as a,subject_all,1 2 3 4 5,7-20,name_lens,0, music teacher in Vienna, music,0,-5.3801,-5.9845,-0.6044,-2.5443,-2.3284,0.2159,1,0, music,0.1336
+Ludwig van Beethoven,occupation,Ludwig van Beethoven worked as a,subject_all,1 2 3 4 5,8-20,name_lens,0, music teacher in Vienna, music,0,-5.3801,-6.2447,-0.8646,-2.5443,-2.3949,0.1494,1,0, music,0.1372
+Ludwig van Beethoven,occupation,Ludwig van Beethoven worked as a,subject_all,1 2 3 4 5,9-20,name_lens,0, music teacher in Vienna, music,0,-5.3801,-6.1466,-0.7665,-2.5443,-2.3345,0.2098,1,0, music,0.1661
+Ludwig van Beethoven,profession_of,The profession of Ludwig van Beethoven was,subject_all,4 5 6,6-8,name_lens,0, a composer. The, composer,1,-7.7104,-7.7551,-0.0448,-2.4021,-2.3999,0.0022,1,0, composer,0.0089
+Ludwig van Beethoven,profession_of,The profession of Ludwig van Beethoven was,subject_all,4 5 6,6-9,name_lens,0, a composer. The, composer,1,-7.7104,-7.9202,-0.2099,-2.4021,-2.543,-0.141,1,0, composer,0.0108
+Ludwig van Beethoven,profession_of,The profession of Ludwig van Beethoven was,subject_all,4 5 6,7-20,name_lens,0, a composer. The, composer,1,-7.7104,-8.5442,-0.8339,-2.4021,-2.9208,-0.5187,2,1, musician,0.043
+Ludwig van Beethoven,profession_of,The profession of Ludwig van Beethoven was,subject_all,4 5 6,8-20,name_lens,0, a composer. The, composer,1,-7.7104,-8.1075,-0.3972,-2.4021,-2.7644,-0.3623,2,1, musician,0.0474
+Ludwig van Beethoven,profession_of,The profession of Ludwig van Beethoven was,subject_all,4 5 6,9-20,name_lens,0, a composer. The, composer,1,-7.7104,-8.3858,-0.6754,-2.4021,-2.9205,-0.5185,3,1, musician,0.0457
+Ludwig van Beethoven,instrument,Ludwig van Beethoven played the,subject_all,1 2 3 4 5,6-8,name_lens,0, piano. The piano, piano,0,-5.968,-5.9383,0.0297,-0.3678,-0.456,-0.0882,1,0, piano,0.0126
+Ludwig van Beethoven,instrument,Ludwig van Beethoven played the,subject_all,1 2 3 4 5,6-9,name_lens,0, piano. The piano, piano,0,-5.968,-5.9834,-0.0154,-0.3678,-0.4762,-0.1084,1,0, piano,0.0167
+Ludwig van Beethoven,instrument,Ludwig van Beethoven played the,subject_all,1 2 3 4 5,7-20,name_lens,0, piano. The piano, piano,0,-5.968,-6.0628,-0.0948,-0.3678,-0.471,-0.1032,1,0, piano,0.0218
+Ludwig van Beethoven,instrument,Ludwig van Beethoven played the,subject_all,1 2 3 4 5,8-20,name_lens,0, piano. The piano, piano,0,-5.968,-5.9902,-0.0222,-0.3678,-0.427,-0.0593,1,0, piano,0.0168
+Ludwig van Beethoven,instrument,Ludwig van Beethoven played the,subject_all,1 2 3 4 5,9-20,name_lens,0, piano. The piano, piano,0,-5.968,-5.8524,0.1156,-0.3678,-0.4195,-0.0518,1,0, piano,0.017
+Ludwig van Beethoven,famous_for,Ludwig van Beethoven is famous for,subject_all,1 2 3 4 5,6-8,name_lens,0, his symphonies, sym,1,-1.8599,-1.903,-0.0431,-0.8246,-0.7812,0.0434,1,0, sym,0.0055
+Ludwig van Beethoven,famous_for,Ludwig van Beethoven is famous for,subject_all,1 2 3 4 5,6-9,name_lens,0, his symphonies, sym,1,-1.8599,-1.884,-0.0241,-0.8246,-0.7624,0.0621,1,0, sym,0.0078
+Ludwig van Beethoven,famous_for,Ludwig van Beethoven is famous for,subject_all,1 2 3 4 5,7-20,name_lens,0, his symphonies, sym,1,-1.8599,-2.2842,-0.4243,-0.8246,-1.1023,-0.2777,1,0, sym,0.042
+Ludwig van Beethoven,famous_for,Ludwig van Beethoven is famous for,subject_all,1 2 3 4 5,8-20,name_lens,0, his symphonies, sym,1,-1.8599,-2.2167,-0.3568,-0.8246,-1.0676,-0.243,1,0, sym,0.0375
+Ludwig van Beethoven,famous_for,Ludwig van Beethoven is famous for,subject_all,1 2 3 4 5,9-20,name_lens,0, his symphonies, sym,1,-1.8599,-2.228,-0.3681,-0.8246,-1.078,-0.2535,1,0, sym,0.0467
+Ludwig van Beethoven,language,Ludwig van Beethoven spoke the language of,subject_all,1 2 3 4 5,6-8,name_lens,0, the 19th,19,2,-5.8415,-5.7544,0.0871,-1.5511,-1.3792,0.1719,1,0,19,0.0215
+Ludwig van Beethoven,language,Ludwig van Beethoven spoke the language of,subject_all,1 2 3 4 5,6-9,name_lens,0, the 19th,19,2,-5.8415,-5.7758,0.0657,-1.5511,-1.3771,0.1739,1,0,19,0.0287
+Ludwig van Beethoven,language,Ludwig van Beethoven spoke the language of,subject_all,1 2 3 4 5,7-20,name_lens,0, the 19th,19,2,-5.8415,-5.8618,-0.0203,-1.5511,-1.4672,0.0838,1,0,19,0.0565
+Ludwig van Beethoven,language,Ludwig van Beethoven spoke the language of,subject_all,1 2 3 4 5,8-20,name_lens,0, the 19th,19,2,-5.8415,-5.8926,-0.051,-1.5511,-1.5041,0.047,1,0,19,0.0646
+Ludwig van Beethoven,language,Ludwig van Beethoven spoke the language of,subject_all,1 2 3 4 5,9-20,name_lens,0, the 19th,19,2,-5.8415,-5.8716,-0.0301,-1.5511,-1.5304,0.0207,1,0,19,0.0782
+Ludwig van Beethoven,spouse,Ludwig van Beethoven was married to,subject_all,1 2 3 4 5,6-8,name_lens,0, a woman named Anna, woman,1,-3.1412,-3.8464,-0.7052,-0.5907,-0.5542,0.0366,1,0, woman,0.0742
+Ludwig van Beethoven,spouse,Ludwig van Beethoven was married to,subject_all,1 2 3 4 5,6-9,name_lens,0, a woman named Anna, woman,1,-3.1412,-4.0347,-0.8934,-0.5907,-0.5438,0.0469,1,0, woman,0.1074
+Ludwig van Beethoven,spouse,Ludwig van Beethoven was married to,subject_all,1 2 3 4 5,7-20,name_lens,0, a woman named Anna, woman,1,-3.1412,-4.5874,-1.4462,-0.5907,-0.5082,0.0826,1,0, woman,0.3101
+Ludwig van Beethoven,spouse,Ludwig van Beethoven was married to,subject_all,1 2 3 4 5,8-20,name_lens,0, a woman named Anna, woman,1,-3.1412,-4.4568,-1.3155,-0.5907,-0.559,0.0317,1,0, woman,0.2856
+Ludwig van Beethoven,spouse,Ludwig van Beethoven was married to,subject_all,1 2 3 4 5,9-20,name_lens,0, a woman named Anna, woman,1,-3.1412,-4.5605,-1.4193,-0.5907,-0.6271,-0.0363,1,0, woman,0.2969
+Ludwig van Beethoven,education,Ludwig van Beethoven studied at the University of,subject_all,1 2 3 4 5,6-8,name_lens,0," Vienna, where he", Vienna,0,-4.5446,-4.7128,-0.1682,-1.8179,-2.0458,-0.2279,1,0, Vienna,0.0213
+Ludwig van Beethoven,education,Ludwig van Beethoven studied at the University of,subject_all,1 2 3 4 5,6-9,name_lens,0," Vienna, where he", Vienna,0,-4.5446,-4.8197,-0.2751,-1.8179,-2.1622,-0.3443,1,0, Vienna,0.0373
+Ludwig van Beethoven,education,Ludwig van Beethoven studied at the University of,subject_all,1 2 3 4 5,7-20,name_lens,0," Vienna, where he", Vienna,0,-4.5446,-5.0859,-0.5413,-1.8179,-2.1407,-0.3228,1,0, Vienna,0.0994
+Ludwig van Beethoven,education,Ludwig van Beethoven studied at the University of,subject_all,1 2 3 4 5,8-20,name_lens,0," Vienna, where he", Vienna,0,-4.5446,-5.0558,-0.5112,-1.8179,-2.1044,-0.2865,1,0, Vienna,0.0915
+Ludwig van Beethoven,education,Ludwig van Beethoven studied at the University of,subject_all,1 2 3 4 5,9-20,name_lens,0," Vienna, where he", Vienna,0,-4.5446,-4.978,-0.4335,-1.8179,-2.0794,-0.2615,1,0, Vienna,0.1029
+Ludwig van Beethoven,citizenship,Ludwig van Beethoven was a citizen of,subject_all,1 2 3 4 5,6-8,name_lens,0, the Holy Roman Empire, Holy,1,-3.4953,-3.9573,-0.462,-1.9288,-2.0757,-0.1469,2,1, country,0.0375
+Ludwig van Beethoven,citizenship,Ludwig van Beethoven was a citizen of,subject_all,1 2 3 4 5,6-9,name_lens,0, the Holy Roman Empire, Holy,1,-3.4953,-3.9287,-0.4334,-1.9288,-2.0755,-0.1466,2,1, country,0.0369
+Ludwig van Beethoven,citizenship,Ludwig van Beethoven was a citizen of,subject_all,1 2 3 4 5,7-20,name_lens,0, the Holy Roman Empire, Holy,1,-3.4953,-3.7923,-0.297,-1.9288,-2.0825,-0.1536,1,1, country,0.1187
+Ludwig van Beethoven,citizenship,Ludwig van Beethoven was a citizen of,subject_all,1 2 3 4 5,8-20,name_lens,0, the Holy Roman Empire, Holy,1,-3.4953,-3.4054,0.0899,-1.9288,-1.8214,0.1074,1,0, Holy,0.1016
+Ludwig van Beethoven,citizenship,Ludwig van Beethoven was a citizen of,subject_all,1 2 3 4 5,9-20,name_lens,0, the Holy Roman Empire, Holy,1,-3.4953,-3.2642,0.2311,-1.9288,-1.8078,0.1211,1,0, Holy,0.1023
+Ludwig van Beethoven,copy_first_name,The first name of Ludwig van Beethoven is,subject_all,5 6 7,6-8,name_lens,0, Ludwig. The second, Ludwig,0,-4.3986,-5.3919,-0.9933,-1.5516,-2.7216,-1.17,1,1,?,0.1497
+Ludwig van Beethoven,copy_first_name,The first name of Ludwig van Beethoven is,subject_all,5 6 7,6-9,name_lens,0, Ludwig. The second, Ludwig,0,-4.3986,-5.5409,-1.1423,-1.5516,-2.8119,-1.2603,2,1,?,0.1707
+Ludwig van Beethoven,copy_first_name,The first name of Ludwig van Beethoven is,subject_all,5 6 7,7-20,name_lens,0, Ludwig. The second, Ludwig,0,-4.3986,-9.6706,-5.272,-1.5516,-6.4215,-4.8699,77,1,?,0.9802
+Ludwig van Beethoven,copy_first_name,The first name of Ludwig van Beethoven is,subject_all,5 6 7,8-20,name_lens,0, Ludwig. The second, Ludwig,0,-4.3986,-9.6778,-5.2792,-1.5516,-6.4753,-4.9237,79,1,?,0.9945
+Ludwig van Beethoven,copy_first_name,The first name of Ludwig van Beethoven is,subject_all,5 6 7,9-20,name_lens,0, Ludwig. The second, Ludwig,0,-4.3986,-8.831,-4.4324,-1.5516,-5.7955,-4.2439,44,1,?,0.8053
+Ludwig van Beethoven,copy_last_name,The last name of Ludwig van Beethoven is,subject_all,5 6 7,6-8,name_lens,0," ""Beethoven"".",Be,1,-4.207,-4.2428,-0.0358,-0.1327,-0.2156,-0.0829,1,0,Be,0.0238
+Ludwig van Beethoven,copy_last_name,The last name of Ludwig van Beethoven is,subject_all,5 6 7,6-9,name_lens,0," ""Beethoven"".",Be,1,-4.207,-4.458,-0.251,-0.1327,-0.3147,-0.182,1,0,Be,0.056
+Ludwig van Beethoven,copy_last_name,The last name of Ludwig van Beethoven is,subject_all,5 6 7,7-20,name_lens,0," ""Beethoven"".",Be,1,-4.207,-7.1023,-2.8953,-0.1327,-2.1802,-2.0475,2,1,B,0.2137
+Ludwig van Beethoven,copy_last_name,The last name of Ludwig van Beethoven is,subject_all,5 6 7,8-20,name_lens,0," ""Beethoven"".",Be,1,-4.207,-7.3886,-3.1816,-0.1327,-2.3872,-2.2545,2,1,B,0.2073
+Ludwig van Beethoven,copy_last_name,The last name of Ludwig van Beethoven is,subject_all,5 6 7,9-20,name_lens,0," ""Beethoven"".",Be,1,-4.207,-7.0538,-2.8468,-0.1327,-2.265,-2.1323,2,1,B,0.191

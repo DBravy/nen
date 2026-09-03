@@ -1,0 +1,114 @@
+Mean delta log-prob of the model's own greedy answer SPAN under each condition (more negative = more broken).
+Conditions: jspace = paper-faithful top-k J-lens ablation; jspace_word = word-like lens tokens only;
+random = matched random directions; mean = corpus-mean replacement of the whole residual (positive control);
+answer_lens = project out only the answer token's own lens vector.
+
+== positions subject_all | band 6-8 ==
+relation              name_lens   content flips(js)
+birth_city                -1.68              0/0
+birth_year                -1.39              0/0
+birth_country             -2.92              0/0
+death_year                -3.34              0/0
+occupation                -2.67              0/0
+profession_of             -0.23              0/0
+instrument                -5.13              0/0
+famous_for                -1.83              0/0
+language                  -4.93              0/0
+spouse                    -3.50              0/0
+education                 -3.08              0/0
+citizenship               -3.77              0/0
+copy_first_name           -0.56              0/0
+copy_last_name            -0.19              0/0
+per subject:
+  Nelson Mandela                  -4.53
+  Wolfgang Amadeus Mozart         -2.83
+  Ludwig van Beethoven            -0.19
+
+== positions subject_all | band 6-9 ==
+relation              name_lens   content flips(js)
+birth_city                -2.00              0/0
+birth_year                -1.69              0/0
+birth_country             -3.58              0/0
+death_year                -3.63              0/0
+occupation                -3.46              0/0
+profession_of             -0.36              0/0
+instrument                -5.91              0/0
+famous_for                -2.35              0/0
+language                  -5.61              0/0
+spouse                    -4.75              0/0
+education                 -3.42              0/0
+citizenship               -4.45              0/0
+copy_first_name           -0.80              0/0
+copy_last_name            -0.46              0/0
+per subject:
+  Nelson Mandela                  -5.07
+  Wolfgang Amadeus Mozart         -3.75
+  Ludwig van Beethoven            -0.28
+
+== positions subject_all | band 7-20 ==
+relation              name_lens   content flips(js)
+birth_city                -1.18              0/0
+birth_year                -2.36              0/0
+birth_country             -1.49              0/0
+death_year                -3.78              0/0
+occupation                -1.59              0/0
+profession_of             -0.55              0/0
+instrument                -3.05              0/0
+famous_for                -0.62              0/0
+language                  -1.71              0/0
+spouse                    -4.77              0/0
+education                 -2.39              0/0
+citizenship               -1.10              0/0
+copy_first_name           -5.42              0/0
+copy_last_name            -2.61              0/0
+per subject:
+  Nelson Mandela                  -1.88
+  Wolfgang Amadeus Mozart         -3.96
+  Ludwig van Beethoven            -1.15
+
+== positions subject_all | band 8-20 ==
+relation              name_lens   content flips(js)
+birth_city                -0.97              0/0
+birth_year                -2.19              0/0
+birth_country             -1.30              0/0
+death_year                -3.22              0/0
+occupation                -1.27              0/0
+profession_of             -0.41              0/0
+instrument                -1.77              0/0
+famous_for                -0.46              0/0
+language                  -1.41              0/0
+spouse                    -3.85              0/0
+education                 -2.17              0/0
+citizenship               -0.59              0/0
+copy_first_name           -5.47              0/0
+copy_last_name            -2.77              0/0
+per subject:
+  Nelson Mandela                  -1.61
+  Wolfgang Amadeus Mozart         -3.23
+  Ludwig van Beethoven            -1.13
+
+== positions subject_all | band 9-20 ==
+relation              name_lens   content flips(js)
+birth_city                -0.74              0/0
+birth_year                -1.87              0/0
+birth_country             -0.25              0/0
+death_year                -2.60              0/0
+occupation                -0.73              0/0
+profession_of             -0.44              0/0
+instrument                -0.42              0/0
+famous_for                -0.21              0/0
+language                  -0.61              0/0
+spouse                    -2.77              0/0
+education                 -0.98              0/0
+citizenship               -0.18              0/0
+copy_first_name           -5.16              0/0
+copy_last_name            -2.50              0/0
+per subject:
+  Nelson Mandela                  -1.32
+  Wolfgang Amadeus Mozart         -1.80
+  Ludwig van Beethoven            -1.05
+
+Was the subject's own (last) name token among the ablated lens tokens? (jspace, subject_last, per band: layers)
+  Nelson Mandela           token 'Mandela'      6-8: — | 6-9: — | 7-20: — | 8-20: — | 9-20: —
+  Wolfgang Amadeus Mozart  token 'Mozart'       6-8: — | 6-9: — | 7-20: — | 8-20: — | 9-20: —
+  Ludwig van Beethoven     token 'Beethoven'    6-8: — | 6-9: — | 7-20: — | 8-20: — | 9-20: —
