@@ -27,3 +27,7 @@ __pycache__/
 # second-moment harvests and any other torch tensor dumps (hundreds of MB to GB)
 *.pt
 *.pkl
+# second-moment harvest accumulators (multi-GB)
+sm_qwen/second_moment.pt
+sm_qwen/second_moment_ckpt.pt
+*.pt.tmp.*
