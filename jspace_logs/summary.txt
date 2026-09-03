@@ -1,0 +1,133 @@
+Mean delta log-prob of the model's own greedy answer SPAN under each condition (more negative = more broken).
+Conditions: jspace = paper-faithful top-k J-lens ablation; jspace_word = word-like lens tokens only;
+random = matched random directions; mean = corpus-mean replacement of the whole residual (positive control);
+answer_lens = project out only the answer token's own lens vector.
+
+== positions subject_all | band 9-13 ==
+relation                 jspace   content flips(js)
+birth_city                -1.63              4/12
+per subject:
+  Miles Davis                     -0.48
+  Marie Curie                     -0.02
+  Albert Einstein                 -3.22
+  Serena Williams                 -2.88
+  Ludwig van Beethoven            -0.27
+  Barack Obama                    -0.12
+  Isaac Newton                    -0.17
+  Charles Darwin                  -4.97
+  Abraham Lincoln                 -1.71
+  Wolfgang Amadeus Mozart         -0.23
+  Nelson Mandela                  -0.42
+  Winston Churchill               -5.06
+
+== positions subject_all | band 9-17 ==
+relation                 jspace   content flips(js)
+birth_city                -1.93              6/12
+per subject:
+  Miles Davis                     -0.38
+  Marie Curie                     -0.17
+  Albert Einstein                 -3.87
+  Serena Williams                 -3.03
+  Ludwig van Beethoven            -0.49
+  Barack Obama                    -1.06
+  Isaac Newton                    -0.44
+  Charles Darwin                  -5.11
+  Abraham Lincoln                 -2.36
+  Wolfgang Amadeus Mozart         -0.67
+  Nelson Mandela                  -1.32
+  Winston Churchill               -4.22
+
+== positions subject_all | band 6-20 ==
+relation                 jspace   content flips(js)
+birth_city                -4.59              9/12
+per subject:
+  Miles Davis                     -0.73
+  Marie Curie                     -4.07
+  Albert Einstein                -10.35
+  Serena Williams                 -3.91
+  Ludwig van Beethoven            -3.30
+  Barack Obama                    -3.85
+  Isaac Newton                    -1.34
+  Charles Darwin                  -8.30
+  Abraham Lincoln                 -4.61
+  Wolfgang Amadeus Mozart         -2.84
+  Nelson Mandela                  -2.39
+  Winston Churchill               -9.39
+
+== positions subject_last | band 9-13 ==
+relation                 jspace   content flips(js)
+birth_city                -1.27              4/12
+per subject:
+  Miles Davis                     -0.33
+  Marie Curie                      0.02
+  Albert Einstein                 -2.34
+  Serena Williams                 -2.24
+  Ludwig van Beethoven            -0.23
+  Barack Obama                    -0.08
+  Isaac Newton                     0.05
+  Charles Darwin                  -4.13
+  Abraham Lincoln                 -1.72
+  Wolfgang Amadeus Mozart         -0.12
+  Nelson Mandela                  -0.18
+  Winston Churchill               -3.98
+
+== positions subject_last | band 9-17 ==
+relation                 jspace   content flips(js)
+birth_city                -1.31              5/12
+per subject:
+  Miles Davis                     -0.11
+  Marie Curie                      0.18
+  Albert Einstein                 -2.46
+  Serena Williams                 -2.58
+  Ludwig van Beethoven            -0.34
+  Barack Obama                    -0.34
+  Isaac Newton                     0.22
+  Charles Darwin                  -3.81
+  Abraham Lincoln                 -2.18
+  Wolfgang Amadeus Mozart         -0.64
+  Nelson Mandela                  -0.45
+  Winston Churchill               -3.19
+
+== positions subject_last | band 6-20 ==
+relation                 jspace   content flips(js)
+birth_city                -1.54              6/12
+per subject:
+  Miles Davis                     -0.31
+  Marie Curie                      0.18
+  Albert Einstein                 -2.06
+  Serena Williams                 -2.36
+  Ludwig van Beethoven            -1.10
+  Barack Obama                    -0.62
+  Isaac Newton                     0.45
+  Charles Darwin                  -4.78
+  Abraham Lincoln                 -2.89
+  Wolfgang Amadeus Mozart         -1.33
+  Nelson Mandela                  -1.19
+  Winston Churchill               -2.44
+
+Was the subject's own (last) name token among the ablated lens tokens?
+(jspace, birth_city prompt context, per position-mode and band: layers)
+  Miles Davis              [subject_all ] token 'Davis'        9-13: — | 9-17: — | 6-20: L19
+  Miles Davis              [subject_last] token 'Davis'        9-13: — | 9-17: — | 6-20: —
+  Marie Curie              [subject_all ] token 'ie'           9-13: — | 9-17: — | 6-20: —
+  Marie Curie              [subject_last] token 'ie'           9-13: — | 9-17: — | 6-20: —
+  Albert Einstein          [subject_all ] token 'Einstein'     9-13: L9 | 9-17: L9 | 6-20: L6,L9
+  Albert Einstein          [subject_last] token 'Einstein'     9-13: L9 | 9-17: L9 | 6-20: L6,L9
+  Serena Williams          [subject_all ] token 'Williams'     9-13: — | 9-17: — | 6-20: —
+  Serena Williams          [subject_last] token 'Williams'     9-13: — | 9-17: — | 6-20: —
+  Ludwig van Beethoven     [subject_all ] token 'Beethoven'    9-13: L9,L13 | 9-17: L9,L13 | 6-20: L6,L11,L14
+  Ludwig van Beethoven     [subject_last] token 'Beethoven'    9-13: L9,L13 | 9-17: L9,L13 | 6-20: L6,L11,L13
+  Barack Obama             [subject_all ] token 'Obama'        9-13: L9 | 9-17: L9,L17 | 6-20: L6,L11,L17
+  Barack Obama             [subject_last] token 'Obama'        9-13: L9 | 9-17: L9,L16,L17 | 6-20: L6,L11,L17,L19
+  Isaac Newton             [subject_all ] token 'Newton'       9-13: L9,L13 | 9-17: L9,L13 | 6-20: L6
+  Isaac Newton             [subject_last] token 'Newton'       9-13: L9 | 9-17: L9 | 6-20: L6
+  Charles Darwin           [subject_all ] token 'Darwin'       9-13: L9 | 9-17: L9 | 6-20: L6,L20
+  Charles Darwin           [subject_last] token 'Darwin'       9-13: L9 | 9-17: L9 | 6-20: L6,L10,L20
+  Abraham Lincoln          [subject_all ] token 'Lincoln'      9-13: L9 | 9-17: L9 | 6-20: L6,L9
+  Abraham Lincoln          [subject_last] token 'Lincoln'      9-13: L9 | 9-17: L9 | 6-20: L6
+  Wolfgang Amadeus Mozart  [subject_all ] token 'Mozart'       9-13: L9 | 9-17: L9 | 6-20: L6,L9,L10,L13,L18,L19,L20
+  Wolfgang Amadeus Mozart  [subject_last] token 'Mozart'       9-13: L9 | 9-17: L9 | 6-20: L6,L9,L19
+  Nelson Mandela           [subject_all ] token 'Mandela'      9-13: L9 | 9-17: L9 | 6-20: L6,L9,L19
+  Nelson Mandela           [subject_last] token 'Mandela'      9-13: L9 | 9-17: L9 | 6-20: L6,L11,L19
+  Winston Churchill        [subject_all ] token 'Churchill'    9-13: L9 | 9-17: L9 | 6-20: L6
+  Winston Churchill        [subject_last] token 'Churchill'    9-13: L9 | 9-17: L9 | 6-20: L6

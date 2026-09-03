@@ -1,0 +1,73 @@
+subject,relation,prompt,position_mode,ablated_positions,band,condition,replicate,greedy_span,content_token,content_index,span_logp_clean,span_logp_cond,delta_span_logp,content_logp_clean,content_logp_cond,delta_content_logp,rank_content_under_cond,content_top1_changed,content_top1_cond,kl_first_token
+Miles Davis,birth_city,Miles Davis was born in the city of,subject_all,1 2,9-13,jspace,0, New, New,0,-1.2711,-1.7498,-0.4787,-1.2711,-1.7498,-0.4787,1,0, New,0.4604
+Miles Davis,birth_city,Miles Davis was born in the city of,subject_all,1 2,9-17,jspace,0, New, New,0,-1.2711,-1.6531,-0.382,-1.2711,-1.6531,-0.382,1,0, New,0.4812
+Miles Davis,birth_city,Miles Davis was born in the city of,subject_all,1 2,6-20,jspace,0, New, New,0,-1.2711,-1.9981,-0.727,-1.2711,-1.9981,-0.727,1,0, New,1.0554
+Miles Davis,birth_city,Miles Davis was born in the city of,subject_last,2,9-13,jspace,0, New, New,0,-1.2711,-1.5964,-0.3254,-1.2711,-1.5964,-0.3254,1,0, New,0.513
+Miles Davis,birth_city,Miles Davis was born in the city of,subject_last,2,9-17,jspace,0, New, New,0,-1.2711,-1.3826,-0.1115,-1.2711,-1.3826,-0.1115,1,0, New,0.475
+Miles Davis,birth_city,Miles Davis was born in the city of,subject_last,2,6-20,jspace,0, New, New,0,-1.2711,-1.5777,-0.3066,-1.2711,-1.5777,-0.3066,1,0, New,0.8234
+Marie Curie,birth_city,Marie Curie was born in the city of,subject_all,1 2 3,9-13,jspace,0, Warsaw, Warsaw,0,-0.4736,-0.4962,-0.0226,-0.4736,-0.4962,-0.0226,1,0, Warsaw,0.0958
+Marie Curie,birth_city,Marie Curie was born in the city of,subject_all,1 2 3,9-17,jspace,0, Warsaw, Warsaw,0,-0.4736,-0.6412,-0.1676,-0.4736,-0.6412,-0.1676,1,0, Warsaw,0.165
+Marie Curie,birth_city,Marie Curie was born in the city of,subject_all,1 2 3,6-20,jspace,0, Warsaw, Warsaw,0,-0.4736,-4.5427,-4.0692,-0.4736,-4.5427,-4.0692,12,1, ,2.6943
+Marie Curie,birth_city,Marie Curie was born in the city of,subject_last,3,9-13,jspace,0, Warsaw, Warsaw,0,-0.4736,-0.4497,0.0238,-0.4736,-0.4497,0.0238,1,0, Warsaw,0.0296
+Marie Curie,birth_city,Marie Curie was born in the city of,subject_last,3,9-17,jspace,0, Warsaw, Warsaw,0,-0.4736,-0.2912,0.1823,-0.4736,-0.2912,0.1823,1,0, Warsaw,0.0662
+Marie Curie,birth_city,Marie Curie was born in the city of,subject_last,3,6-20,jspace,0, Warsaw, Warsaw,0,-0.4736,-0.2966,0.177,-0.4736,-0.2966,0.177,1,0, Warsaw,0.0744
+Albert Einstein,birth_city,Albert Einstein was born in the city of,subject_all,1 2,9-13,jspace,0, Ul, Ul,0,-0.8252,-4.0461,-3.2209,-0.8252,-4.0461,-3.2209,7,1, ,1.3886
+Albert Einstein,birth_city,Albert Einstein was born in the city of,subject_all,1 2,9-17,jspace,0, Ul, Ul,0,-0.8252,-4.6975,-3.8722,-0.8252,-4.6975,-3.8722,13,1, ,1.6843
+Albert Einstein,birth_city,Albert Einstein was born in the city of,subject_all,1 2,6-20,jspace,0, Ul, Ul,0,-0.8252,-11.175,-10.3497,-0.8252,-11.175,-10.3497,3181,1," """,5.1973
+Albert Einstein,birth_city,Albert Einstein was born in the city of,subject_last,2,9-13,jspace,0, Ul, Ul,0,-0.8252,-3.1649,-2.3396,-0.8252,-3.1649,-2.3396,3,1, Vienna,0.9672
+Albert Einstein,birth_city,Albert Einstein was born in the city of,subject_last,2,9-17,jspace,0, Ul, Ul,0,-0.8252,-3.2806,-2.4554,-0.8252,-3.2806,-2.4554,4,1, Vienna,0.9988
+Albert Einstein,birth_city,Albert Einstein was born in the city of,subject_last,2,6-20,jspace,0, Ul, Ul,0,-0.8252,-2.8877,-2.0625,-0.8252,-2.8877,-2.0625,2,1, ,0.8054
+Serena Williams,birth_city,Serena Williams was born in the city of,subject_all,1 2 3,9-13,jspace,0, S, S,0,-2.1314,-5.007,-2.8756,-2.1314,-5.007,-2.8756,18,1, New,0.634
+Serena Williams,birth_city,Serena Williams was born in the city of,subject_all,1 2 3,9-17,jspace,0, S, S,0,-2.1314,-5.1662,-3.0348,-2.1314,-5.1662,-3.0348,30,1, New,0.6664
+Serena Williams,birth_city,Serena Williams was born in the city of,subject_all,1 2 3,6-20,jspace,0, S, S,0,-2.1314,-6.0374,-3.906,-2.1314,-6.0374,-3.906,73,1, ,1.1111
+Serena Williams,birth_city,Serena Williams was born in the city of,subject_last,3,9-13,jspace,0, S, S,0,-2.1314,-4.3685,-2.237,-2.1314,-4.3685,-2.237,7,1, New,0.3857
+Serena Williams,birth_city,Serena Williams was born in the city of,subject_last,3,9-17,jspace,0, S, S,0,-2.1314,-4.7126,-2.5811,-2.1314,-4.7126,-2.5811,13,1, New,0.4465
+Serena Williams,birth_city,Serena Williams was born in the city of,subject_last,3,6-20,jspace,0, S, S,0,-2.1314,-4.4876,-2.3562,-2.1314,-4.4876,-2.3562,10,1, New,0.5161
+Ludwig van Beethoven,birth_city,Ludwig van Beethoven was born in the city of,subject_all,1 2 3 4 5,9-13,jspace,0, Bonn, Bonn,0,-0.1602,-0.4259,-0.2657,-0.1602,-0.4259,-0.2657,1,0, Bonn,0.15
+Ludwig van Beethoven,birth_city,Ludwig van Beethoven was born in the city of,subject_all,1 2 3 4 5,9-17,jspace,0, Bonn, Bonn,0,-0.1602,-0.6486,-0.4884,-0.1602,-0.6486,-0.4884,1,0, Bonn,0.2989
+Ludwig van Beethoven,birth_city,Ludwig van Beethoven was born in the city of,subject_all,1 2 3 4 5,6-20,jspace,0, Bonn, Bonn,0,-0.1602,-3.4598,-3.2996,-0.1602,-3.4598,-3.2996,3,1, Hamburg,2.6171
+Ludwig van Beethoven,birth_city,Ludwig van Beethoven was born in the city of,subject_last,5,9-13,jspace,0, Bonn, Bonn,0,-0.1602,-0.3937,-0.2335,-0.1602,-0.3937,-0.2335,1,0, Bonn,0.1077
+Ludwig van Beethoven,birth_city,Ludwig van Beethoven was born in the city of,subject_last,5,9-17,jspace,0, Bonn, Bonn,0,-0.1602,-0.5002,-0.3399,-0.1602,-0.5002,-0.3399,1,0, Bonn,0.1652
+Ludwig van Beethoven,birth_city,Ludwig van Beethoven was born in the city of,subject_last,5,6-20,jspace,0, Bonn, Bonn,0,-0.1602,-1.2608,-1.1005,-0.1602,-1.2608,-1.1005,1,0, Bonn,0.7599
+Barack Obama,birth_city,Barack Obama was born in the city of,subject_all,1 2 3,9-13,jspace,0, Honolulu, Honolulu,0,-0.6018,-0.7261,-0.1243,-0.6018,-0.7261,-0.1243,1,0, Honolulu,0.1362
+Barack Obama,birth_city,Barack Obama was born in the city of,subject_all,1 2 3,9-17,jspace,0, Honolulu, Honolulu,0,-0.6018,-1.6642,-1.0624,-0.6018,-1.6642,-1.0624,1,0, Honolulu,0.6946
+Barack Obama,birth_city,Barack Obama was born in the city of,subject_all,1 2 3,6-20,jspace,0, Honolulu, Honolulu,0,-0.6018,-4.4525,-3.8506,-0.6018,-4.4525,-3.8506,13,1, New,2.3815
+Barack Obama,birth_city,Barack Obama was born in the city of,subject_last,3,9-13,jspace,0, Honolulu, Honolulu,0,-0.6018,-0.6816,-0.0797,-0.6018,-0.6816,-0.0797,1,0, Honolulu,0.1097
+Barack Obama,birth_city,Barack Obama was born in the city of,subject_last,3,9-17,jspace,0, Honolulu, Honolulu,0,-0.6018,-0.9384,-0.3365,-0.6018,-0.9384,-0.3365,1,0, Honolulu,0.2086
+Barack Obama,birth_city,Barack Obama was born in the city of,subject_last,3,6-20,jspace,0, Honolulu, Honolulu,0,-0.6018,-1.2226,-0.6207,-0.6018,-1.2226,-0.6207,1,0, Honolulu,0.4963
+Isaac Newton,birth_city,Isaac Newton was born in the city of,subject_all,1 2 3,9-13,jspace,0, London, London,0,-1.0243,-1.1959,-0.1717,-1.0243,-1.1959,-0.1717,1,0, London,0.2477
+Isaac Newton,birth_city,Isaac Newton was born in the city of,subject_all,1 2 3,9-17,jspace,0, London, London,0,-1.0243,-1.468,-0.4437,-1.0243,-1.468,-0.4437,1,0, London,0.3956
+Isaac Newton,birth_city,Isaac Newton was born in the city of,subject_all,1 2 3,6-20,jspace,0, London, London,0,-1.0243,-2.3621,-1.3378,-1.0243,-2.3621,-1.3378,1,0, London,1.0008
+Isaac Newton,birth_city,Isaac Newton was born in the city of,subject_last,3,9-13,jspace,0, London, London,0,-1.0243,-0.9751,0.0492,-1.0243,-0.9751,0.0492,1,0, London,0.2273
+Isaac Newton,birth_city,Isaac Newton was born in the city of,subject_last,3,9-17,jspace,0, London, London,0,-1.0243,-0.8088,0.2155,-1.0243,-0.8088,0.2155,1,0, London,0.2953
+Isaac Newton,birth_city,Isaac Newton was born in the city of,subject_last,3,6-20,jspace,0, London, London,0,-1.0243,-0.5715,0.4527,-1.0243,-0.5715,0.4527,1,0, London,0.6543
+Charles Darwin,birth_city,Charles Darwin was born in the city of,subject_all,1 2,9-13,jspace,0, Sh, Sh,0,-1.3316,-6.2978,-4.9662,-1.3316,-6.2978,-4.9662,53,1, London,1.3875
+Charles Darwin,birth_city,Charles Darwin was born in the city of,subject_all,1 2,9-17,jspace,0, Sh, Sh,0,-1.3316,-6.4383,-5.1067,-1.3316,-6.4383,-5.1067,55,1, London,1.612
+Charles Darwin,birth_city,Charles Darwin was born in the city of,subject_all,1 2,6-20,jspace,0, Sh, Sh,0,-1.3316,-9.6347,-8.3031,-1.3316,-9.6347,-8.3031,929,1, ,2.5835
+Charles Darwin,birth_city,Charles Darwin was born in the city of,subject_last,2,9-13,jspace,0, Sh, Sh,0,-1.3316,-5.4592,-4.1276,-1.3316,-5.4592,-4.1276,28,1, London,1.1039
+Charles Darwin,birth_city,Charles Darwin was born in the city of,subject_last,2,9-17,jspace,0, Sh, Sh,0,-1.3316,-5.1444,-3.8128,-1.3316,-5.1444,-3.8128,23,1, London,1.0378
+Charles Darwin,birth_city,Charles Darwin was born in the city of,subject_last,2,6-20,jspace,0, Sh, Sh,0,-1.3316,-6.1161,-4.7845,-1.3316,-6.1161,-4.7845,61,1, \,1.7612
+Abraham Lincoln,birth_city,Abraham Lincoln was born in the city of,subject_all,1 2 3,9-13,jspace,0, Springfield, Springfield,0,-0.6664,-2.3785,-1.7121,-0.6664,-2.3785,-1.7121,1,0, Springfield,0.6893
+Abraham Lincoln,birth_city,Abraham Lincoln was born in the city of,subject_all,1 2 3,9-17,jspace,0, Springfield, Springfield,0,-0.6664,-3.0303,-2.3639,-0.6664,-3.0303,-2.3639,2,1, New,1.0436
+Abraham Lincoln,birth_city,Abraham Lincoln was born in the city of,subject_all,1 2 3,6-20,jspace,0, Springfield, Springfield,0,-0.6664,-5.2722,-4.6058,-0.6664,-5.2722,-4.6058,27,1, New,2.3724
+Abraham Lincoln,birth_city,Abraham Lincoln was born in the city of,subject_last,3,9-13,jspace,0, Springfield, Springfield,0,-0.6664,-2.3888,-1.7224,-0.6664,-2.3888,-1.7224,1,0, Springfield,0.6599
+Abraham Lincoln,birth_city,Abraham Lincoln was born in the city of,subject_last,3,9-17,jspace,0, Springfield, Springfield,0,-0.6664,-2.8491,-2.1827,-0.6664,-2.8491,-2.1827,2,1, New,0.9312
+Abraham Lincoln,birth_city,Abraham Lincoln was born in the city of,subject_last,3,6-20,jspace,0, Springfield, Springfield,0,-0.6664,-3.5598,-2.8934,-0.6664,-3.5598,-2.8934,4,1, New,1.3747
+Wolfgang Amadeus Mozart,birth_city,Wolfgang Amadeus Mozart was born in the city of,subject_all,1 2 3 4 5 6,9-13,jspace,0, Salzburg, Salzburg,0,-0.1815,-0.4106,-0.2291,-0.1815,-0.4106,-0.2291,1,0, Salzburg,0.1348
+Wolfgang Amadeus Mozart,birth_city,Wolfgang Amadeus Mozart was born in the city of,subject_all,1 2 3 4 5 6,9-17,jspace,0, Salzburg, Salzburg,0,-0.1815,-0.8554,-0.6739,-0.1815,-0.8554,-0.6739,1,0, Salzburg,0.4598
+Wolfgang Amadeus Mozart,birth_city,Wolfgang Amadeus Mozart was born in the city of,subject_all,1 2 3 4 5 6,6-20,jspace,0, Salzburg, Salzburg,0,-0.1815,-3.0175,-2.836,-0.1815,-3.0175,-2.836,1,0, Salzburg,2.2687
+Wolfgang Amadeus Mozart,birth_city,Wolfgang Amadeus Mozart was born in the city of,subject_last,6,9-13,jspace,0, Salzburg, Salzburg,0,-0.1815,-0.3056,-0.1241,-0.1815,-0.3056,-0.1241,1,0, Salzburg,0.0657
+Wolfgang Amadeus Mozart,birth_city,Wolfgang Amadeus Mozart was born in the city of,subject_last,6,9-17,jspace,0, Salzburg, Salzburg,0,-0.1815,-0.8253,-0.6439,-0.1815,-0.8253,-0.6439,1,0, Salzburg,0.4072
+Wolfgang Amadeus Mozart,birth_city,Wolfgang Amadeus Mozart was born in the city of,subject_last,6,6-20,jspace,0, Salzburg, Salzburg,0,-0.1815,-1.5092,-1.3277,-0.1815,-1.5092,-1.3277,1,0, Salzburg,0.9909
+Nelson Mandela,birth_city,Nelson Mandela was born in the city of,subject_all,1 2 3,9-13,jspace,0, Johannesburg, Johannesburg,0,-1.4777,-1.8937,-0.416,-1.4777,-1.8937,-0.416,1,0, Johannesburg,0.3153
+Nelson Mandela,birth_city,Nelson Mandela was born in the city of,subject_all,1 2 3,9-17,jspace,0, Johannesburg, Johannesburg,0,-1.4777,-2.7954,-1.3176,-1.4777,-2.7954,-1.3176,2,1, Pretoria,0.5096
+Nelson Mandela,birth_city,Nelson Mandela was born in the city of,subject_all,1 2 3,6-20,jspace,0, Johannesburg, Johannesburg,0,-1.4777,-3.8679,-2.3902,-1.4777,-3.8679,-2.3902,6,1, Pretoria,0.737
+Nelson Mandela,birth_city,Nelson Mandela was born in the city of,subject_last,3,9-13,jspace,0, Johannesburg, Johannesburg,0,-1.4777,-1.6626,-0.1849,-1.4777,-1.6626,-0.1849,1,0, Johannesburg,0.242
+Nelson Mandela,birth_city,Nelson Mandela was born in the city of,subject_last,3,9-17,jspace,0, Johannesburg, Johannesburg,0,-1.4777,-1.9227,-0.445,-1.4777,-1.9227,-0.445,1,0, Johannesburg,0.3228
+Nelson Mandela,birth_city,Nelson Mandela was born in the city of,subject_last,3,6-20,jspace,0, Johannesburg, Johannesburg,0,-1.4777,-2.663,-1.1852,-1.4777,-2.663,-1.1852,1,1, Blo,0.4223
+Winston Churchill,birth_city,Winston Churchill was born in the city of,subject_all,1 2 3,9-13,jspace,0, Bl, Bl,0,-2.6302,-7.6904,-5.0602,-2.6302,-7.6904,-5.0602,262,1, London,0.7539
+Winston Churchill,birth_city,Winston Churchill was born in the city of,subject_all,1 2 3,9-17,jspace,0, Bl, Bl,0,-2.6302,-6.8511,-4.2208,-2.6302,-6.8511,-4.2208,117,1, London,0.9284
+Winston Churchill,birth_city,Winston Churchill was born in the city of,subject_all,1 2 3,6-20,jspace,0, Bl, Bl,0,-2.6302,-12.0251,-9.3948,-2.6302,-12.0251,-9.3948,4907,1, H,2.3386
+Winston Churchill,birth_city,Winston Churchill was born in the city of,subject_last,3,9-13,jspace,0, Bl, Bl,0,-2.6302,-6.6102,-3.9799,-2.6302,-6.6102,-3.9799,117,1, Birmingham,0.6558
+Winston Churchill,birth_city,Winston Churchill was born in the city of,subject_last,3,9-17,jspace,0, Bl, Bl,0,-2.6302,-5.8185,-3.1883,-2.6302,-5.8185,-3.1883,56,1, London,0.6387
+Winston Churchill,birth_city,Winston Churchill was born in the city of,subject_last,3,6-20,jspace,0, Bl, Bl,0,-2.6302,-5.0705,-2.4403,-2.6302,-5.0705,-2.4403,17,1, London,0.8695
