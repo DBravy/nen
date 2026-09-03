@@ -95,6 +95,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--model", default=DEFAULT_MODEL)
     p.add_argument("--lens-repo", default=DEFAULT_LENS_REPO)
     p.add_argument("--lens-file", default=DEFAULT_LENS_FILE)
+    p.add_argument("--lens-path", default=None, help="local lens file (jlens or workspace-lenses dict format); overrides --lens-repo/--lens-file")
     p.add_argument(
         "--layers",
         default="all",
@@ -1609,10 +1610,38 @@ def main() -> None:
     print("[1/4] Loading J-Lens...")
     import jlens
 
-    lens = jlens.JacobianLens.from_pretrained(
-        args.lens_repo,
-        filename=args.lens_file,
-    )
+    if getattr(args, "lens_path", None):
+        _blob = torch.load(args.lens_path, map_location="cpu", weights_only=False)
+        if isinstance(_blob, dict) and "J" in _blob and "source_layers" in _blob:
+            _layers = [int(x) for x in _blob["source_layers"]]
+            _jac = {l: _blob["J"][i].float() for i, l in enumerate(_layers)}
+            _prov = _blob.get("provenance", {}) or {}
+            if not isinstance(_prov, dict):
+                _prov = {}
+            _d = int(_prov.get("d_model", _blob.get("d_model", next(iter(_jac.values())).shape[0])))
+            _target = _prov.get("target_layer", _prov.get("target"))
+            if _target is None:
+                _last = max(_jac)
+                if float((_jac[_last] - torch.eye(_d)).norm() / _d ** 0.5) < 1e-2:
+                    _target = _last
+            if _target is not None and int(_target) in _jac:
+                del _jac[int(_target)]
+
+            class _ShimLens:
+                jacobians = _jac
+                source_layers = sorted(_jac)
+                d_model = _d
+
+            lens = _ShimLens()
+            print(f"[lens] workspace-format lens loaded from {args.lens_path}")
+        else:
+            lens = jlens.JacobianLens.load(args.lens_path)
+            print(f"[lens] jlens-format lens loaded from {args.lens_path}")
+    else:
+        lens = jlens.JacobianLens.from_pretrained(
+            args.lens_repo,
+            filename=args.lens_file,
+        )
     layers = parse_layers(args.layers, lens.source_layers)
     if args.k > lens.d_model:
         raise ValueError(f"k={args.k} exceeds d_model={lens.d_model}")
