@@ -493,6 +493,7 @@ def build_mode_payload(
             "primary_rank": rank_key,
             "rankings_file": rankings_filename,
             "contexts_per_polarity": expected,
+            "contexts_available": True,
             "total_candidates": total_candidates,
             "embedded_candidates": len(rankings),
             "total_contexts": total_contexts,
@@ -571,9 +572,22 @@ def build_payload(
     return {
         "default_mode": "broad",
         "meta": {
+            "page": {
+                "document_title": "FineWeb Singular Vector Atlas",
+                "eyebrow": "Interpretability workbench · FineWeb",
+                "title": "Singular Vector",
+                "title_emphasis": "Atlas",
+                "subtitle": (
+                    "Explore one shared bank of singular directions through two ranking "
+                    "lenses, compare each right vector with its transported left vector, "
+                    "then inspect both token geometries and the FineWeb contexts at each "
+                    "activation extreme."
+                ),
+            },
             "model": broad["meta"]["model"],
             "dataset": broad["meta"]["dataset"],
             "dataset_config": broad["meta"]["dataset_config"],
+            "contexts_available": True,
             "display_sv_numbering": "zero_based",
             "unembedding_candidates": unembedding_meta["total"],
             "unembedding_space": unembedding_meta["space"],
@@ -937,9 +951,9 @@ HTML_TEMPLATE = r'''<!doctype html>
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">SV</div>
         <div>
-          <p class="eyebrow">Interpretability workbench · FineWeb</p>
-          <h1>Singular Vector <em>Atlas</em></h1>
-          <p class="subtitle">Explore one shared bank of singular directions through two ranking lenses, compare each right vector with its transported left vector, then inspect both token geometries and the FineWeb contexts at each activation extreme.</p>
+          <p class="eyebrow" id="pageEyebrow">Interpretability workbench · FineWeb</p>
+          <h1 id="pageTitle">Singular Vector <em>Atlas</em></h1>
+          <p class="subtitle" id="pageSubtitle">Explore one shared bank of singular directions through two ranking lenses, compare each right vector with its transported left vector, then inspect both token geometries and the FineWeb contexts at each activation extreme.</p>
         </div>
       </div>
       <div class="dataset-facts" id="datasetFacts" aria-label="Dataset summary"></div>
@@ -1114,6 +1128,11 @@ HTML_TEMPLATE = r'''<!doctype html>
     }
 
     function setup() {
+      const page = DATA.meta.page || {};
+      document.title = page.document_title || document.title;
+      $("#pageEyebrow").textContent = page.eyebrow || "Interpretability workbench · FineWeb";
+      $("#pageTitle").innerHTML = `${esc(page.title || "Singular Vector")} <em>${esc(page.title_emphasis || "Atlas")}</em>`;
+      $("#pageSubtitle").textContent = page.subtitle || "Explore a shared direction bank through two complementary ranking lenses.";
       const initial = parseHash();
       if (initial.mode && DATA.modes[initial.mode]) state.mode = initial.mode;
       if (initial.candidate && byCandidate().has(initial.candidate)) {
@@ -1189,7 +1208,17 @@ HTML_TEMPLATE = r'''<!doctype html>
       $("#layerFilter").value = view.layer;
       $("#sortMetric").value = view.metric;
       $("#rowLimit").value = String(view.limit);
-      $("#footerNote").innerHTML = `SV identifiers are zero-based (<code>SV00</code> is the first singular vector); all rank numbers remain one-based. Both lenses scan the same ${integer.format(meta.total_candidates)} directions over the same ${integer.format(meta.documents)} FineWeb windows. This file embeds the top <b>${integer.format(DATA.modes.broad.meta.embedded_candidates)}</b> broad and <b>${integer.format(DATA.modes.selective.meta.embedded_candidates)}</b> selective candidates (${integer.format(DATA.meta.embedded_candidate_union)} unique; ${integer.format(DATA.meta.embedded_candidate_overlap)} shared), with mode-specific contexts, right-vector token neighbors, and fingerprint-validated J·V left-vector geometry plus ${integer.format(DATA.meta.left_singular.embedded_token_neighbors_per_side)} U-token neighbors per side. The left enrichment uses zero transformer forward passes. Model: <code>${esc(meta.model)}</code>.`;
+      const includedArtifacts = [];
+      if (DATA.meta.contexts_available) includedArtifacts.push("mode-specific activation contexts");
+      if (DATA.meta.unembedding_candidates) includedArtifacts.push("right-vector token neighbors");
+      if (DATA.meta.left_singular?.available !== false) {
+        includedArtifacts.push(`fingerprint-validated J·V left-vector geometry plus ${integer.format(DATA.meta.left_singular?.embedded_token_neighbors_per_side || 0)} U-token neighbors per side`);
+      }
+      const omittedArtifacts = [];
+      if (!DATA.meta.contexts_available) omittedArtifacts.push("activation-context records");
+      if (DATA.meta.left_singular?.available === false) omittedArtifacts.push("paired left-vector artifacts");
+      const omittedNote = omittedArtifacts.length ? ` ${omittedArtifacts.join(" and ")} were not present in this data directory, so those panels are omitted.` : " The left enrichment uses zero transformer forward passes.";
+      $("#footerNote").innerHTML = `SV identifiers are zero-based (<code>SV00</code> is the first saved direction); all rank numbers remain one-based. Both lenses scan the same ${integer.format(meta.total_candidates)} directions over the same ${integer.format(meta.documents)} FineWeb windows. This file embeds the top <b>${integer.format(DATA.modes.broad.meta.embedded_candidates)}</b> broad and <b>${integer.format(DATA.modes.selective.meta.embedded_candidates)}</b> selective candidates (${integer.format(DATA.meta.embedded_candidate_union)} unique; ${integer.format(DATA.meta.embedded_candidate_overlap)} shared)${includedArtifacts.length ? `, with ${includedArtifacts.join(", ")}` : ""}.${omittedNote} Model: <code>${esc(meta.model)}</code>.`;
     }
 
     function switchMode(mode) {
@@ -1397,11 +1426,25 @@ HTML_TEMPLATE = r'''<!doctype html>
       const tokenData = DATA.unembedding[view.selected];
       const leftData = DATA.left_singular?.[view.selected];
       const isSelective = state.mode === "selective";
+      const contextsAvailable = Boolean(modeData().meta.contexts_available);
       const rankLabel = isSelective ? "Global tail-selectivity rank" : "Global mean |cosine| rank";
       const summary = isSelective
         ? `The singular direction at <b>zero-based SV index ${integer.format(row.sv_index_0)}</b> in layer ${row.layer}, viewed through its robust activation tails. It ranks <b>#${integer.format(row.rank_global_tail_selectivity)} by tail selectivity</b> and <b>#${integer.format(row.rank_global_mean_abs_cosine)} by broad activity</b> over ${integer.format(row.n_tokens)} FineWeb tokens. The score rewards a sharp, energy-concentrated tail with minimum support; it does not itself penalize frequent activation once five sampled windows clear z=5.`
         : `The singular direction at <b>zero-based SV index ${integer.format(row.sv_index_0)}</b> in layer ${row.layer}. It is the <b>#${integer.format(row.rank_global_mean_abs_cosine)} direction globally</b> by mean absolute cosine over ${integer.format(row.n_tokens)} FineWeb tokens.`;
       const heroMetrics = isSelective ? selectiveHeroMetrics(row) : broadHeroMetrics(row);
+
+      const contextPanel = contextsAvailable ? `<section class="context-section">
+        <div class="section-heading"><div><p class="eyebrow">Observed examples · ${esc(modeConfig().label)}</p><h3>${isSelective ? "Extreme tail contexts" : "Top activation contexts"}</h3><p>${isSelective ? "Contexts are ordered by raw projection extremes; the displayed tail z is derived from this scan's median and robust MAD scale. The score-driving tail is highlighted, while both orientations remain available for comparison." : "Contexts are ordered by signed projection activation. Each highlight marks the activating token; cosine is normalized by the layer residual norm."}</p><span class="sign-note">High (+) and low (−) are arbitrary direction orientations, not sentiment labels. ${isSelective ? "High selectivity or kurtosis can still reflect lexical, formatting, or data artifacts." : ""}</span></div></div>
+        <div class="context-controls">
+          <label class="control context-search">Search these contexts<input id="contextSearch" type="search" value="${esc(state.contextQuery)}" placeholder="Text, token, domain…"></label>
+          <label class="control">Per side<select id="contextLimit"></select></label>
+          <label class="check"><input id="dedupeSources" type="checkbox" ${state.dedupe ? "checked" : ""}> Unique sources</label>
+        </div>
+        <div class="context-grid">
+          <section class="context-column positive ${isSelective && row.selected_tail_polarity === "positive" ? "score-driver" : ""}"><div class="column-head"><h4>+ ${isSelective ? "High tail" : "Positive direction"}${isSelective && row.selected_tail_polarity === "positive" ? '<span class="tail-pill">score driver</span>' : ""}</h4><span id="positiveCount"></span></div><div class="context-list" id="positiveList"></div></section>
+          <section class="context-column negative ${isSelective && row.selected_tail_polarity === "negative" ? "score-driver" : ""}"><div class="column-head"><h4>− ${isSelective ? "Low tail" : "Negative direction"}${isSelective && row.selected_tail_polarity === "negative" ? '<span class="tail-pill">score driver</span>' : ""}</h4><span id="negativeCount"></span></div><div class="context-list" id="negativeList"></div></section>
+        </div>
+      </section>` : "";
 
       root.innerHTML = `<section class="detail-hero">
         <div class="detail-nav">
@@ -1427,27 +1470,18 @@ HTML_TEMPLATE = r'''<!doctype html>
       </section>
       ${leftSingularSection(row)}
       ${unembeddingSection(tokenData, row)}
-      <section class="context-section">
-        <div class="section-heading"><div><p class="eyebrow">Observed examples · ${esc(modeConfig().label)}</p><h3>${isSelective ? "Extreme tail contexts" : "Top activation contexts"}</h3><p>${isSelective ? "Contexts are ordered by raw projection extremes; the displayed tail z is derived from this scan's median and robust MAD scale. The score-driving tail is highlighted, while both orientations remain available for comparison." : "Contexts are ordered by signed projection activation. Each highlight marks the activating token; cosine is normalized by the layer residual norm."}</p><span class="sign-note">High (+) and low (−) are arbitrary SVD orientations, not sentiment labels. ${isSelective ? "High selectivity or kurtosis can still reflect lexical, formatting, or data artifacts." : ""}</span></div></div>
-        <div class="context-controls">
-          <label class="control context-search">Search these contexts<input id="contextSearch" type="search" value="${esc(state.contextQuery)}" placeholder="Text, token, domain…"></label>
-          <label class="control">Per side<select id="contextLimit"></select></label>
-          <label class="check"><input id="dedupeSources" type="checkbox" ${state.dedupe ? "checked" : ""}> Unique sources</label>
-        </div>
-        <div class="context-grid">
-          <section class="context-column positive ${isSelective && row.selected_tail_polarity === "positive" ? "score-driver" : ""}"><div class="column-head"><h4>+ ${isSelective ? "High tail" : "Positive direction"}${isSelective && row.selected_tail_polarity === "positive" ? '<span class="tail-pill">score driver</span>' : ""}</h4><span id="positiveCount"></span></div><div class="context-list" id="positiveList"></div></section>
-          <section class="context-column negative ${isSelective && row.selected_tail_polarity === "negative" ? "score-driver" : ""}"><div class="column-head"><h4>− ${isSelective ? "Low tail" : "Negative direction"}${isSelective && row.selected_tail_polarity === "negative" ? '<span class="tail-pill">score driver</span>' : ""}</h4><span id="negativeCount"></span></div><div class="context-list" id="negativeList"></div></section>
-        </div>
-      </section>`;
+      ${contextPanel}`;
 
-      const maxContexts = modeData().meta.contexts_per_polarity || Math.max(...Object.values(modeData().contexts[view.selected] || {}).map(items => items.length), 0);
-      const contextLimits = [...new Set([6, 12, 24, maxContexts].filter(value => value > 0 && value <= maxContexts))].sort((a, b) => a - b);
-      if (!contextLimits.includes(state.contextLimit)) state.contextLimit = contextLimits[0] || maxContexts;
-      $("#contextLimit").innerHTML = contextLimits.map(value => `<option value="${value}">${value === maxContexts ? `All ${value}` : value}</option>`).join("");
-      $("#contextLimit").value = String(state.contextLimit);
-      $("#contextSearch").addEventListener("input", event => { state.contextQuery = event.target.value.trim().toLowerCase(); renderContexts(); });
-      $("#contextLimit").addEventListener("change", event => { state.contextLimit = Number(event.target.value); renderContexts(); });
-      $("#dedupeSources").addEventListener("change", event => { state.dedupe = event.target.checked; renderContexts(); });
+      if (contextsAvailable) {
+        const maxContexts = modeData().meta.contexts_per_polarity || Math.max(...Object.values(modeData().contexts[view.selected] || {}).map(items => items.length), 0);
+        const contextLimits = [...new Set([6, 12, 24, maxContexts].filter(value => value > 0 && value <= maxContexts))].sort((a, b) => a - b);
+        if (!contextLimits.includes(state.contextLimit)) state.contextLimit = contextLimits[0] || maxContexts;
+        $("#contextLimit").innerHTML = contextLimits.map(value => `<option value="${value}">${value === maxContexts ? `All ${value}` : value}</option>`).join("");
+        $("#contextLimit").value = String(state.contextLimit);
+        $("#contextSearch").addEventListener("input", event => { state.contextQuery = event.target.value.trim().toLowerCase(); renderContexts(); });
+        $("#contextLimit").addEventListener("change", event => { state.contextLimit = Number(event.target.value); renderContexts(); });
+        $("#dedupeSources").addEventListener("change", event => { state.dedupe = event.target.checked; renderContexts(); });
+      }
       $("#previousCandidate").addEventListener("click", () => selectedIndex > 0 && selectCandidate(visibleRows[selectedIndex - 1].candidate));
       $("#nextCandidate").addEventListener("click", () => selectedIndex >= 0 && selectedIndex < visibleRows.length - 1 && selectCandidate(visibleRows[selectedIndex + 1].candidate));
       $("#copyCandidate").addEventListener("click", copyCandidate);
@@ -1470,7 +1504,7 @@ HTML_TEMPLATE = r'''<!doctype html>
         $("#leftTokenLimit").addEventListener("change",event=>{state.leftTokenLimit=Number(event.target.value);renderLeftUnembedding(leftTokens);});
         renderLeftUnembedding(leftTokens);
       }
-      renderContexts();
+      if (contextsAvailable) renderContexts();
     }
 
     function broadHeroMetrics(row) {
