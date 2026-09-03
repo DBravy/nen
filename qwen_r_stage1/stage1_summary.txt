@@ -1,0 +1,121 @@
+==============================================================================
+Stage 1: distributional comparison of direction banks
+==============================================================================
+  [svd] qwen_r_scan  docs=2000 tokens=448529 seed=0 k=64
+  [rotated] qwen_r_rot0  docs=2000 tokens=448529 seed=0 k=64
+  [rotated] qwen_r_rot1  docs=2000 tokens=448529 seed=0 k=64
+  [random] qwen_rand  docs=2000 tokens=448529 seed=0 k=64
+
+------------------------------------------------------------------------------
+Primary metric: tail_selectivity_score  (one-sided MW: svd > control)
+------------------------------------------------------------------------------
+layer n_svd n_rot    med_svd    med_rot     rbc    p(rot)    q(rot)    med_rnd  rbc_rnd    p(rnd)
+    0    64   128      1.099      1.067   0.085  1.69e-01  1.74e-01     0.7994    0.810  1.33e-15
+    1    64   128      1.118      1.086   0.047  2.97e-01  2.97e-01      0.773    0.888  0.00e+00
+    2    64   128      1.053      1.001   0.231  4.52e-03  4.85e-03     0.9426    0.398  5.19e-05
+    3    64   128      1.006     0.9432   0.316  1.81e-04  2.36e-04     0.8166    0.775  2.00e-14
+    4    64   128     0.9836      0.918   0.300  3.53e-04  4.24e-04     0.7964    0.783  1.11e-14
+    5    64   128     0.9893     0.9301   0.284  6.87e-04  7.93e-04     0.7661    0.863  0.00e+00
+    6    64   128     0.8345     0.7691   0.357  2.83e-05  5.00e-05     0.7666    0.044  3.35e-01
+    7    64   128      0.843     0.7591   0.384  7.47e-06  1.51e-05     0.8182    0.045  3.30e-01
+    8    64   128     0.8432      0.796   0.317  1.74e-04  2.36e-04     0.7483    0.295  2.01e-03
+    9    64   128     0.8977     0.8252   0.328  1.07e-04  1.61e-04     0.6992    0.556  2.89e-08
+   10    64   128     0.8566     0.8211   0.239  3.57e-03  3.97e-03     0.7475    0.244  8.76e-03
+   11    64   128     0.8464     0.7852   0.318  1.65e-04  2.35e-04      0.706    0.225  1.41e-02
+   12    64   128     0.8056     0.7414   0.428  6.89e-07  2.58e-06     0.6881    0.217  1.73e-02
+   13    64   128     0.7829     0.7052   0.375  1.15e-05  2.16e-05     0.6342    0.356  2.59e-04
+   14    64   128     0.7492     0.6821   0.388  5.96e-06  1.49e-05     0.6372    0.349  3.31e-04
+   15    64   128     0.7053     0.6642   0.312  2.21e-04  2.76e-04     0.5908    0.505  4.11e-07
+   16    64   128     0.6999      0.635   0.384  7.57e-06  1.51e-05     0.5744    0.504  4.42e-07
+   17    64   128     0.6558     0.5998   0.385  6.93e-06  1.51e-05     0.4922    0.369  1.59e-04
+   18    64   128     0.6253     0.5783   0.342  5.77e-05  9.62e-05     0.2732    0.505  4.21e-07
+   19    64   128     0.3569     0.1606   0.392  4.80e-06  1.31e-05     0.2533    0.281  3.09e-03
+   20    64   128     0.2584     0.1087   0.335  7.98e-05  1.26e-04     0.2089    0.121  1.19e-01
+   21    64   128     0.3863     0.1734   0.420  1.07e-06  3.21e-06     0.2474    0.427  1.54e-05
+   22    64   128     0.5616     0.1698   0.537  7.06e-10  5.30e-09      0.173    0.574  1.09e-08
+   23    64   128     0.2093    0.08094   0.580  2.93e-11  8.79e-10     0.1671    0.206  2.23e-02
+   24    64   128     0.3718     0.1655   0.489  1.73e-08  9.04e-08     0.1615    0.720  1.09e-12
+   25    64   128     0.4767     0.2177   0.425  8.36e-07  2.79e-06     0.1557    0.759  6.64e-14
+   26    64   128     0.5771     0.2714   0.488  1.81e-08  9.04e-08     0.1688    0.519  2.11e-07
+   27    64   128     0.5866     0.2807   0.542  5.01e-10  5.01e-09     0.1616    0.844  1.11e-16
+   28    64   128     0.6418     0.5705   0.455  1.42e-07  6.08e-07     0.1674    0.921  0.00e+00
+   29    64   128     0.5776     0.2585   0.570  6.55e-11  9.83e-10     0.1684    0.816  8.88e-16
+
+Pooled (all layers): n_svd=1920 n_rot=3840  median 0.7427 vs 0.6702  rbc=0.177  p=0.00e+00
+Stouffer across layers (svd > rotated): z=22.76  p=0.00e+00
+Pooled vs random: rbc=0.266  p=0.00e+00  (median 0.7427 vs 0.6108)
+
+------------------------------------------------------------------------------
+Excess yield: fraction of J-SV directions above the rotated null's
+per-layer quantile bar (expected under null: 1 - q). Wilson 95% CI.
+------------------------------------------------------------------------------
+  bar=q0.90: svd yield 582/1920 = 0.303 [0.283, 0.324]  (null expectation 0.100)  |  random-bank yield 0.134
+  bar=q0.95: svd yield 415/1920 = 0.216 [0.198, 0.235]  (null expectation 0.050)  |  random-bank yield 0.120
+  bar=q0.99: svd yield 237/1920 = 0.123 [0.109, 0.139]  (null expectation 0.010)  |  random-bank yield 0.104
+
+------------------------------------------------------------------------------
+Secondary metrics, pooled across layers (one-sided MW, svd more-selective
+than rotated; 'less'-oriented metrics are sign-flipped before testing)
+------------------------------------------------------------------------------
+  stable_excess_kurtosis             median     0.7366 vs     0.5317  rbc= 0.188  p=0.00e+00
+  abs_top0_1pct_energy_share         median    0.01909 vs     0.0175  rbc= 0.187  p=0.00e+00
+  abs_q999_robust_z                  median      4.191 vs      3.955  rbc= 0.184  p=0.00e+00
+  effective_support_fraction         median     0.2676 vs     0.2831  rbc= 0.188  p=0.00e+00  (lower=better)
+
+------------------------------------------------------------------------------
+Subspace-energy invariant: sum_i rms_activation_i^2, svd / rotated.
+For orthonormal bases of the same subspace on the same tokens this is 1.
+------------------------------------------------------------------------------
+  layer   0: ratio = 0.9995
+  layer   1: ratio = 1.0000
+  layer   2: ratio = 1.0002
+  layer   3: ratio = 0.9996
+  layer   4: ratio = 1.0004
+  layer   5: ratio = 0.9995
+  layer   6: ratio = 1.0001
+  layer   7: ratio = 1.0005
+  layer   8: ratio = 1.0000
+  layer   9: ratio = 1.0002
+  layer  10: ratio = 0.9996
+  layer  11: ratio = 1.0014
+  layer  12: ratio = 1.0004
+  layer  13: ratio = 0.9998
+  layer  14: ratio = 1.0008
+  layer  15: ratio = 1.0000
+  layer  16: ratio = 1.0003
+  layer  17: ratio = 0.9995
+  layer  18: ratio = 0.9991
+  layer  19: ratio = 1.0006
+  layer  20: ratio = 1.0010
+  layer  21: ratio = 1.0004
+  layer  22: ratio = 0.9998
+  layer  23: ratio = 1.0003
+  layer  24: ratio = 1.0015
+  layer  25: ratio = 1.0005
+  layer  26: ratio = 0.9984
+  layer  27: ratio = 0.9995
+  layer  28: ratio = 1.0000
+  layer  29: ratio = 0.9992
+
+------------------------------------------------------------------------------
+Per-replicate pooled medians of tail_selectivity_score (draw-to-draw variance):
+------------------------------------------------------------------------------
+  [svd] qwen_r_scan: median-of-layer-medians = 0.7272
+  [rotated] qwen_r_rot0: median-of-layer-medians = 0.6744
+  [rotated] qwen_r_rot1: median-of-layer-medians = 0.6747
+  [random] qwen_rand: median-of-layer-medians = 0.6125
+
+------------------------------------------------------------------------------
+Reading the result:
+  svd >> rotated (positive rbc, low q, yield >> nominal):
+      the eigen-axes carry structure beyond the subspace -> Stage 2 on
+      selectivity-matched candidates.
+  svd ~= rotated >> random:
+      the top-k subspace is special, its axes are not; the SVD is
+      scaffolding. Reframe claims to the subspace.
+  svd ~= rotated ~= random:
+      tail selectivity of this kind is generic under the selection
+      pipeline; basis claims are unsupported.
+Caveat: all conditions share one corpus (intentionally paired) and
+directions share tokens, so p-values are approximate; lean on effect
+sizes and excess yield.
