@@ -781,6 +781,12 @@ def smoke_patch(hf, tok, blocks, prompt, table, layers, target_layer,
 # =============================================================================
 
 
+def _akey(x) -> float:
+    """Canonical alpha value: alphas ride through float32 storage, so 0.05 comes
+    back as 0.05000000074...; round so dict keys match the config's floats."""
+    return round(float(x), 6)
+
+
 def _antisym_pairs(P):
     """Index pairs (i+, i-) matched on (prompt, layer, pos, set, dir, alpha)."""
     key = {}
@@ -789,7 +795,7 @@ def _antisym_pairs(P):
         if sets[i] == "-":
             continue
         k = (int(P["prompt"][i]), int(P["layer"][i]), int(P["pos"][i]), sets[i],
-             int(P["dir"][i]), float(P["alpha"][i]))
+             int(P["dir"][i]), _akey(P["alpha"][i]))
         key.setdefault(k, {})[int(P["sign"][i])] = i
     return [(k, v[1], v[-1]) for k, v in key.items() if 1 in v and -1 in v]
 
@@ -799,7 +805,7 @@ def cmd_analyze(args: argparse.Namespace) -> None:
     P = torch.load(out / "patches.pt", map_location="cpu", weights_only=False)
     cfg = P["config"]
     dmeta = {(m["layer"], m["set"], m["dir"]): m for m in P["direction_meta"]}
-    alphas = sorted(cfg["alphas"])
+    alphas = sorted(_akey(a) for a in cfg["alphas"])
     a0 = alphas[0]
     layers = cfg["layers"]
     lines: list[str] = []
@@ -920,10 +926,13 @@ def cmd_analyze(args: argparse.Namespace) -> None:
             "template_stability": stab,
             "flip_frac": (float(np.mean(flips)) if flips else float("nan")),
         })
-    with (out / "per_direction.csv").open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=list(dir_rows[0].keys()))
-        w.writeheader()
-        w.writerows(dir_rows)
+    if not dir_rows:
+        emit("[warn] no per-direction rows survived; check alpha keys and SNR threshold")
+    else:
+        with (out / "per_direction.csv").open("w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=list(dir_rows[0].keys()))
+            w.writeheader()
+            w.writerows(dir_rows)
     for layer in layers:
         emit(f"\n  L{layer:02d} set medians "
              f"(gamma_J | g0 | g0^2/fSf | alpha* | corr_pred | stability | SNR):")
@@ -992,10 +1001,11 @@ def cmd_analyze(args: argparse.Namespace) -> None:
                 dec_rows.append({"layer": layer, "alpha": a, "set": setname, "K": K,
                                  "within_acc": round(wacc, 4), "cross_acc": round(cacc, 4),
                                  "n_within": sum(w[1] for w in win), "n_cross": sum(c[1] for c in crs)})
-    with (out / "decoding.csv").open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=list(dec_rows[0].keys()))
-        w.writeheader()
-        w.writerows(dec_rows)
+    if dec_rows:
+        with (out / "decoding.csv").open("w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=list(dec_rows[0].keys()))
+            w.writeheader()
+            w.writerows(dec_rows)
     mid_a = alphas[len(alphas) // 2]
     emit(f"\n  decoding at alpha={mid_a} (within / cross, chance=1/K):")
     for r in dec_rows:

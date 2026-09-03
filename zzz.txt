@@ -42,3 +42,29 @@ rand: 33
 we scored every direction on how sparsely and reproducibly it activates over a large corpus, and kept only those exceeding the 99th percentile of identically-scored random rotations of the same direction set — so each "above bar" direction is one whose specific orientation, not merely the subspace it lives in, carries unusually selective activation structure.
 
 the excess of above-bar directions over the rotation null is evidence that the construction that produced the bank (the SVD of J̄, or of G) places axes onto selectively-activating structure at better than chance — and everything beyond that claim has to be earned per-direction by the follow-up tests.
+
+python extract_stage2_contexts.py \
+  --svd qwen_j_scan \
+  --rotated qwen_j_rot0 qwen_j_rot1 \
+  --random qwen_rand \
+  --out qwen_j_stage2 \
+  --markdown
+[bars] q0.99 from 3840 rotated directions over 30 layers
+[select]     svd qwen_j_scan: 180 above bar, keeping 80
+[select] rotated qwen_j_rot0: 35 above bar, keeping 35
+[select] rotated qwen_j_rot1: 25 above bar, keeping 25
+[select]  random qwen_rand: 213 above bar, keeping 80
+Spearman(sv_rank_1based, tail_selectivity_score) within svd bank
+(negative = higher-sigma axes are more selective)
+
+python extract_stage2_contexts.py \
+  --svd qwen_r_scan \
+  --rotated qwen_r_rot0 qwen_r_rot1 \
+  --random qwen_rand \
+  --out qwen_r_stage2 \
+  --markdown
+[bars] q0.99 from 3840 rotated directions over 30 layers
+[select]     svd qwen_r_scan: 237 above bar, keeping 80
+[select] rotated qwen_r_rot0: 27 above bar, keeping 27
+[select] rotated qwen_r_rot1: 33 above bar, keeping 33
+[select]  random qwen_rand: 200 above bar, keeping 80

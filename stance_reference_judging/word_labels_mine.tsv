@@ -1,0 +1,4382 @@
+word	label	subtype
+'s	F	
+aaa	X	
+ability	R	
+able	S	evaluative
+aboard	R	
+abound	R	
+about	F	
+above	F	
+abraham	R	
+absence	R	
+absolute	S	degree
+absolutely	S	degree
+abstract	R	
+abuse	R	
+academic	R	
+academy	R	
+accelerated	R	
+acceptance	R	
+accepted	R	
+access	R	
+accessibility	R	
+accessible	R	
+accessing	R	
+accessories	R	
+accommodate	R	
+accommodation	R	
+accommodations	R	
+accompanied	R	
+accomplish	R	
+accomplished	R	
+accomplishment	R	
+accomplishments	R	
+accordance	R	
+according	S	epistemic
+accordingly	F	
+account	R	
+accountability	R	
+accounts	R	
+accuracy	R	
+accurate	S	evaluative
+accurately	S	evaluative
+accuse	R	
+accustomed	R	
+achieve	R	
+achievement	R	
+achievements	R	
+acknowledged	S	speech_act
+across	F	
+act	R	
+acting	R	
+action	R	
+actions	R	
+activate	R	
+activated	R	
+active	R	
+actively	R	
+activities	R	
+activity	R	
+actor	R	
+acts	R	
+actual	S	epistemic
+actually	S	epistemic
+acute	R	
+ad	R	
+adapt	R	
+adaptar	X	
+adapted	R	
+add	R	
+added	R	
+adding	R	
+addition	R	
+additional	R	
+additionally	F	
+address	R	
+adds	R	
+adequate	S	evaluative
+adequately	S	evaluative
+adhere	R	
+adherence	R	
+adjusted	R	
+administration	R	
+administrative	R	
+administrators	R	
+adopted	R	
+ads	R	
+adult	R	
+advance	R	
+advanced	R	
+advantage	R	
+adventure	R	
+adventures	R	
+adverse	S	evaluative
+adversely	S	evaluative
+advertenties	X	
+advertising	R	
+advice	R	
+advisable	R	
+advised	R	
+advisory	R	
+advocacy	R	
+advocating	R	
+aerial	R	
+affairs	R	
+affect	R	
+affected	R	
+affecting	R	
+affinity	R	
+affirmed	S	speech_act
+affordability	R	
+affordable	R	
+afraid	S	evaluative
+africa	R	
+african	R	
+after	F	
+afternoon	R	
+again	F	
+against	F	
+age	R	
+agency	R	
+ago	F	
+agree	S	speech_act
+agreed	S	speech_act
+agreement	R	
+agreements	R	
+ahead	F	
+ai	F	
+aid	R	
+aids	R	
+aim	R	
+air	R	
+airport	R	
+al	F	
+ala	R	
+alan	R	
+alarming	R	
+albeit	F	
+alerted	R	
+alerts	R	
+alex	R	
+algebra	R	
+algorithm	R	
+alien	R	
+align	R	
+all	F	
+alleged	S	epistemic
+allegedly	S	epistemic
+alliance	R	
+allied	R	
+allow	R	
+allowed	R	
+allowing	R	
+allows	R	
+alloy	R	
+almost	S	epistemic
+alone	R	
+along	F	
+alongside	R	
+alot	F	
+already	F	
+also	F	
+alternative	R	
+alternatively	F	
+alternatives	R	
+although	F	
+aluminum	R	
+always	F	
+am	F	
+amazing	S	evaluative
+amazon	R	
+amenities	R	
+america	R	
+american	R	
+americans	R	
+among	F	
+amongst	F	
+amount	R	
+amounts	R	
+ample	R	
+amplify	R	
+an	F	
+ana	R	
+anal	R	
+analyse	R	
+analyses	R	
+analysis	R	
+analytics	R	
+analyzed	R	
+ancient	R	
+and	F	
+android	R	
+anesthesia	R	
+angle	R	
+angled	R	
+angles	R	
+anglican	R	
+animal	R	
+animated	R	
+animation	R	
+announce	S	speech_act
+announced	S	speech_act
+annual	R	
+another	F	
+answer	R	
+answers	R	
+ante	R	
+antec	X	
+anthony	R	
+anti	X	
+anticipate	R	
+any	F	
+anymore	F	
+anyone	F	
+anything	F	
+anytime	F	
+anyway	F	
+anywhere	F	
+apart	F	
+apartment	R	
+apex	R	
+api	R	
+apk	X	
+app	R	
+appalachian	R	
+apparent	S	epistemic
+apparently	S	epistemic
+appear	S	epistemic
+appearance	R	
+appeared	S	epistemic
+appearing	R	
+appears	S	epistemic
+apple	R	
+applicable	R	
+application	R	
+applications	R	
+apply	R	
+appreciate	S	attitude_verb
+appreciated	S	attitude_verb
+appreciating	R	
+appreciation	R	
+approach	R	
+approached	R	
+approaches	R	
+approaching	R	
+appropriate	S	evaluative
+approved	R	
+approx	S	epistemic
+approximately	S	epistemic
+april	R	
+arab	R	
+architectural	R	
+architecture	R	
+arduous	S	evaluative
+are	F	
+area	R	
+areas	R	
+argue	S	speech_act
+argues	S	speech_act
+arizona	R	
+arm	R	
+army	R	
+arnold	R	
+around	F	
+arranged	R	
+arrangements	R	
+arrested	R	
+art	R	
+article	R	
+articles	R	
+artificial	R	
+artificially	R	
+artistic	R	
+arts	R	
+as	F	
+ask	S	speech_act
+asked	S	speech_act
+asking	R	
+aspect	R	
+aspects	R	
+ass	R	
+assert	S	speech_act
+assess	R	
+assessed	R	
+assessment	R	
+asset	R	
+assets	R	
+assigned	R	
+assist	R	
+assistance	R	
+assistant	R	
+assisting	R	
+assists	R	
+associate	R	
+associated	R	
+association	R	
+assume	S	attitude_verb
+assure	R	
+assured	R	
+at	F	
+athlete	R	
+atlanta	R	
+atlantic	R	
+atmosphere	R	
+atom	R	
+attached	R	
+attachment	R	
+attack	R	
+attempt	R	
+attempted	R	
+attempting	R	
+attended	R	
+attention	R	
+attitude	R	
+attorney	R	
+attractive	S	evaluative
+attributed	R	
+audit	R	
+august	R	
+austin	R	
+australia	R	
+australian	R	
+authentic	S	evaluative
+author	R	
+authorization	R	
+authorized	R	
+authors	R	
+auto	R	
+autofocus	R	
+automate	R	
+automatic	R	
+automatically	R	
+automation	R	
+autumn	R	
+availability	R	
+available	R	
+avalanche	R	
+average	R	
+avoid	R	
+award	R	
+awarded	R	
+awareness	R	
+away	F	
+ayudar	X	
+baby	R	
+bachelor	R	
+back	F	
+background	R	
+bad	S	evaluative
+bade	R	
+badly	S	evaluative
+bag	R	
+balance	R	
+balanced	R	
+balancing	R	
+ball	R	
+band	R	
+bandwidth	R	
+bank	R	
+banking	R	
+bar	R	
+barbara	R	
+bare	R	
+barrel	R	
+barrier	R	
+base	R	
+based	R	
+basic	R	
+basically	S	epistemic
+basis	R	
+basketball	R	
+batch	R	
+bathroom	R	
+battery	R	
+battle	R	
+bay	R	
+bbq	R	
+be	F	
+beach	R	
+beam	R	
+bean	R	
+bearing	R	
+beat	R	
+beaten	R	
+beautiful	S	evaluative
+beauty	R	
+became	R	
+because	F	
+become	R	
+becoming	R	
+bed	R	
+bedroom	R	
+beef	R	
+been	F	
+before	F	
+began	R	
+begin	R	
+beginning	R	
+begun	R	
+behavior	R	
+behavioral	R	
+behaviour	R	
+behind	F	
+being	F	
+beings	R	
+beliefs	R	
+believe	S	attitude_verb
+bell	R	
+below	F	
+belt	R	
+beneath	F	
+benefits	R	
+berlin	R	
+besides	F	
+bespoke	R	
+best	S	evaluative
+bet	R	
+beta	R	
+better	S	evaluative
+between	F	
+beyond	F	
+big	R	
+bigger	R	
+biggest	R	
+bill	R	
+billing	R	
+billion	F	
+bin	R	
+biodegradable	R	
+biological	R	
+biomedical	R	
+birth	R	
+biscuits	R	
+bit	R	
+bitter	R	
+black	R	
+blades	R	
+blend	R	
+blessings	R	
+blew	R	
+block	R	
+blocking	R	
+blog	R	
+blood	R	
+blow	R	
+blu	R	
+blue	R	
+blueberry	R	
+bn	X	
+board	R	
+boasts	S	speech_act
+boat	R	
+body	R	
+boiler	R	
+bond	R	
+bone	R	
+bonus	R	
+book	R	
+boost	R	
+bosnia	R	
+both	F	
+bottle	R	
+bottles	R	
+bought	R	
+boulder	R	
+boundaries	R	
+bowl	R	
+box	R	
+boy	R	
+brabant	R	
+braided	R	
+brain	R	
+branch	R	
+brand	R	
+brazilian	R	
+break	R	
+breast	R	
+breeding	R	
+brian	R	
+bridal	R	
+bridge	R	
+bridges	R	
+brief	R	
+bright	R	
+brighten	R	
+brightest	R	
+brilliant	S	evaluative
+bring	R	
+bringing	R	
+brings	R	
+british	R	
+broaden	R	
+broader	R	
+broke	R	
+brooklyn	R	
+bros	R	
+brother	R	
+brought	R	
+brown	R	
+brush	R	
+brussels	R	
+buffer	R	
+build	R	
+building	R	
+built	R	
+bumper	R	
+bunch	R	
+bus	R	
+bush	R	
+business	R	
+businesses	R	
+busy	R	
+but	F	
+butter	R	
+button	R	
+buy	R	
+buyer	R	
+buying	R	
+by	F	
+ca	R	
+cable	R	
+cacao	R	
+cafe	R	
+calculated	R	
+calculator	R	
+calibrated	R	
+california	R	
+call	R	
+called	R	
+calls	R	
+cambridge	R	
+came	R	
+campaign	R	
+campus	R	
+can	F	
+can't	F	
+canada	R	
+canadian	R	
+canal	R	
+canary	R	
+cancer	R	
+candidate	R	
+cannot	F	
+capabilities	R	
+capable	S	evaluative
+capacity	R	
+cape	R	
+capital	R	
+captivating	S	evaluative
+capture	R	
+captures	R	
+car	R	
+carbon	R	
+card	R	
+cardio	R	
+cardiovascular	R	
+cards	R	
+care	S	attitude_verb
+career	R	
+careful	S	evaluative
+carefully	S	evaluative
+caribbean	R	
+carolina	R	
+carried	R	
+carry	R	
+cars	R	
+cart	R	
+cartesian	R	
+case	R	
+casino	R	
+cast	R	
+casting	R	
+catalog	R	
+catch	R	
+category	R	
+catering	R	
+cause	R	
+caused	R	
+causes	R	
+causing	R	
+cef	X	
+celebrate	R	
+celebrated	R	
+celebrating	R	
+celebration	R	
+celebrations	R	
+celebrities	R	
+celebrity	R	
+cell	R	
+cellular	R	
+cent	R	
+center	R	
+central	R	
+centre	R	
+centrifugal	R	
+ceo	R	
+ceramic	R	
+certain	S	epistemic
+certainly	S	epistemic
+certificate	R	
+certification	R	
+certified	R	
+chain	R	
+challenge	R	
+challenges	R	
+challenging	S	evaluative
+champions	R	
+championship	R	
+championships	R	
+chance	R	
+change	R	
+changed	R	
+changes	R	
+changing	R	
+channel	R	
+chaos	R	
+chapter	R	
+character	R	
+characterised	R	
+characteristics	R	
+characterized	R	
+characters	R	
+charming	S	evaluative
+chart	R	
+chateau	R	
+check	R	
+checked	R	
+checks	R	
+cheese	R	
+chelsea	R	
+chemical	R	
+chic	S	evaluative
+chicago	R	
+chicken	R	
+chief	R	
+child	R	
+childhood	R	
+children	R	
+children's	R	
+childs	R	
+china	R	
+china's	R	
+chinese	R	
+chiropractic	R	
+chocolate	R	
+choice	R	
+choose	R	
+chopped	R	
+chris	R	
+christ	R	
+christian	R	
+christmas	R	
+chrome	R	
+chronic	R	
+chunks	R	
+church	R	
+churches	R	
+ci	X	
+cinnamon	R	
+cite	R	
+citizens	R	
+city	R	
+civic	R	
+civil	R	
+claim	S	speech_act
+claims	S	speech_act
+clarity	R	
+class	R	
+classic	S	evaluative
+classical	R	
+classification	R	
+clean	R	
+cleansing	R	
+cleanup	R	
+clear	S	evaluative
+clearly	S	epistemic
+click	R	
+client	R	
+cliff	R	
+climate	R	
+climatic	R	
+clinic	R	
+clinical	R	
+clone	R	
+close	R	
+closed	R	
+closely	R	
+closer	R	
+closest	R	
+cloud	R	
+club	R	
+clubs	R	
+cm	R	
+cnn	R	
+co	X	
+coast	R	
+coastal	R	
+cock	R	
+cod	R	
+code	R	
+coding	R	
+coffee	R	
+collaboration	R	
+collaborative	R	
+collect	R	
+collected	R	
+collection	R	
+collections	R	
+collective	R	
+college	R	
+collegiate	R	
+color	R	
+colors	R	
+colour	R	
+columbia	R	
+combat	R	
+combined	R	
+combo	R	
+comcast	R	
+come	R	
+comes	R	
+comfort	R	
+comfortable	S	evaluative
+comic	R	
+coming	R	
+command	R	
+comment	R	
+comments	R	
+commerce	R	
+commercial	R	
+commission	R	
+commit	R	
+commitment	R	
+committed	R	
+committee	R	
+common	R	
+commonly	R	
+communicate	R	
+communication	R	
+communications	R	
+community	R	
+compact	R	
+companies	R	
+company	R	
+company's	R	
+compatible	R	
+compelling	S	evaluative
+compensation	R	
+compete	R	
+competition	R	
+competitive	R	
+compiled	R	
+compiler	R	
+complementary	R	
+complete	R	
+completed	R	
+completely	S	degree
+completion	R	
+complex	R	
+complexities	R	
+compliance	R	
+complicated	S	evaluative
+comply	R	
+components	R	
+composed	R	
+comprehend	S	epistemic
+comprehensive	S	evaluative
+comprise	R	
+comprises	R	
+compute	R	
+computer	R	
+computing	R	
+concentration	R	
+concept	R	
+concepts	R	
+conclusion	R	
+conclusions	R	
+condition	R	
+conditions	R	
+condo	R	
+condoms	R	
+conduct	R	
+conducted	R	
+conference	R	
+confidence	R	
+confident	S	epistemic
+configuration	R	
+configured	R	
+confirm	S	speech_act
+confirmation	R	
+confirmed	S	speech_act
+confirms	R	
+conflict	R	
+conforms	R	
+confronted	R	
+confused	S	evaluative
+confusion	R	
+congestion	R	
+congo	R	
+connect	R	
+connected	R	
+connection	R	
+connectivity	R	
+consecutive	R	
+consensus	R	
+consent	R	
+consequences	R	
+consequently	F	
+consider	S	attitude_verb
+considerable	S	evaluative
+considerably	S	degree
+consideration	R	
+considerations	R	
+considered	S	attitude_verb
+considering	S	attitude_verb
+consistency	R	
+consistent	R	
+consistently	R	
+consists	R	
+console	R	
+consolidate	R	
+consolidated	R	
+consolidation	R	
+constant	R	
+constantly	R	
+constitute	R	
+constituted	R	
+constitutes	R	
+constraints	R	
+constructed	R	
+construction	R	
+consultancy	R	
+consultant	R	
+consultation	R	
+consulting	R	
+consumer	R	
+contact	R	
+contained	R	
+container	R	
+contains	R	
+contemplate	S	epistemic
+contemplating	S	epistemic
+contemporary	R	
+content	R	
+contentious	R	
+context	R	
+continually	R	
+continue	R	
+continued	R	
+continues	R	
+continuing	R	
+contract	R	
+contractors	R	
+contrast	R	
+contrasting	R	
+contribute	R	
+contributed	R	
+contribution	R	
+contributions	R	
+control	R	
+controlled	R	
+controller	R	
+convenient	S	evaluative
+conventional	R	
+converted	R	
+convinced	S	epistemic
+cook	R	
+cookie	R	
+cookies	R	
+cooking	R	
+cool	S	evaluative
+cooperation	R	
+coordinated	R	
+coordinating	R	
+copd	R	
+copper	R	
+copy	R	
+core	R	
+corn	R	
+corner	R	
+coronavirus	R	
+corporate	R	
+corporation	R	
+correct	S	evaluative
+correctly	S	evaluative
+correspond	R	
+corresponding	R	
+cosplay	R	
+cost	R	
+costco	R	
+costume	R	
+costumes	R	
+cottage	R	
+cough	R	
+could	F	
+couldn't	F	
+counter	R	
+countless	S	degree
+countries	R	
+country	R	
+county	R	
+couple	R	
+coupled	R	
+coupon	R	
+course	R	
+court	R	
+cover	R	
+covered	R	
+coveted	S	evaluative
+cpu	R	
+cracked	R	
+craft	R	
+crafted	R	
+crafting	R	
+crash	R	
+crazy	S	evaluative
+create	R	
+created	R	
+creating	R	
+creation	R	
+creative	R	
+credit	R	
+cried	R	
+criminal	R	
+crisis	R	
+criteria	R	
+critical	S	evaluative
+critically	S	degree
+criticised	S	speech_act
+croatia	R	
+cross	R	
+crosses	R	
+crown	R	
+cruel	S	evaluative
+crunch	R	
+crystal	R	
+ctrl	R	
+culinary	R	
+cultivating	R	
+cultural	R	
+culturally	R	
+culture	R	
+cup	R	
+cure	R	
+curiosity	R	
+curious	S	evaluative
+current	R	
+currently	R	
+custom	R	
+customer	R	
+customers	R	
+customizable	R	
+customize	R	
+customized	R	
+cut	R	
+cute	S	evaluative
+cutting	R	
+cybersecurity	R	
+cycle	R	
+cyp	R	
+dad	R	
+daemon	R	
+daily	R	
+damage	R	
+damaged	R	
+damn	S	interjection
+damon	R	
+damping	R	
+dance	R	
+dangerous	S	evaluative
+dark	R	
+darker	R	
+data	R	
+database	R	
+date	R	
+dating	R	
+daughter	R	
+day	R	
+days	R	
+de	F	
+deal	R	
+dealers	R	
+deals	R	
+dean	R	
+death	R	
+debut	R	
+decade	R	
+decades	R	
+december	R	
+decide	R	
+decided	R	
+decision	R	
+decisions	R	
+declaration	R	
+decline	R	
+dedicated	R	
+deep	R	
+deepen	R	
+deeper	R	
+default	R	
+defect	R	
+defence	R	
+defense	R	
+defensive	R	
+definitely	S	epistemic
+definition	R	
+definitions	R	
+degradation	R	
+degree	R	
+degrees	R	
+delay	R	
+delayed	R	
+delight	R	
+delighted	S	evaluative
+deliver	R	
+delivered	R	
+delivering	R	
+delivers	R	
+delivery	R	
+delta	R	
+demo	R	
+demonstrate	S	epistemic
+demonstrated	S	epistemic
+demonstrating	S	epistemic
+dental	R	
+denver	R	
+department	R	
+departmental	R	
+depending	R	
+deposit	R	
+depth	R	
+deputy	R	
+der	F	
+describe	R	
+described	R	
+describes	R	
+description	R	
+desert	R	
+design	R	
+designated	R	
+designed	R	
+designer	R	
+desktop	R	
+despair	R	
+despite	F	
+destiny	R	
+detail	R	
+detailed	R	
+details	R	
+detected	R	
+detection	R	
+deterioration	R	
+determination	R	
+determine	R	
+determined	R	
+determining	R	
+devastated	S	evaluative
+develop	R	
+developed	R	
+developing	R	
+development	R	
+device	R	
+devoted	R	
+di	F	
+diagnosed	R	
+diagnosis	R	
+diagnostic	R	
+diagram	R	
+dialog	R	
+diameter	R	
+diamond	R	
+diaz	R	
+dick	R	
+dictionary	R	
+did	F	
+didn't	F	
+die	F	
+died	R	
+diesel	R	
+difference	R	
+differences	R	
+different	R	
+differently	R	
+difficult	S	evaluative
+difficulties	R	
+difficulty	R	
+dig	R	
+digital	R	
+dignity	R	
+dining	R	
+diploma	R	
+dire	S	evaluative
+directly	R	
+directory	R	
+dirt	R	
+dirty	R	
+disabilities	R	
+disconnected	R	
+discounted	R	
+discourse	R	
+discover	R	
+discovered	R	
+discovering	R	
+discovery	R	
+discretion	R	
+discriminatory	R	
+discuss	R	
+discussed	R	
+discussion	R	
+disease	R	
+disney	R	
+disorders	R	
+displayed	R	
+disposal	R	
+disposing	R	
+distant	R	
+distinct	R	
+distinctive	S	evaluative
+distorted	R	
+distracted	R	
+distributed	R	
+distribution	R	
+district	R	
+divergence	R	
+diverse	R	
+diversity	R	
+divided	R	
+divine	R	
+division	R	
+dl	X	
+dna	R	
+do	F	
+document	R	
+documentary	R	
+documentation	R	
+documented	R	
+documents	R	
+does	F	
+doesn	F	
+doesn't	F	
+doesnt	F	
+dog	R	
+dogs	R	
+doing	F	
+dolby	R	
+dom	R	
+domestic	R	
+domino	R	
+don	F	
+don't	F	
+done	F	
+door	R	
+dose	R	
+double	R	
+doubt	S	attitude_verb
+doug	R	
+down	F	
+download	R	
+downloaded	R	
+dr	R	
+dragged	R	
+dragon	R	
+dramatic	S	evaluative
+dramatically	S	evaluative
+draw	R	
+drawn	R	
+dream	R	
+dress	R	
+drink	R	
+drinking	R	
+drive	R	
+driver	R	
+driving	R	
+drop	R	
+drove	R	
+drug	R	
+drum	R	
+drunken	R	
+dry	R	
+dryer	R	
+ds	R	
+dslr	R	
+dual	R	
+duc	X	
+duck	R	
+duct	R	
+due	F	
+duly	R	
+dumpster	R	
+durable	R	
+during	F	
+dust	R	
+dvd	R	
+dying	R	
+dynamic	R	
+dynamics	R	
+each	F	
+eager	S	evaluative
+earlier	F	
+early	R	
+earn	R	
+earth	R	
+easiest	R	
+easily	S	evaluative
+east	R	
+easter	R	
+eastern	R	
+easy	S	evaluative
+eat	R	
+eating	R	
+ecology	R	
+economic	R	
+economies	R	
+economists	R	
+economy	R	
+ecosystem	R	
+ed	X	
+eddie	R	
+edge	R	
+edges	R	
+edgy	R	
+edi	R	
+edit	R	
+edition	R	
+edmund	R	
+education	R	
+educational	R	
+edwards	R	
+eeg	R	
+effect	R	
+effective	S	evaluative
+effectively	S	evaluative
+effects	R	
+efficacy	R	
+efficiencies	R	
+efficiency	R	
+efficient	S	evaluative
+effort	R	
+efforts	R	
+eg	F	
+either	F	
+elasticity	R	
+elderly	R	
+election	R	
+electric	R	
+electrical	R	
+electricity	R	
+electronic	R	
+elegance	R	
+elegant	S	evaluative
+elegantly	S	evaluative
+element	R	
+elements	R	
+elevated	R	
+eligible	R	
+else	F	
+elvis	R	
+em	F	
+email	R	
+emanuel	R	
+embedded	R	
+embodies	R	
+embodiment	R	
+embody	R	
+embrace	R	
+embraced	R	
+embroidered	R	
+emergency	R	
+emerging	R	
+emirates	R	
+emoji	R	
+emotion	R	
+emotional	R	
+emotionally	R	
+emotions	R	
+emphasis	R	
+employees	R	
+employers	R	
+employment	R	
+empowering	R	
+empty	R	
+en	F	
+enable	R	
+enabled	R	
+enables	R	
+encourage	R	
+encouraged	R	
+encryption	R	
+encyclopedia	R	
+end	R	
+endless	S	degree
+endogenous	R	
+energy	R	
+enforce	R	
+enforcement	R	
+engage	R	
+engaged	R	
+engagement	R	
+engaging	R	
+engine	R	
+engineer	R	
+engineering	R	
+england	R	
+english	R	
+enhance	R	
+enhanced	R	
+enhancements	R	
+enhances	R	
+enhancing	R	
+enjoy	S	attitude_verb
+enjoyable	S	evaluative
+enjoyed	S	attitude_verb
+enjoying	R	
+enjoyment	R	
+enlarge	R	
+enormous	S	degree
+enough	F	
+enriching	R	
+ensure	R	
+ensured	R	
+ensures	R	
+ensuring	R	
+enterprise	R	
+entertaining	S	evaluative
+entire	F	
+entirety	F	
+entity	R	
+entrepreneurs	R	
+entry	R	
+environment	R	
+environmental	R	
+environmentally	R	
+epa	R	
+epic	S	evaluative
+episodes	R	
+equal	R	
+equally	F	
+equipment	R	
+equipped	R	
+equity	R	
+era	R	
+ernst	R	
+error	R	
+especially	S	degree
+espresso	R	
+essential	S	evaluative
+essentially	S	epistemic
+establish	R	
+established	R	
+establishment	R	
+estate	R	
+estimate	R	
+estimated	R	
+estimates	R	
+etc	F	
+eternal	R	
+ethos	R	
+etsy	R	
+eu	R	
+europe	R	
+european	R	
+evacuated	R	
+evaluate	R	
+evaluated	R	
+evaluating	R	
+evaluation	R	
+evangelical	R	
+even	S	epistemic
+evening	R	
+event	R	
+events	R	
+ever	F	
+every	F	
+everyday	R	
+everyone	F	
+everything	F	
+everywhere	F	
+evidence	R	
+evil	S	evaluative
+evolutionary	R	
+evolving	R	
+exact	S	epistemic
+exactly	S	epistemic
+exam	R	
+examination	R	
+example	R	
+examples	R	
+exams	R	
+excellence	R	
+excellent	S	evaluative
+except	F	
+exception	R	
+exceptional	S	evaluative
+excerpt	R	
+excessive	S	evaluative
+exchange	R	
+excited	S	evaluative
+exciting	S	evaluative
+exclusively	S	epistemic
+executed	R	
+executing	R	
+executive	R	
+exercising	R	
+exeter	R	
+exhibits	R	
+existence	R	
+existing	R	
+exotic	R	
+expand	R	
+expanded	R	
+expanding	R	
+expands	R	
+expansion	R	
+expansive	R	
+expect	S	attitude_verb
+expectations	R	
+expected	S	attitude_verb
+expecting	S	attitude_verb
+experience	R	
+experienced	R	
+experiences	R	
+experiential	R	
+experiment	R	
+experimental	R	
+expertise	R	
+explain	S	speech_act
+explained	S	speech_act
+exploration	R	
+explore	R	
+explorer	R	
+exploring	R	
+exposed	R	
+exposure	R	
+express	R	
+extend	R	
+extended	R	
+extends	R	
+extension	R	
+extensive	R	
+extent	R	
+external	R	
+extra	R	
+extract	R	
+extreme	S	evaluative
+extremely	S	degree
+eye	R	
+face	R	
+facebook	R	
+facets	R	
+facilitate	R	
+facilities	R	
+facility	R	
+facing	R	
+fact	R	
+factor	R	
+factors	R	
+factory	R	
+facts	R	
+faculties	R	
+faculty	R	
+failed	R	
+failure	R	
+fair	S	evaluative
+fairly	S	epistemic
+faith	R	
+faithful	R	
+faithfully	R	
+fall	R	
+false	S	evaluative
+familiar	R	
+familiarity	R	
+families	R	
+family	R	
+famous	R	
+famously	R	
+fan	R	
+fantastic	S	evaluative
+far	F	
+farm	R	
+fascinated	S	evaluative
+fascinating	S	evaluative
+fascination	R	
+fashion	R	
+fast	R	
+fatal	R	
+favorite	S	evaluative
+favourite	S	evaluative
+fbi	R	
+fear	S	attitude_verb
+feature	R	
+featured	R	
+features	R	
+feb	R	
+february	R	
+federal	R	
+feel	S	attitude_verb
+feeling	S	attitude_verb
+feels	S	attitude_verb
+fees	R	
+fellow	R	
+felt	S	attitude_verb
+female	R	
+females	R	
+fence	R	
+fermented	R	
+fernando	R	
+ferry	R	
+festival	R	
+few	F	
+fewer	F	
+fiance	R	
+fiber	R	
+fibre	R	
+field	R	
+fifteen	F	
+fifth	F	
+fig	F	
+fighting	R	
+figure	R	
+figures	R	
+figuring	R	
+file	R	
+files	R	
+filesystem	R	
+fill	R	
+filled	R	
+filling	R	
+film	R	
+films	R	
+final	R	
+finally	F	
+finance	R	
+financial	R	
+find	R	
+findings	R	
+finds	R	
+fine	S	evaluative
+fingerprint	R	
+finished	R	
+finishing	R	
+fire	R	
+firm	R	
+firmly	S	degree
+first	F	
+firstname	X	
+fiscal	R	
+fishing	R	
+fit	S	evaluative
+fits	R	
+fitted	R	
+fitting	S	evaluative
+five	F	
+fl	R	
+flag	R	
+flags	R	
+flat	R	
+flawless	S	evaluative
+flexibility	R	
+flexible	R	
+flight	R	
+floating	R	
+flood	R	
+flooding	R	
+floor	R	
+flooring	R	
+florida	R	
+flow	R	
+fly	R	
+flying	R	
+focus	R	
+fog	R	
+follow	R	
+following	R	
+follows	R	
+food	R	
+foot	R	
+footage	R	
+football	R	
+for	F	
+forbidden	R	
+force	R	
+forced	R	
+forces	R	
+foreign	R	
+forever	F	
+form	R	
+format	R	
+former	F	
+formula	R	
+fort	R	
+forth	F	
+fortunate	S	evaluative
+forum	R	
+forward	F	
+foster	R	
+found	R	
+foundational	R	
+founded	R	
+founding	R	
+four	F	
+fourth	F	
+fox	R	
+framework	R	
+framing	R	
+france	R	
+frank	R	
+fraud	R	
+free	R	
+freedom	R	
+french	R	
+frequency	R	
+freshly	R	
+friday	R	
+friend	R	
+friendly	S	evaluative
+friends	R	
+from	F	
+front	R	
+frosting	R	
+fruit	R	
+ftp	R	
+fuel	R	
+fulfil	R	
+fulfill	R	
+fulfilled	R	
+fulfilling	R	
+full	R	
+fully	S	degree
+fun	S	evaluative
+function	R	
+functional	R	
+functionalities	R	
+functionality	R	
+functions	R	
+funeral	R	
+funny	S	evaluative
+furnished	R	
+furniture	R	
+further	F	
+furthermore	F	
+fusion	R	
+future	R	
+ga	X	
+gain	R	
+galactic	R	
+gambling	R	
+game	R	
+gameplay	R	
+games	R	
+gaming	R	
+gang	R	
+gap	R	
+garage	R	
+gas	R	
+gathered	R	
+gave	R	
+gb	R	
+gcc	R	
+gen	R	
+gene	R	
+general	R	
+generally	S	epistemic
+generated	R	
+generation	R	
+generator	R	
+genetic	R	
+geometric	R	
+geometry	R	
+george	R	
+german	R	
+gestaltung	X	
+get	F	
+gets	F	
+getter	R	
+getting	F	
+ghost	R	
+gi	R	
+gift	R	
+gigs	R	
+girl	R	
+girls	R	
+give	R	
+given	R	
+gives	R	
+giving	R	
+glad	S	evaluative
+global	R	
+globally	R	
+glorious	S	evaluative
+glück	R	
+gm	R	
+gmail	R	
+go	R	
+goal	R	
+goals	R	
+god	R	
+god's	R	
+goes	R	
+going	R	
+golf	R	
+gone	R	
+gonna	F	
+good	S	evaluative
+google	R	
+gop	R	
+got	F	
+gotta	S	modal
+government	R	
+gps	R	
+grade	R	
+gradually	R	
+grand	R	
+grant	R	
+grateful	S	evaluative
+gray	R	
+great	S	evaluative
+greater	R	
+greatest	S	evaluative
+greatly	S	degree
+grew	R	
+griffin	R	
+groningen	R	
+gross	S	evaluative
+ground	R	
+groundbreaking	R	
+groundwater	R	
+group	R	
+grouped	R	
+groups	R	
+grow	R	
+growing	R	
+grown	R	
+grows	R	
+growth	R	
+guarantee	S	speech_act
+guaranteed	S	speech_act
+guess	S	attitude_verb
+guest	R	
+guidance	R	
+guide	R	
+guided	R	
+guidelines	R	
+guiding	R	
+guinea	R	
+gum	R	
+gun	R	
+guy	R	
+guys	R	
+hackers	R	
+had	F	
+hadn't	F	
+hair	R	
+half	F	
+hall	R	
+hand	R	
+handling	R	
+hands	R	
+happen	R	
+happened	R	
+happiness	R	
+happy	S	evaluative
+hard	S	evaluative
+harder	R	
+hardware	R	
+harmony	R	
+harvest	R	
+harvested	R	
+has	F	
+hasan	R	
+hat	R	
+hate	S	attitude_verb
+have	F	
+haven't	F	
+having	F	
+hazardous	S	evaluative
+hazards	R	
+hd	R	
+he	F	
+head	R	
+healing	R	
+health	R	
+healthcare	R	
+healthy	S	evaluative
+hear	R	
+heard	R	
+hearing	R	
+heart	R	
+heated	R	
+heater	R	
+heating	R	
+heavy	R	
+heft	R	
+hehe	S	interjection
+height	R	
+heightened	R	
+held	R	
+hello	S	interjection
+help	R	
+helped	R	
+helpful	S	evaluative
+helping	R	
+helps	R	
+hence	F	
+her	F	
+here	F	
+here's	F	
+heritage	R	
+herself	F	
+hey	S	interjection
+hi	S	interjection
+hidden	R	
+hiding	R	
+high	R	
+higher	R	
+highest	R	
+highlight	R	
+highlights	R	
+highly	S	degree
+hill	R	
+him	F	
+himself	F	
+hip	R	
+his	F	
+historic	R	
+historical	R	
+historically	R	
+history	R	
+hit	R	
+hitting	R	
+hiv	R	
+hl	X	
+hold	R	
+holding	R	
+hole	R	
+holiday	R	
+holidays	R	
+holistic	R	
+holland	R	
+hollywood	R	
+holy	R	
+home	R	
+homemade	R	
+homes	R	
+homework	R	
+honestly	S	epistemic
+hong	R	
+honor	R	
+honorable	R	
+honored	R	
+hook	R	
+hoover	R	
+hope	S	attitude_verb
+hoping	S	attitude_verb
+horny	R	
+horse	R	
+horses	R	
+hospital	R	
+host	R	
+hosted	R	
+hot	R	
+hotel	R	
+hotels	R	
+hottest	S	evaluative
+hours	R	
+house	R	
+housed	R	
+household	R	
+houses	R	
+housing	R	
+houston	R	
+how	F	
+however	F	
+ht	X	
+http	X	
+huge	S	degree
+hugely	S	degree
+hugs	R	
+huh	S	interjection
+human	R	
+humanitarian	R	
+hundred	F	
+hungry	R	
+hunting	R	
+hurricane	R	
+hydraulic	R	
+hyper	X	
+hypothetical	S	epistemic
+hôtel	R	
+i'd	F	
+i'll	F	
+i'm	F	
+i've	F	
+ia	R	
+ice	R	
+icky	S	evaluative
+iconic	S	evaluative
+id	R	
+idaho	R	
+idea	R	
+ideal	S	evaluative
+ideas	R	
+identical	R	
+identifiable	R	
+identification	R	
+identified	R	
+identifies	R	
+identify	R	
+identifying	R	
+identity	R	
+ideological	R	
+if	F	
+ii	R	
+iii	R	
+il	F	
+ill	R	
+illegal	R	
+illinois	R	
+illuminating	S	evaluative
+illumination	R	
+illustrate	R	
+illustrated	R	
+illustrates	R	
+illustration	R	
+illustrative	R	
+image	R	
+imagine	S	attitude_verb
+immediate	R	
+immediately	R	
+immensely	S	degree
+immersive	R	
+immune	R	
+impact	R	
+implant	R	
+implementation	R	
+implemented	R	
+implications	R	
+imply	S	epistemic
+importance	R	
+important	S	evaluative
+importantly	S	evaluative
+impossible	S	epistemic
+improve	R	
+improved	R	
+improvement	R	
+improvements	R	
+improving	R	
+in	F	
+inadequate	S	evaluative
+inc	R	
+incest	R	
+inclined	R	
+include	R	
+included	R	
+includes	R	
+including	R	
+inclusion	R	
+incorporate	R	
+incorrect	S	evaluative
+incorrectly	S	evaluative
+increase	R	
+increased	R	
+increases	R	
+increasing	R	
+increasingly	R	
+incredible	S	evaluative
+incredibly	S	degree
+indeed	S	epistemic
+independent	R	
+index	R	
+indian	R	
+indiana	R	
+indicated	R	
+indie	R	
+indigenous	R	
+individual	R	
+individual's	R	
+individuals	R	
+indoor	R	
+industrial	R	
+industry	R	
+indy	R	
+infected	R	
+infection	R	
+infer	S	epistemic
+infinity	R	
+inflatable	R	
+info	R	
+inform	R	
+information	R	
+informational	R	
+infrared	R	
+infrastructure	R	
+infused	R	
+inherent	R	
+initial	R	
+initially	R	
+initiated	R	
+initiatives	R	
+inner	R	
+innovative	S	evaluative
+input	R	
+inquiry	R	
+insert	R	
+inserting	R	
+inside	R	
+insights	R	
+insisted	S	speech_act
+inspire	R	
+inspired	R	
+install	R	
+installation	R	
+installed	R	
+instance	R	
+instead	F	
+institute	R	
+institution	R	
+institutions	R	
+instructed	R	
+instruction	R	
+instructions	R	
+instrument	R	
+instrumental	R	
+instruments	R	
+insurance	R	
+integral	R	
+integrate	R	
+integrated	R	
+integration	R	
+intel	R	
+intellectually	R	
+intelligence	R	
+intelligent	S	evaluative
+intended	S	attitude_verb
+intense	S	evaluative
+intentional	R	
+intentionally	R	
+interact	R	
+interaction	R	
+interactive	R	
+interdisciplinary	R	
+interest	R	
+interested	S	evaluative
+interesting	S	evaluative
+interface	R	
+internal	R	
+international	R	
+internationally	R	
+internet	R	
+internships	R	
+interpretation	R	
+interpreted	R	
+intersection	R	
+interval	R	
+interview	R	
+into	F	
+intriguing	S	evaluative
+introduced	R	
+introduction	R	
+inux	X	
+investigate	R	
+investigating	R	
+investigation	R	
+investigations	R	
+investment	R	
+investors	R	
+invite	R	
+invited	R	
+invites	R	
+involved	R	
+involvement	R	
+involving	R	
+ions	X	
+ip	R	
+iraq	R	
+iraqi	R	
+ireland	R	
+irish	R	
+iron	R	
+irrational	S	evaluative
+is	F	
+isbn	R	
+island	R	
+isn	F	
+isn't	F	
+iso	R	
+issue	R	
+issued	R	
+issues	R	
+it	F	
+it's	F	
+italian	R	
+item	R	
+items	R	
+itinerary	R	
+its	F	
+itself	F	
+jackson	R	
+james	R	
+january	R	
+japan	R	
+japanese	R	
+jar	R	
+jardin	X	
+java	R	
+jazz	R	
+jean	R	
+jersey	R	
+jessica	R	
+jesus	R	
+jet	R	
+jewellery	R	
+jewish	R	
+job	R	
+jobs	R	
+joe	R	
+john	R	
+johnny	R	
+johnson	R	
+join	R	
+joined	R	
+joining	R	
+jones	R	
+joseph	R	
+joshua	R	
+journal	R	
+journalists	R	
+journey	R	
+joy	R	
+jpeg	R	
+jr	R	
+juan	R	
+judge	R	
+judges	R	
+judicial	R	
+juice	R	
+julia	R	
+julie	R	
+julius	R	
+july	R	
+jump	R	
+jumped	R	
+jumping	R	
+june	R	
+jury	R	
+just	S	epistemic
+justice	R	
+justify	S	speech_act
+justin	R	
+kansas	R	
+karen	R	
+kat	R	
+kayak	R	
+keen	S	evaluative
+keep	R	
+keeping	R	
+kelly	R	
+kevin	R	
+key	S	evaluative
+kick	R	
+kicking	R	
+kicks	R	
+kickstarter	R	
+kidnapping	R	
+kids	R	
+kill	R	
+killed	R	
+killer	R	
+kilometers	R	
+kilometres	R	
+kim	R	
+kind	S	evaluative
+kinda	S	epistemic
+kindle	R	
+king	R	
+kit	R	
+kitchen	R	
+km	R	
+knew	S	attitude_verb
+knocked	R	
+know	S	attitude_verb
+knowledge	R	
+knowledgeable	R	
+known	S	attitude_verb
+knows	S	attitude_verb
+korean	R	
+ky	R	
+la	F	
+label	R	
+labor	R	
+laboratory	R	
+labour	R	
+lack	R	
+lacking	R	
+ladies	R	
+lady	R	
+lag	R	
+laid	R	
+lake	R	
+land	R	
+landmarks	R	
+landscape	R	
+lane	R	
+language	R	
+laptop	R	
+large	R	
+largely	S	epistemic
+larger	R	
+largest	R	
+laser	R	
+last	F	
+lasting	R	
+late	R	
+later	F	
+latest	R	
+latter	F	
+launch	R	
+launching	R	
+law	R	
+lawyer	R	
+lay	R	
+layer	R	
+layout	R	
+lbs	R	
+ldap	R	
+le	F	
+lead	R	
+leader	R	
+leaders	R	
+leadership	R	
+leading	R	
+league	R	
+learn	R	
+learning	R	
+least	F	
+leave	R	
+leaves	R	
+lecturers	R	
+led	R	
+lee	R	
+left	R	
+legal	R	
+legalization	R	
+legally	R	
+legendary	S	evaluative
+legion	R	
+legislation	R	
+legislative	R	
+lego	R	
+leisure	R	
+lemon	R	
+lending	R	
+lenga	X	
+length	R	
+lengths	R	
+lenovo	R	
+less	F	
+let	F	
+let's	F	
+lets	F	
+letter	R	
+level	R	
+lever	R	
+leveraging	R	
+lewis	R	
+lg	R	
+liar	R	
+liberty	R	
+library	R	
+lice	R	
+license	R	
+licensed	R	
+lies	R	
+life	R	
+lifestyle	R	
+lifting	R	
+light	R	
+lightweight	R	
+like	F	
+likely	S	epistemic
+lil	R	
+limited	R	
+limo	R	
+lin	R	
+linda	R	
+line	R	
+lines	R	
+lingering	R	
+link	R	
+linked	R	
+linking	R	
+links	R	
+list	R	
+listed	R	
+listen	R	
+listener	R	
+listening	R	
+listing	R	
+literary	R	
+literature	R	
+litigation	R	
+little	R	
+live	R	
+lively	S	evaluative
+liver	R	
+liverpool	R	
+lives	R	
+living	R	
+llc	R	
+load	R	
+lobster	R	
+local	R	
+located	R	
+location	R	
+locations	R	
+lock	R	
+lodging	R	
+log	R	
+logical	R	
+login	R	
+logistical	R	
+logo	R	
+lol	S	interjection
+long	R	
+longer	R	
+longevity	R	
+look	R	
+looked	R	
+looking	R	
+looks	R	
+lord	R	
+los	F	
+lose	R	
+loss	R	
+lot	F	
+lots	F	
+louis	R	
+love	S	attitude_verb
+lovely	S	evaluative
+low	R	
+lower	R	
+loyalty	R	
+ltd	R	
+lucas	R	
+lunar	R	
+lunch	R	
+luncheon	R	
+lurking	R	
+lush	S	evaluative
+lutheran	R	
+ma	R	
+mac	R	
+machine	R	
+macro	X	
+made	R	
+magazine	R	
+magic	R	
+magical	R	
+magnetic	R	
+magnificent	S	evaluative
+mail	R	
+mailing	R	
+main	R	
+maintaining	R	
+major	S	evaluative
+make	R	
+makes	R	
+making	R	
+malaysia	R	
+male	R	
+man	R	
+manage	R	
+manageable	R	
+managed	R	
+management	R	
+manager	R	
+managing	R	
+manipulate	R	
+manual	R	
+manufactured	R	
+manufacturer	R	
+manufactures	R	
+manufacturing	R	
+many	F	
+map	R	
+maps	R	
+marginalized	R	
+maria	R	
+marine	R	
+mark	R	
+marked	R	
+market	R	
+marketing	R	
+markets	R	
+marks	R	
+marriott	R	
+marshall	R	
+martial	R	
+martin	R	
+mary	R	
+mass	R	
+massachusetts	R	
+massive	S	degree
+mastering	R	
+masters	R	
+match	R	
+matched	R	
+matches	R	
+material	R	
+materials	R	
+math	R	
+matt	R	
+matter	R	
+matters	R	
+mature	R	
+maximum	R	
+may	S	modal
+maya	R	
+maybe	S	epistemic
+me	F	
+mean	S	attitude_verb
+meaning	R	
+meaningful	S	evaluative
+means	R	
+meant	S	attitude_verb
+measure	R	
+measures	R	
+mechanical	R	
+mechanisms	R	
+med	R	
+media	R	
+medical	R	
+medicine	R	
+medium	R	
+meet	R	
+meeting	R	
+meets	R	
+mega	S	degree
+melee	R	
+melt	R	
+member	R	
+members	R	
+memorial	R	
+memory	R	
+men	R	
+men's	R	
+mention	S	speech_act
+mentioned	S	speech_act
+menu	R	
+mere	S	epistemic
+merely	S	epistemic
+message	R	
+met	R	
+metadata	R	
+metal	R	
+methodology	R	
+methods	R	
+meticulous	S	evaluative
+metro	R	
+mexico	R	
+miami	R	
+michael	R	
+michigan	R	
+microsoft	R	
+midwest	R	
+might	S	modal
+mike	R	
+mil	X	
+military	R	
+million	F	
+millions	R	
+min	R	
+mind	S	attitude_verb
+mine	F	
+mineral	R	
+minimal	R	
+minimize	R	
+minimum	R	
+ministry	R	
+minute	R	
+missing	R	
+mission	R	
+mistake	R	
+mistakes	R	
+mitigate	R	
+mitigating	R	
+mix	R	
+mixed	R	
+mixing	R	
+mixture	R	
+mk	R	
+ml	R	
+mlb	R	
+mm	R	
+mo	R	
+mobile	R	
+mock	R	
+model	R	
+models	R	
+modern	R	
+modular	R	
+molecular	R	
+mom	R	
+moment	R	
+momentum	R	
+moms	R	
+monarch	R	
+monday	R	
+money	R	
+monitoring	R	
+monitors	R	
+monster	R	
+montana	R	
+months	R	
+monumental	S	degree
+moral	S	evaluative
+more	F	
+moreover	F	
+morning	R	
+morph	X	
+most	F	
+mostly	S	epistemic
+motel	R	
+mother	R	
+motor	R	
+moulin	X	
+mount	R	
+mountain	R	
+mouth	R	
+move	R	
+movie	R	
+mp	R	
+mr	R	
+mt	R	
+much	F	
+muchas	X	
+muller	R	
+multi	X	
+multimedia	R	
+multiple	R	
+municipal	R	
+muscle	R	
+museum	R	
+music	R	
+must	S	modal
+mustang	R	
+mustard	R	
+mutual	R	
+my	F	
+myriad	S	degree
+myself	F	
+mythical	R	
+nah	S	interjection
+name	R	
+named	R	
+narrow	R	
+nation	R	
+national	R	
+nations	R	
+native	R	
+natural	R	
+naturally	R	
+nature	R	
+naval	R	
+navigating	R	
+navigation	R	
+nbc	R	
+nd	F	
+near	R	
+nearly	S	epistemic
+necessary	S	evaluative
+need	S	modal
+needed	R	
+needle	R	
+needs	R	
+negative	S	evaluative
+negatively	S	evaluative
+neighborhood	R	
+neither	F	
+neo	X	
+nesting	R	
+nestled	R	
+net	R	
+netherlands	R	
+network	R	
+networking	R	
+never	F	
+new	R	
+newest	R	
+newfound	R	
+newly	R	
+news	R	
+newsletter	R	
+newspaper	R	
+next	F	
+nexus	R	
+nfl	R	
+nice	S	evaluative
+nick	R	
+nicole	R	
+nieces	R	
+nifty	S	evaluative
+nigeria	R	
+night	R	
+nih	R	
+nine	F	
+nintendo	R	
+nivel	X	
+no	F	
+nobel	R	
+non	X	
+none	F	
+nor	F	
+normal	S	evaluative
+normally	S	epistemic
+normative	R	
+north	R	
+northern	R	
+northwest	R	
+not	F	
+notable	S	evaluative
+note	S	speech_act
+noted	S	speech_act
+notes	R	
+nothing	F	
+notice	R	
+noticeable	R	
+nourish	R	
+nourishing	R	
+nourishment	R	
+novel	R	
+november	R	
+now	F	
+nuclear	R	
+number	R	
+nurses	R	
+nursing	R	
+nutrition	R	
+nutritious	R	
+obesity	R	
+object	R	
+objects	R	
+observer	R	
+obtain	R	
+obtainable	R	
+obtained	R	
+obviously	S	epistemic
+occasion	R	
+occasional	R	
+occasionally	F	
+occupational	R	
+occupied	R	
+occur	R	
+occurred	R	
+occurring	R	
+occurs	R	
+ocean	R	
+oct	R	
+october	R	
+odd	S	evaluative
+of	F	
+off	F	
+offence	R	
+offer	R	
+offered	R	
+offering	R	
+offerings	R	
+offers	R	
+office	R	
+official	R	
+officially	R	
+often	F	
+oh	S	interjection
+ohio	R	
+oil	R	
+okay	S	interjection
+oklahoma	R	
+ol	X	
+ola	X	
+old	R	
+on	F	
+once	F	
+one	F	
+one's	F	
+ones	F	
+ongoing	R	
+onions	R	
+online	R	
+only	S	epistemic
+ontario	R	
+onto	F	
+open	R	
+opened	R	
+opening	R	
+oper	R	
+operated	R	
+operating	R	
+operation	R	
+operational	R	
+operations	R	
+opinions	R	
+opportunities	R	
+opportunity	R	
+opposed	R	
+opposite	R	
+opt	R	
+opted	R	
+optical	R	
+optimal	S	evaluative
+optimization	R	
+optimize	R	
+optional	R	
+options	R	
+or	F	
+oral	R	
+orange	R	
+order	R	
+ordered	R	
+orders	R	
+oregon	R	
+organic	R	
+organisations	R	
+organise	R	
+organising	R	
+organization	R	
+organizations	R	
+organize	R	
+organizing	R	
+organs	R	
+origin	R	
+original	R	
+originally	R	
+orlando	R	
+os	R	
+oscar	R	
+other	F	
+other's	F	
+others	F	
+otherwise	F	
+ottawa	R	
+ought	S	modal
+our	F	
+ours	F	
+ourselves	F	
+out	F	
+outcome	R	
+outdoor	R	
+outline	R	
+outlined	R	
+output	R	
+outside	R	
+outsourcing	R	
+outstanding	S	evaluative
+oven	R	
+over	F	
+overall	F	
+overarching	R	
+overview	R	
+owed	R	
+owing	R	
+own	F	
+owner	R	
+owners	R	
+ownership	R	
+oysters	R	
+oz	R	
+paced	R	
+pacific	R	
+package	R	
+packages	R	
+packed	R	
+page	R	
+paid	R	
+pain	R	
+palestinian	R	
+palm	R	
+palpable	S	evaluative
+panel	R	
+paper	R	
+papers	R	
+paradigm	R	
+parallel	R	
+parameters	R	
+paramount	S	evaluative
+parent	R	
+parents	R	
+park	R	
+parking	R	
+parks	R	
+parsons	R	
+part	R	
+partial	R	
+participants	R	
+participate	R	
+participating	R	
+participation	R	
+particular	R	
+particularly	S	degree
+parties	R	
+partner	R	
+party	R	
+passing	R	
+passion	R	
+passive	R	
+passports	R	
+past	R	
+pastoral	R	
+pat	R	
+patent	R	
+path	R	
+patient	R	
+patient's	R	
+patio	R	
+pattern	R	
+paul	R	
+pavement	R	
+pay	R	
+payday	R	
+paying	R	
+payment	R	
+payments	R	
+pays	R	
+pcb	R	
+pci	R	
+pdf	R	
+peace	R	
+peaks	R	
+peanut	R	
+pelvic	R	
+penalty	R	
+pending	R	
+peng	X	
+people	R	
+people's	R	
+peoples	R	
+per	F	
+perceived	S	epistemic
+percent	R	
+perception	R	
+perfect	S	evaluative
+perfectly	S	evaluative
+perform	R	
+performance	R	
+performed	R	
+perfume	R	
+perhaps	S	epistemic
+period	R	
+periods	R	
+permission	R	
+permit	R	
+person	R	
+personal	R	
+personalised	R	
+personally	S	epistemic
+persons	R	
+perspective	R	
+perspectives	R	
+pertaining	R	
+perth	R	
+pervasive	R	
+pessoa	R	
+peter	R	
+ph	X	
+pharmaceutical	R	
+pharmacy	R	
+philosophy	R	
+phone	R	
+phones	R	
+photo	R	
+photographs	R	
+photography	R	
+photos	R	
+physical	R	
+physically	R	
+physics	R	
+picasso	R	
+pick	R	
+picked	R	
+picking	R	
+picks	R	
+picture	R	
+pictures	R	
+piece	R	
+pieces	R	
+pigment	R	
+pigmentation	R	
+pile	R	
+pillows	R	
+pinpoint	R	
+pit	R	
+pivotal	S	evaluative
+pizzas	R	
+place	R	
+placement	R	
+plan	R	
+planet	R	
+planned	R	
+planning	R	
+plans	R	
+plant	R	
+plasma	R	
+plastic	R	
+platform	R	
+play	R	
+played	R	
+player	R	
+playing	R	
+playlists	R	
+plays	R	
+pleasant	S	evaluative
+pleasantly	S	evaluative
+please	S	interjection
+pleased	S	evaluative
+pleasure	R	
+pledge	R	
+pledged	R	
+plenty	F	
+plethora	S	degree
+plot	R	
+plug	R	
+plugin	R	
+plus	F	
+pm	R	
+pocket	R	
+podcast	R	
+point	R	
+points	R	
+poker	R	
+police	R	
+policies	R	
+policy	R	
+political	R	
+politicians	R	
+politics	R	
+poll	R	
+pollutants	R	
+pollution	R	
+pool	R	
+poor	S	evaluative
+pop	R	
+popped	R	
+popping	R	
+popular	R	
+population	R	
+populations	R	
+pork	R	
+porn	R	
+port	R	
+portfolio	R	
+portion	R	
+portions	R	
+portrait	R	
+portrayal	R	
+posed	R	
+position	R	
+positive	S	evaluative
+positively	S	evaluative
+possess	R	
+possibility	R	
+possible	S	epistemic
+possibly	S	epistemic
+post	R	
+posted	R	
+postgraduate	R	
+posting	R	
+posts	R	
+potential	S	epistemic
+potentially	S	epistemic
+pounds	R	
+powder	R	
+power	R	
+powerful	S	evaluative
+practical	R	
+practically	S	epistemic
+practice	R	
+practices	R	
+practicing	R	
+praised	S	speech_act
+pre	X	
+precious	S	evaluative
+precise	S	evaluative
+precisely	S	epistemic
+precision	R	
+predict	S	epistemic
+prefer	S	attitude_verb
+preferences	R	
+preliminary	R	
+premier	R	
+premium	S	evaluative
+prenatal	R	
+preparation	R	
+prepare	R	
+prepared	R	
+preparing	R	
+presence	R	
+present	R	
+presentation	R	
+presented	R	
+presenting	R	
+president	R	
+press	R	
+pressure	R	
+presumably	S	epistemic
+presume	S	attitude_verb
+pretty	S	epistemic
+prevalent	R	
+prevent	R	
+preventative	R	
+prevented	R	
+prevention	R	
+previous	F	
+previously	R	
+price	R	
+prices	R	
+pride	R	
+primarily	S	epistemic
+primary	R	
+prime	R	
+prince	R	
+princess	R	
+principal	R	
+principles	R	
+print	R	
+printed	R	
+prints	R	
+prior	F	
+priorities	R	
+priority	R	
+prison	R	
+privacy	R	
+private	R	
+privilege	R	
+pro	R	
+proactive	R	
+probability	R	
+probably	S	epistemic
+problem	R	
+problems	R	
+procedures	R	
+proceed	R	
+proceeded	R	
+proceeds	R	
+process	R	
+processed	R	
+processing	R	
+processor	R	
+produce	R	
+produced	R	
+product	R	
+production	R	
+products	R	
+professional	R	
+professionals	R	
+professor	R	
+profile	R	
+profound	S	evaluative
+program	R	
+programme	R	
+programmes	R	
+programs	R	
+progress	R	
+progression	R	
+project	R	
+projects	R	
+promised	S	speech_act
+promises	S	speech_act
+promising	S	evaluative
+promote	R	
+promoting	R	
+promotional	R	
+proof	R	
+properly	S	evaluative
+property	R	
+proposal	R	
+proposals	R	
+propose	S	speech_act
+proposed	S	speech_act
+prospective	R	
+protect	R	
+protected	R	
+protecting	R	
+protection	R	
+protective	R	
+protocols	R	
+proud	S	evaluative
+prove	S	epistemic
+proved	S	epistemic
+proven	S	epistemic
+provide	R	
+provided	R	
+provider	R	
+providers	R	
+provides	R	
+providing	R	
+provision	R	
+provisioning	R	
+proxy	R	
+ps	R	
+psychiatric	R	
+psychological	R	
+psychologist	R	
+psychology	R	
+public	R	
+publication	R	
+publications	R	
+publicly	R	
+published	R	
+pull	R	
+pulmonary	R	
+pump	R	
+pumpkin	R	
+purchase	R	
+purchases	R	
+purchasing	R	
+pure	R	
+purpose	R	
+purposes	R	
+pursue	R	
+pursuit	R	
+push	R	
+pushed	R	
+pushing	R	
+put	R	
+putting	R	
+qr	X	
+qualifications	R	
+quality	R	
+quantity	R	
+quantum	R	
+quarter	F	
+quarterback	R	
+question	R	
+questions	R	
+quick	R	
+quickly	R	
+quite	S	epistemic
+quotation	R	
+quote	R	
+quoted	R	
+quotes	R	
+race	R	
+racism	R	
+rad	R	
+radiation	R	
+rail	R	
+rain	R	
+ram	R	
+ramón	R	
+rancho	R	
+range	R	
+rank	R	
+ranked	R	
+rape	R	
+rapid	R	
+rapidly	R	
+raptors	R	
+rare	R	
+rate	R	
+rated	R	
+rates	R	
+rather	S	epistemic
+rating	R	
+ratio	R	
+rationale	R	
+raw	R	
+rd	F	
+re	F	
+reach	R	
+reached	R	
+reaction	R	
+read	R	
+reading	R	
+reads	R	
+ready	R	
+real	R	
+reality	R	
+really	S	epistemic
+rear	R	
+reason	R	
+reasonably	S	evaluative
+rebels	R	
+rebuilding	R	
+receipt	R	
+receive	R	
+received	R	
+receiving	R	
+recent	R	
+recently	R	
+recipe	R	
+recipes	R	
+recognise	R	
+recognised	R	
+recognition	R	
+recognized	R	
+recommend	S	speech_act
+recommendation	R	
+recommendations	R	
+recommended	S	speech_act
+record	R	
+records	R	
+recruit	R	
+red	R	
+redesigned	R	
+reduce	R	
+reduced	R	
+reducing	R	
+reduction	R	
+redundant	R	
+refer	R	
+reference	R	
+referenced	R	
+referencing	R	
+referred	R	
+refinancing	R	
+refined	R	
+reflect	R	
+reflecting	R	
+reflection	R	
+reflective	R	
+reflects	R	
+reform	R	
+reforms	R	
+refused	S	speech_act
+regard	S	attitude_verb
+regarded	S	attitude_verb
+regarding	F	
+regards	S	interjection
+region	R	
+regional	R	
+register	R	
+registration	R	
+regulate	R	
+regulated	R	
+regulates	R	
+regulating	R	
+regulation	R	
+regulations	R	
+regulatory	R	
+rehabilitation	R	
+reinforced	R	
+related	R	
+relating	R	
+relations	R	
+relationship	R	
+relationships	R	
+relative	R	
+relatively	S	epistemic
+release	R	
+relevant	S	evaluative
+reliable	S	evaluative
+relied	R	
+religious	R	
+rely	R	
+remain	R	
+remains	R	
+remarkable	S	evaluative
+remarkably	S	degree
+remedy	R	
+remember	S	epistemic
+remembering	S	epistemic
+remind	S	epistemic
+reminds	S	epistemic
+remove	R	
+removed	R	
+render	R	
+renewable	R	
+renowned	S	evaluative
+rental	R	
+repairs	R	
+repeat	R	
+replacement	R	
+replica	R	
+report	R	
+reported	R	
+reportedly	S	epistemic
+reporter	R	
+reporters	R	
+reporting	R	
+reports	R	
+represent	R	
+representation	R	
+represented	R	
+representing	R	
+represents	R	
+reprezent	X	
+reputation	R	
+reputed	S	epistemic
+request	R	
+requested	R	
+required	R	
+requirement	R	
+requirements	R	
+requisite	S	evaluative
+research	R	
+researcher	R	
+researchers	R	
+reserve	R	
+reserved	R	
+reshape	R	
+residential	R	
+resilient	R	
+resistant	R	
+resolution	R	
+resort	R	
+resource	R	
+respect	S	attitude_verb
+respective	R	
+responding	R	
+response	R	
+responses	R	
+responsibility	R	
+responsiveness	R	
+rest	R	
+restaurant	R	
+restaurants	R	
+restore	R	
+restoring	R	
+restricted	R	
+restrictions	R	
+result	R	
+resulted	R	
+resulting	R	
+results	R	
+retail	R	
+retention	R	
+return	R	
+reveal	S	epistemic
+revealed	S	epistemic
+reveals	S	epistemic
+reverse	R	
+review	R	
+rhythmic	R	
+rib	R	
+rich	R	
+richard	R	
+rid	R	
+rides	R	
+rig	R	
+right	S	evaluative
+righteousness	R	
+rights	R	
+ring	R	
+rings	R	
+ripping	R	
+rise	R	
+rising	R	
+risk	R	
+risks	R	
+river	R	
+road	R	
+roast	R	
+roasted	R	
+rob	R	
+robinson	R	
+robo	R	
+robotics	R	
+robust	S	evaluative
+rock	R	
+rodriguez	R	
+role	R	
+roles	R	
+roll	R	
+roman	R	
+ron	R	
+ronaldo	R	
+roofing	R	
+room	R	
+root	R	
+rose	R	
+rotor	R	
+roughly	S	epistemic
+roulette	R	
+round	R	
+rounded	R	
+routes	R	
+royal	R	
+royaume	X	
+rubber	R	
+rubble	R	
+rugged	R	
+rule	R	
+rules	R	
+rumor	R	
+run	R	
+running	R	
+rural	R	
+russell	R	
+russian	R	
+sad	S	evaluative
+safe	S	evaluative
+safely	R	
+safety	R	
+said	S	speech_act
+sail	R	
+saint	R	
+saints	R	
+sake	F	
+sale	R	
+sales	R	
+salmon	R	
+salt	R	
+sam	R	
+same	F	
+sample	R	
+sampling	R	
+san	R	
+sand	R	
+santa	R	
+santo	R	
+satellite	R	
+satisfy	R	
+saturday	R	
+save	R	
+saw	R	
+say	S	speech_act
+saying	S	speech_act
+says	S	speech_act
+scalar	R	
+scale	R	
+scarcely	S	epistemic
+scared	S	evaluative
+scene	R	
+scenic	R	
+schedule	R	
+scheduled	R	
+scheduling	R	
+schema	R	
+school	R	
+schools	R	
+science	R	
+scientific	R	
+scope	R	
+score	R	
+scored	R	
+scores	R	
+screen	R	
+script	R	
+sea	R	
+seamless	S	evaluative
+seams	R	
+search	R	
+season	R	
+seasonal	R	
+seattle	R	
+second	F	
+secondary	R	
+seconds	R	
+section	R	
+sector	R	
+sectors	R	
+secure	S	evaluative
+secured	R	
+security	R	
+see	R	
+seeing	R	
+seek	R	
+seeking	R	
+seem	S	epistemic
+seemed	S	epistemic
+seeming	S	epistemic
+seemingly	S	epistemic
+seems	S	epistemic
+seen	R	
+seismic	R	
+select	R	
+selected	R	
+selection	R	
+self	R	
+semi	X	
+senator	R	
+send	R	
+sending	R	
+sends	R	
+senior	R	
+sense	R	
+sensitive	R	
+sent	R	
+sentinel	R	
+separate	R	
+sept	R	
+september	R	
+seq	X	
+sequential	R	
+series	R	
+serious	S	evaluative
+seriously	S	degree
+serve	R	
+served	R	
+server	R	
+serves	R	
+service	R	
+services	R	
+serving	R	
+session	R	
+set	R	
+sets	R	
+setting	R	
+setup	R	
+seven	F	
+several	F	
+severe	S	evaluative
+severely	S	evaluative
+sex	R	
+sexual	R	
+sexy	S	evaluative
+shall	S	modal
+shame	R	
+shape	R	
+shaping	R	
+share	R	
+shared	R	
+sharing	R	
+sharp	R	
+she	F	
+shed	R	
+sheer	S	degree
+sheets	R	
+sheldon	R	
+shelf	R	
+shielding	R	
+ship	R	
+shipped	R	
+shipping	R	
+shit	R	
+shooting	R	
+shop	R	
+shopping	R	
+shops	R	
+short	R	
+shot	R	
+shots	R	
+should	S	modal
+shouldn't	S	modal
+show	R	
+showcased	R	
+showcases	R	
+showed	R	
+shown	R	
+shows	R	
+shy	R	
+sic	F	
+sick	R	
+side	R	
+sides	R	
+sign	R	
+signal	R	
+signature	R	
+significance	R	
+significant	S	evaluative
+significantly	S	degree
+signifies	S	speech_act
+silicon	R	
+silver	R	
+similar	R	
+simple	S	evaluative
+simplicity	R	
+simplify	R	
+simplistic	S	evaluative
+simply	S	epistemic
+sims	R	
+simulation	R	
+since	F	
+singer	R	
+single	R	
+singles	R	
+sinus	R	
+sister	R	
+sisters	R	
+sit	R	
+site	R	
+sits	R	
+sitting	R	
+situation	R	
+situations	R	
+six	F	
+size	R	
+sizeable	R	
+skeleton	R	
+skilled	S	evaluative
+skills	R	
+skin	R	
+sky	R	
+slated	R	
+sliced	R	
+slide	R	
+slight	S	degree
+slightly	S	degree
+slippers	R	
+slots	R	
+slow	R	
+small	R	
+smart	S	evaluative
+smell	R	
+smelling	R	
+smooth	R	
+smoother	R	
+smoothly	S	evaluative
+snow	R	
+so	S	degree
+social	R	
+societal	R	
+society	R	
+socio	R	
+socioeconomic	R	
+soda	R	
+sodium	R	
+sofia	R	
+software	R	
+solar	R	
+sold	R	
+soldiers	R	
+solid	S	evaluative
+solitary	R	
+solution	R	
+solutions	R	
+solve	R	
+solving	R	
+some	F	
+someone	F	
+something	F	
+sometimes	F	
+somewhat	S	epistemic
+song	R	
+sony	R	
+soon	R	
+soooo	S	degree
+sophisticated	S	evaluative
+sort	R	
+sorts	R	
+sought	R	
+soul	R	
+souls	R	
+sound	R	
+sounded	R	
+sounds	R	
+source	R	
+sources	R	
+sous	X	
+south	R	
+southeast	R	
+southern	R	
+sox	R	
+soybean	R	
+space	R	
+spanish	R	
+spanning	R	
+spatial	R	
+speaking	R	
+special	R	
+specialised	R	
+specialist	R	
+specialized	R	
+species	R	
+specific	R	
+specifically	S	epistemic
+specifications	R	
+specified	R	
+spectacular	S	evaluative
+speed	R	
+speeds	R	
+spend	R	
+spent	R	
+spider	R	
+spirit	R	
+split	R	
+spoke	R	
+sponsoring	R	
+sponsorship	R	
+sport	R	
+sports	R	
+spot	R	
+spread	R	
+spring	R	
+st	F	
+stable	R	
+staff	R	
+stagnant	R	
+stair	R	
+stakeholders	R	
+stand	R	
+standard	R	
+standardized	R	
+standards	R	
+standing	R	
+stands	R	
+stanley	R	
+star	R	
+start	R	
+started	R	
+starting	R	
+starts	R	
+state	S	speech_act
+stated	S	speech_act
+statement	R	
+states	R	
+statewide	R	
+static	R	
+station	R	
+statistic	R	
+statistically	R	
+statistics	R	
+status	R	
+statutory	R	
+stay	R	
+steam	R	
+steering	R	
+stem	R	
+step	R	
+steps	R	
+steven	R	
+still	F	
+stimulate	R	
+stir	R	
+stockholm	R	
+stone	R	
+stop	R	
+stopped	R	
+storage	R	
+store	R	
+stored	R	
+stores	R	
+story	R	
+straight	R	
+strategic	R	
+strategies	R	
+strategy	R	
+strawberry	R	
+streaming	R	
+streamline	R	
+street	R	
+strength	R	
+strengthen	R	
+strengthened	R	
+strengthening	R	
+stress	S	speech_act
+stretches	R	
+stretching	R	
+strictly	S	epistemic
+strip	R	
+strive	R	
+strives	R	
+strong	S	evaluative
+strongly	S	degree
+struck	R	
+structural	R	
+structure	R	
+structured	R	
+structures	R	
+struggle	R	
+stub	R	
+stubborn	S	evaluative
+stuck	R	
+student	R	
+students	R	
+studies	R	
+studio	R	
+study	R	
+stuff	R	
+sturdy	R	
+style	R	
+stylish	S	evaluative
+subject	R	
+submit	R	
+submitted	R	
+subscribe	R	
+subsequent	R	
+subsequently	R	
+substance	R	
+substances	R	
+substantial	S	evaluative
+substantially	S	degree
+substantive	R	
+suburb	R	
+suburbs	R	
+succeed	R	
+success	R	
+successful	S	evaluative
+successfully	S	evaluative
+such	F	
+sudden	R	
+suffering	R	
+sufficient	S	evaluative
+sufficiently	S	degree
+sugar	R	
+suggest	S	speech_act
+suggested	S	speech_act
+suggesting	R	
+suggests	S	speech_act
+suicidal	R	
+suicide	R	
+suit	R	
+suitable	S	evaluative
+suitably	R	
+suite	R	
+suited	R	
+suits	R	
+sultan	R	
+sum	R	
+summary	R	
+summer	R	
+sun	R	
+sunday	R	
+sundays	R	
+sunflower	R	
+super	S	degree
+supplemental	R	
+supplied	R	
+supplier	R	
+supply	R	
+support	R	
+supported	R	
+supporting	R	
+supportive	R	
+supports	R	
+suppose	S	attitude_verb
+supposed	S	epistemic
+sure	S	epistemic
+surface	R	
+surgery	R	
+surprise	R	
+surprised	S	evaluative
+surprising	S	evaluative
+surprisingly	S	evaluative
+surrounding	R	
+survive	R	
+survived	R	
+surviving	R	
+susan	R	
+susceptibles	X	
+suspect	R	
+suspects	R	
+suspended	R	
+sustainability	R	
+sustainable	R	
+sustaining	R	
+sweater	R	
+sweet	R	
+swift	R	
+swim	R	
+swimming	R	
+swirling	R	
+swiss	R	
+switch	R	
+switching	R	
+symbol	R	
+sync	R	
+synonymous	R	
+synthesis	R	
+syrup	R	
+system	R	
+systematic	R	
+systematically	R	
+systems	R	
+tablespoons	R	
+tablet	R	
+tablets	R	
+tactical	R	
+tactics	R	
+tag	R	
+tailored	R	
+take	R	
+taken	R	
+takes	R	
+taking	R	
+tale	R	
+talented	S	evaluative
+talk	R	
+talking	R	
+tank	R	
+taper	R	
+target	R	
+targeted	R	
+tart	R	
+task	R	
+taste	R	
+tasting	R	
+taught	R	
+tax	R	
+tea	R	
+teachers	R	
+teaching	R	
+team	R	
+tear	R	
+tech	R	
+technical	R	
+techniques	R	
+technologies	R	
+technology	R	
+telecommunications	R	
+telekom	R	
+telephone	R	
+television	R	
+tell	S	speech_act
+telling	S	speech_act
+temper	R	
+temperature	R	
+template	R	
+temporarily	R	
+ten	F	
+tenant	R	
+term	R	
+terms	R	
+terrorist	R	
+test	R	
+testament	R	
+texas	R	
+text	R	
+textual	R	
+texture	R	
+th	F	
+than	F	
+thank	S	interjection
+that	F	
+that's	F	
+thats	F	
+the	F	
+their	F	
+them	F	
+thematic	R	
+theme	R	
+themselves	F	
+then	F	
+theory	R	
+therapy	R	
+there	F	
+there's	F	
+thereafter	R	
+thereby	F	
+therefore	F	
+thereof	F	
+theres	F	
+thermal	R	
+these	F	
+they	F	
+they'll	F	
+they're	F	
+thickness	R	
+thin	R	
+thing	R	
+things	R	
+think	S	attitude_verb
+thinking	S	attitude_verb
+third	F	
+thirty	F	
+this	F	
+thorough	S	evaluative
+thoroughly	S	degree
+those	F	
+though	F	
+thought	S	attitude_verb
+thoughtful	S	evaluative
+thoughts	R	
+thousand	F	
+thread	R	
+three	F	
+threshold	R	
+threw	R	
+through	F	
+throughout	F	
+throw	R	
+thrown	R	
+thus	F	
+thwart	R	
+tidal	R	
+tie	R	
+tied	R	
+ties	R	
+tiger	R	
+tight	R	
+tighter	R	
+till	F	
+tim	R	
+time	R	
+timeline	R	
+timely	S	evaluative
+times	R	
+tiny	S	degree
+tip	R	
+tips	R	
+tired	S	evaluative
+titan	R	
+title	R	
+titled	R	
+titles	R	
+tm	R	
+tn	R	
+to	F	
+tobacco	R	
+today	R	
+today's	R	
+together	R	
+toilet	R	
+told	S	speech_act
+tongue	R	
+tony	R	
+too	F	
+took	R	
+tools	R	
+tooth	R	
+top	R	
+topic	R	
+toro	R	
+toronto	R	
+total	R	
+totally	S	degree
+touch	R	
+tough	S	evaluative
+tougher	S	evaluative
+tour	R	
+touring	R	
+tourism	R	
+tourist	R	
+toward	F	
+towards	F	
+town	R	
+toys	R	
+trace	R	
+track	R	
+tracking	R	
+tracks	R	
+trade	R	
+trading	R	
+traditional	R	
+trained	R	
+training	R	
+transfer	R	
+transform	R	
+transformation	R	
+transformed	R	
+transformers	R	
+transition	R	
+transparent	R	
+transport	R	
+transportation	R	
+trauma	R	
+travel	R	
+traveling	R	
+travelled	R	
+treat	R	
+treated	R	
+treating	R	
+treatment	R	
+trek	R	
+tremendous	S	degree
+trend	R	
+trendy	S	evaluative
+trial	R	
+tricky	S	evaluative
+trigger	R	
+triggered	R	
+triggering	R	
+triggers	R	
+trip	R	
+triumph	R	
+troubleshooting	R	
+troubling	S	evaluative
+true	S	evaluative
+truly	S	epistemic
+truman	R	
+trust	S	attitude_verb
+trusted	S	attitude_verb
+truth	R	
+truths	R	
+try	R	
+trying	R	
+ts	X	
+tslib	X	
+tsp	R	
+tube	R	
+tumble	R	
+turbo	R	
+turkey	R	
+turn	R	
+turned	R	
+turns	R	
+turtle	R	
+tv	R	
+tweaks	R	
+twenty	F	
+twice	F	
+twig	R	
+twin	R	
+twisted	R	
+twitter	R	
+two	F	
+tx	R	
+type	R	
+typical	S	evaluative
+typically	S	epistemic
+uae	R	
+udd	X	
+uid	R	
+uk	R	
+ultimate	S	evaluative
+ultimately	S	epistemic
+un	F	
+unavailable	R	
+under	F	
+underestimate	S	epistemic
+underlying	R	
+understand	S	attitude_verb
+understandable	S	evaluative
+understanding	R	
+understands	S	attitude_verb
+understated	S	evaluative
+understatement	S	evaluative
+undertaken	R	
+undertaking	R	
+undoubtedly	S	epistemic
+uniform	R	
+unintended	R	
+union	R	
+unique	S	evaluative
+uniquely	S	evaluative
+unit	R	
+united	R	
+units	R	
+universal	R	
+universities	R	
+university	R	
+unless	F	
+unlike	F	
+unlikely	S	epistemic
+unloading	R	
+unnecessary	S	evaluative
+unparalleled	S	evaluative
+unprecedented	S	evaluative
+until	F	
+unusual	S	evaluative
+up	F	
+upcoming	R	
+update	R	
+updated	R	
+updates	R	
+uphold	R	
+upload	R	
+upon	F	
+upper	R	
+upward	R	
+urban	R	
+url	X	
+us	F	
+usa	R	
+usb	R	
+use	R	
+used	R	
+useful	S	evaluative
+user	R	
+users	R	
+uses	R	
+using	R	
+usps	R	
+usual	R	
+usually	S	epistemic
+utilised	R	
+utilities	R	
+utility	R	
+utilize	R	
+utilized	R	
+utilizing	R	
+utterly	S	degree
+va	R	
+vacuum	R	
+validity	R	
+valley	R	
+valuable	S	evaluative
+value	R	
+values	R	
+valve	R	
+variable	R	
+varied	R	
+variety	R	
+various	R	
+vary	R	
+varying	R	
+vector	R	
+vehicle	R	
+ventilation	R	
+verified	R	
+verify	R	
+vermont	R	
+very	S	degree
+veterans	R	
+via	F	
+viable	S	evaluative
+vibe	R	
+vibrant	S	evaluative
+vice	R	
+victory	R	
+vide	X	
+video	R	
+videos	R	
+view	R	
+views	R	
+vigilant	R	
+vik	R	
+vile	S	evaluative
+vip	R	
+viral	R	
+virtual	R	
+vision	R	
+visit	R	
+visited	R	
+visits	R	
+vistas	R	
+vital	S	evaluative
+vividly	S	evaluative
+vladimir	R	
+voice	R	
+voices	R	
+volume	R	
+volumes	R	
+vs	F	
+vulnerable	R	
+wagon	R	
+wait	R	
+waiting	R	
+wake	R	
+wales	R	
+walk	R	
+walked	R	
+walking	R	
+wall	R	
+walnut	R	
+walnuts	R	
+wanna	S	attitude_verb
+want	S	attitude_verb
+wanted	S	attitude_verb
+war	R	
+warehouse	R	
+warm	R	
+wars	R	
+was	F	
+washington	R	
+wasn't	F	
+waste	R	
+watch	R	
+watching	R	
+water	R	
+way	R	
+ways	R	
+we	F	
+we'd	F	
+we'll	F	
+we're	F	
+we've	F	
+wealth	R	
+wearing	R	
+weather	R	
+web	R	
+website	R	
+wedding	R	
+wednesday	R	
+wee	S	degree
+week	R	
+weekend	R	
+weeks	R	
+weight	R	
+weird	S	evaluative
+welcome	S	interjection
+welcomed	S	interjection
+well	S	evaluative
+wellness	R	
+went	R	
+were	F	
+west	R	
+western	R	
+westminster	R	
+wet	R	
+what	F	
+what's	F	
+whatever	F	
+wheat	R	
+when	F	
+whenever	F	
+where	F	
+whereas	F	
+whether	F	
+which	F	
+while	F	
+whilst	F	
+whisk	R	
+white	R	
+who	F	
+who've	F	
+whole	F	
+whom	F	
+whopping	S	degree
+whose	F	
+why	F	
+wi	X	
+wide	R	
+widely	R	
+wiki	R	
+wikia	R	
+wild	R	
+wildlife	R	
+will	F	
+william	R	
+williams	R	
+win	R	
+winchester	R	
+wind	R	
+window	R	
+windows	R	
+wine	R	
+winning	R	
+winter	R	
+wiping	R	
+wireless	R	
+with	F	
+within	F	
+without	F	
+withstand	R	
+witnessing	R	
+woman	R	
+women	R	
+women's	R	
+won	R	
+won't	F	
+wonderful	S	evaluative
+wonders	S	attitude_verb
+word	R	
+words	R	
+wore	R	
+work	R	
+worked	R	
+workforce	R	
+working	R	
+workout	R	
+works	R	
+workshops	R	
+world	R	
+world's	R	
+worry	S	attitude_verb
+worst	S	evaluative
+worth	S	evaluative
+would	F	
+wouldn	F	
+wouldn't	F	
+wrap	R	
+wrestling	R	
+write	R	
+writes	R	
+writing	R	
+written	R	
+wrong	S	evaluative
+wrongful	R	
+wrote	R	
+wwii	R	
+www	X	
+xbox	R	
+xerox	R	
+yards	R	
+ye	F	
+yea	S	interjection
+yeah	S	interjection
+year	R	
+years	R	
+yellow	R	
+yep	S	interjection
+yes	S	interjection
+yesterday	R	
+yet	F	
+yield	R	
+ymru	X	
+yoga	R	
+york	R	
+you	F	
+you'd	F	
+you'll	F	
+you're	F	
+you've	F	
+young	R	
+youngster	R	
+your	F	
+yourself	F	
+youth	R	
+youthful	R	
+youve	F	
+zealand	R	
+zero	R	
+zip	R	
+’s	F	
