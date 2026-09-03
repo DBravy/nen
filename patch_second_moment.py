@@ -60,8 +60,9 @@ Subcommands
                   (a) the patch hook is transparent at delta = 0 (bitwise),
                   (b) upstream activations are untouched and the harvest tap
                       point is exactly what is being patched,
-                  (c) sign-antisymmetry and scale-linearity of the response
-                      at small alpha, against the zero-row noise floor,
+                  (c) a scale ladder locating the smallest alpha the bf16
+                      forward supports at this layer (rungs below it inject
+                      quantization, not signal),
                   (d) the double-backward JVP agrees with the finite
                       difference (guarded; skipped on OOM),
                   and prints a time estimate for the full grid.
@@ -655,78 +656,111 @@ def smoke_patch(hf, tok, blocks, prompt, table, layers, target_layer,
     diff = float((ref - alt).abs().max())
     print(f"[smoke] (a) zero-delta transparency: max|dlogits|={diff:.3e} <- should be exactly 0")
 
-    # (b) upstream untouched, tap point verified, downstream reacts
+    # (b) tap point pre-patch, additive semantics at (l, p), downstream reaction.
+    # Context entry order matters: `pre` registers its hook before PatchHook, so it
+    # captures the residual BEFORE the delta (the tensor the harvest differentiated);
+    # `post` registers after, so it sees the modified output.
     f0 = F[:, 0]
     with torch.no_grad(), wsm.Recorder(blocks, [l, target_layer]) as rec:
         hf(input_ids=ids, use_cache=False)
         up_clean = rec.acts[l][0].float().cpu()
         tgt_clean = rec.acts[target_layer][0].float().cpu()
     eps = 0.1 * float(up_clean[p].norm())
-    with PatchHook(blocks[l]) as ph:
+    with torch.no_grad(), wsm.Recorder(blocks, [l, target_layer]) as pre, \
+            PatchHook(blocks[l]) as ph, wsm.Recorder(blocks, [l]) as post:
         ph.delta = torch.zeros(1, seq_len, d, device=dev)
         ph.delta[0, p] = eps * f0
-        with torch.no_grad(), wsm.Recorder(blocks, [l, target_layer]) as rec:
-            hf(input_ids=ids, use_cache=False)
-            up_pat = rec.acts[l][0].float().cpu()
-            tgt_pat = rec.acts[target_layer][0].float().cpu()
-    print(f"[smoke] (b) upstream unchanged: max|dh_l|={float((up_clean - up_pat).abs().max()):.3e} "
-          f"<- 0 means the hook adds AFTER the harvest's tap (Recorder captures pre-patch)")
+        hf(input_ids=ids, use_cache=False)
+        up_pre = pre.acts[l][0].float().cpu()
+        up_post = post.acts[l][0].float().cpu()
+        tgt_pat = pre.acts[target_layer][0].float().cpu()
+    dd = up_post - up_pre
+    off = dd.clone()
+    off[p] = 0
+    want = (eps * f0).float().cpu()
+    print(f"[smoke] (b) harvest tap sees pre-patch state: max|dh_l|="
+          f"{float((up_clean - up_pre).abs().max()):.3e} <- should be exactly 0")
+    print(f"[smoke] (b) additive at (l,p): off-position max={float(off.abs().max()):.3e} "
+          f"(should be 0), on-position |realized - intended| / |intended| = "
+          f"{float((dd[p] - want).norm() / (want.norm() + 1e-12)):.2e} (bf16 rounding level)")
     print(f"[smoke] (b) downstream reacts: |dh_target[p]|={float((tgt_clean - tgt_pat)[p].norm()):.3e} "
           f"(patch |delta|={eps:.3e})")
 
-    # (c) antisymmetry and linearity vs the zero-row noise floor
-    def resp(a):
-        outs = []
-        for s in (+1, -1, 0):
+    # (c) scale ladder: find the smallest alpha the bf16 forward supports here.
+    # Adding a delta below the residual stream's bf16 mantissa resolution injects a
+    # quantized, sign-asymmetric perturbation, so the antisym response stops scaling
+    # with alpha. Deviations at the SMALL end of the ladder are that floor;
+    # deviations at the large end are genuine nonlinearity.
+    eps0 = float(up_clean[p].norm())
+
+    def anti_at(a):
+        outs = {}
+        for sgn in (+1, -1):
             with PatchHook(blocks[l]) as ph:
                 ph.delta = torch.zeros(1, seq_len, d, device=dev)
-                if s:
-                    ph.delta[0, p] = s * a * eps0 * f0
+                ph.delta[0, p] = sgn * a * eps0 * f0
                 with torch.no_grad(), wsm.Recorder(blocks, [target_layer]) as rec:
                     hf(input_ids=ids, use_cache=False)
-                    outs.append(rec.acts[target_layer][0, p].float().cpu())
-        return outs
+                    outs[sgn] = rec.acts[target_layer][0, p].float().cpu()
+        return 0.5 * (outs[1] - outs[-1])
 
-    eps0 = float(up_clean[p].norm())
-    z1 = resp(0.005)[2]
-    z2 = resp(0.005)[2]
-    noise = float((z1 - z2).norm())
-    scales = sorted({0.005, 0.01, min(alphas)})
-    anti_ref = None
-    for a in scales:
-        hp, hm, h0 = resp(a)
-        anti = 0.5 * (hp - hm)
-        sym = 0.5 * (hp + hm) - h0
-        if anti_ref is None:
-            anti_ref = (a, anti)
-        pred = anti_ref[1] * (a / anti_ref[0])
-        dev_lin = float((anti - pred).norm() / (pred.norm() + 1e-12))
-        print(f"[smoke] (c) alpha={a:g}: |antisym|={float(anti.norm()):.3e} "
-              f"|sym residual|={float(sym.norm()):.3e} noise={noise:.3e} "
-              f"lin-dev vs alpha={anti_ref[0]:g}: {dev_lin:.2%} "
-              f"<- antisym should scale with alpha and sit well above noise")
+    ladder = sorted({0.005, 0.01, 0.02, 0.05, 0.1, 0.2, min(alphas)})
+    antis = {a: anti_at(a) for a in ladder}
+    rec_a = None
+    for a1, a2 in zip(ladder, ladder[1:]):
+        pred = antis[a1] * (a2 / a1)
+        dev_lin = float((antis[a2] - pred).norm() / (pred.norm() + 1e-12))
+        if dev_lin < 0.15 and rec_a is None:
+            rec_a = a1
+        print(f"[smoke] (c) alpha {a1:g} -> {a2:g}: |antisym| {float(antis[a1].norm()):.3e} -> "
+              f"{float(antis[a2].norm()):.3e}, scaling deviation {dev_lin:.1%}")
+    if rec_a is None:
+        print("[smoke] (c) no rung scaled cleanly; this layer may be strongly nonlinear "
+              "at all tested scales")
+    else:
+        print(f"[smoke] (c) smallest reliable alpha at this layer: ~{rec_a:g}. Make it the "
+              f"bottom of --alphas; rungs below it are bf16 quantization, not signal.")
 
-    # (d) double-backward JVP vs finite difference (guarded)
+    # (d) double-backward JVP vs finite difference, on a truncated sequence so the
+    # create-graph backward fits next to the model. Both sides use the same input.
     try:
-        with wsm.Recorder(blocks, [l, target_layer]) as rec, torch.enable_grad():
-            hf(input_ids=ids, use_cache=False)
-            tact = rec.acts[target_layer]
-            sact = rec.acts[l]
+        if dev.type == "cuda":
+            torch.cuda.empty_cache()
+        jseq = min(seq_len, 64)
+        idsj = ids[:, :jseq]
+        pj = min(p, jseq - 2)
+        with torch.no_grad(), wsm.Recorder(blocks, [l]) as rc:
+            hf(input_ids=idsj, use_cache=False)
+            epsj = float(rc.acts[l][0, pj].float().norm())
+        aj = 0.05
+        outs = {}
+        for sgn in (+1, -1):
+            with PatchHook(blocks[l]) as ph:
+                ph.delta = torch.zeros(1, jseq, d, device=dev)
+                ph.delta[0, pj] = sgn * aj * epsj * f0
+                with torch.no_grad(), wsm.Recorder(blocks, [target_layer]) as rc:
+                    hf(input_ids=idsj, use_cache=False)
+                    outs[sgn] = rc.acts[target_layer][0, pj].float().cpu()
+        fd = (0.5 * (outs[1] - outs[-1])) / (aj * epsj)
+        with wsm.Recorder(blocks, [l, target_layer]) as rc, torch.enable_grad():
+            hf(input_ids=idsj, use_cache=False)
+            tact = rc.acts[target_layer]
+            sact = rc.acts[l]
             u = torch.zeros_like(tact, requires_grad=True)
             g = torch.autograd.grad(tact, sact, grad_outputs=u, create_graph=True)[0]
             deltav = torch.zeros_like(sact)
-            deltav[0, p] = f0.to(deltav.dtype)
+            deltav[0, pj] = f0.to(deltav.dtype)
             jv = torch.autograd.grad((g * deltav).sum(), u, retain_graph=False)[0]
-            jv_p = jv[0, p].float().cpu()
-        a0, anti0 = anti_ref
-        fd = anti0 / (a0 * eps0)
+            jv_p = jv[0, pj].float().cpu()
+        del g, jv, tact, sact, u, deltav
         cos = float((fd @ jv_p) / (fd.norm() * jv_p.norm() + 1e-12))
-        print(f"[smoke] (d) JVP vs finite difference at pos {p}: cos={cos:.4f} "
-              f"|JVP|={float(jv_p.norm()):.3e} |FD|/eps={float(fd.norm()):.3e} "
-              f"<- cos~1 means the FD antisym IS the per-context linear response")
-        del g, jv, tact, sact
+        rat = float(fd.norm() / (jv_p.norm() + 1e-12))
+        print(f"[smoke] (d) JVP vs finite difference (seq truncated to {jseq}, alpha={aj:g}): "
+              f"cos={cos:.4f} |FD|/|JVP|={rat:.3f} "
+              f"<- cos~1, ratio~1: the FD antisym IS the per-context linear response")
     except (RuntimeError, SystemExit) as exc:
-        print(f"[smoke] (d) JVP check skipped ({type(exc).__name__}: {exc})")
+        print(f"[smoke] (d) JVP check skipped ({type(exc).__name__}: "
+              f"{str(exc).splitlines()[0][:120]})")
     if dev.type == "cuda":
         torch.cuda.empty_cache()
 
