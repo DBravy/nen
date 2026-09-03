@@ -1,30 +1,30 @@
 ====================================================================================================
-Stratified sense test: stratifier=L07_SV46  test axes=['L07_SV39', 'L07_SV46']  contrast=['deontic', 'epistemic']  strata=2 (doc)  seed=0
+Stratified sense test: stratifier=L07_SV46  test axes=['L07_SV39', 'L07_SV46']  contrast=['deontic', 'epistemic']  strata=2 (occ)  seed=0
 ====================================================================================================
 ----------------------------------------------------------------------------------------------------
-offset 0   contrast: deontic (n=215) vs epistemic (n=1023)   stratifier: L07_SV46   strata: 2 (doc-level)
+offset 0   contrast: deontic (n=215) vs epistemic (n=1023)   stratifier: L07_SV46   strata: 2 (occ-level)
 ----------------------------------------------------------------------------------------------------
 same-token restriction: keeping variant ' may' (deontic n=207, epistemic n=1012; dropped 8+11). variant table: ' May':3/4, ' may':207/1012, 'May':4/4, 'may':1/3
 
 stratum   range of L07_SV46 score             n_deo  n_epi   docs   deo share
-S1        [-47.6, -16.2]                        167    427    377      28.1%
-S2        [-40.2, -10.6]                         40    585    378       6.4%
+S1        [-47.6, -29.2]                        176    433    466      28.9%
+S2        [-29.2, -10.6]                         31    579    457       5.1%
 (the deo-share gradient across strata is the size of the genre-sense confound)
 
 direction                                                 pooled                    S1                    S2
                                           (AUC de-vs-ep [95% CI])(AUC de-vs-ep [95% CI])(AUC de-vs-ep [95% CI])
-L07_SV46 (stratifier)                      0.197 [0.17,0.23]  0.272 [0.23,0.32]  0.294 [0.21,0.38] 
-L07_SV39                                   0.670 [0.63,0.71]  0.620 [0.57,0.67]  0.670 [0.57,0.76] 
-probe (global CV)                          0.879 [0.85,0.91]  0.862 [0.83,0.90]  0.815 [0.75,0.88] 
-probe (global CV, minus L07_SV46)          0.920 [0.90,0.94]  0.894 [0.87,0.92]  0.908 [0.87,0.95] 
-probe (within-stratum CV)                  0.887 [0.86,0.91]  0.848 [0.81,0.88]  0.859 [0.81,0.91]   <- pooled = stratum-matched aggregate
-random null (|AUC-.5| -> AUC scale)         med 0.567  p95 0.669  med 0.554  p95 0.664  med 0.559  p95 0.666
+L07_SV46 (stratifier)                      0.197 [0.16,0.23]  0.282 [0.24,0.33]  0.357 [0.27,0.45] 
+L07_SV39                                   0.670 [0.62,0.71]  0.611 [0.56,0.67]  0.649 [0.54,0.74] 
+probe (global CV)                          0.879 [0.85,0.91]  0.854 [0.82,0.89]  0.786 [0.72,0.85] 
+probe (global CV, minus L07_SV46)          0.920 [0.90,0.94]  0.885 [0.85,0.91]  0.910 [0.86,0.94] 
+probe (within-stratum CV)                  0.897 [0.87,0.92]  0.864 [0.83,0.90]  0.876 [0.82,0.93]   <- pooled = stratum-matched aggregate
+random null (|AUC-.5| -> AUC scale)         med 0.575  p95 0.666  med 0.561  p95 0.656  med 0.568  p95 0.691
 
 random contexts per stratum (eyeball the genre reading; not cherry-picked):
-  S1 [deo]  (six Sunni madrassahs and one Seventh-day Adventist school) to educate citizen students; these schools must continue to meet or exceed public school 
-  S1 [epi]  150mm long, 1" diameter Flexstem XST is 569 grams. They are a special order item taking 5 days to reach us. From time to time, Flexstem users⟦ may⟧ n
-  S2 [epi]  materially from management’s current expectations. In addition, the parties may not be able to complete the proposed transaction on the proposed term
-  S2 [epi] Once you've come up with an overall idea and summary headline, it's time to get visual! This is when I start to pull in imagery and moodboards. I gath
+  S1 [epi]  numbers it also established permanent schools at Champlain, Pointe-aux-Trembles de Montréal, Lachine, Île d’Orléans, Québec, and Château-Richer. One 
+  S1 [epi] oker) - Wikipedia Great Plays - The best played hands - PokerLearn which poker hands to play and which to fold at. only the premium hands should be pl
+  S2 [epi]  (AOL), on the floodplains on the Yamuna in Delhi-NCR has submitted its report. The 47-page document records extensive damages done to the area and a 
+  S2 [epi] , which includes knowledge, efficiency and effectiveness, will rank high in the list of perquisites. The future president must be someone of great cha
 
 Reading the result: the asymmetric prediction is that axis rows collapse toward the random-null
 band within strata while both probe rows stay near the pooled ceiling. The stratifier's own
