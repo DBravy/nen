@@ -1,0 +1,27 @@
+{
+ "cmd": "restore",
+ "out": "runs/restore_mandela",
+ "base_script": "/home/dbrayjr5/nen/jspace_ablate_subject_v3.py",
+ "model": "openai/gpt-oss-20b",
+ "lens_repo": "solarkyle/jspace-lenses",
+ "lens_file": "gpt-oss-20b/lens.pt",
+ "attn_implementation": null,
+ "subjects": [
+  "Nelson Mandela"
+ ],
+ "relations": null,
+ "span_len": 4,
+ "max_seq_len": 64,
+ "name_source": "self",
+ "name_variants": true,
+ "no_norm_weight": false,
+ "ablate_cond": "name_lens",
+ "ablate_band": "6-8",
+ "ablate_positions": "subject_all",
+ "restore_layers": null,
+ "restore_positions": "prompt",
+ "k": 10,
+ "exclude_clean_topn": 10,
+ "min_gap": 0.25,
+ "fn": "<function cmd_restore at 0x7186f838cae0>"
+}
