@@ -1,0 +1,127 @@
+{
+  "kind": "rotated",
+  "replicate": 1,
+  "base_seed": 0,
+  "rng_scheme": "np.random.default_rng([seed, kind_id, replicate, layer])",
+  "source_dir": "g_bank/directions",
+  "layers": [
+    {
+      "layer": 0,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 1,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 2,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 3,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 4,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 5,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 6,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 7,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 8,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 9,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 10,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 11,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 12,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 13,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 14,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 15,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 16,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 17,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 18,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 19,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 20,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 21,
+      "d_model": 2880,
+      "k": 64
+    },
+    {
+      "layer": 22,
+      "d_model": 2880,
+      "k": 64
+    }
+  ],
+  "gains": "exact (||diag(S) Q[:,i]||, within top-k subspace)",
+  "max_source_orthonormality_defect": 5.514746725943098e-08,
+  "max_output_orthonormality_defect": 1.931276916167235e-08
+}
