@@ -844,6 +844,7 @@ def cmd_analyze(args: argparse.Namespace) -> None:
             "sym_ln": float(sym_l.norm()),
             "eps": float(P["eps"][ip]),
             "raw_ln": float(P["dlog_norm"][ip]), "kl": float(P["kl"][ip]),
+            "tail_n": 0.5 * (float(P["dh_tail_norm"][ip]) + float(P["dh_tail_norm"][im])),
             "flip": int(P["flip"][ip]),
         })
 
@@ -879,10 +880,13 @@ def cmd_analyze(args: argparse.Namespace) -> None:
     emit("\nPer-direction: g0 = median antisym |dh_target|/eps at the smallest alpha (the")
     emit("measured per-context linear gain); moment check g2/fSf compares mean g0^2 to the")
     emit("harvest's f'S f (same order expected, not equality: S sums future targets while")
-    emit("patches read one position); alpha* = first alpha whose antisym departs >25% from")
-    emit("linear scaling (nan: linear through the whole tested range); corr_pred = does")
-    emit("the small-alpha response predict the largest-")
-    emit("alpha response, context by context; stability = mean pairwise cos of antisym")
+    emit("patches read one position); tail^2/fSf does the same with the response summed")
+    emit("over positions >= p (closer to S's future-summed convention, includes a small")
+    emit("symmetric part); alpha* = first alpha whose antisym departs >25% from linear")
+    emit("scaling (nan: linear through the whole tested range); corr_lin = per-context")
+    emit("gain at the smallest alpha predicting the mid-alpha antisym (foreseeability in")
+    emit("the linear regime); corr_sat = same predictor against the raw largest-alpha")
+    emit("response (saturation predictability); stability = mean pairwise cos of antisym")
     emit("dlogit sketches across contexts (the output template).")
     dir_rows = []
     for (layer, s, dir_id), by_a in sorted(A.items()):
@@ -893,7 +897,8 @@ def cmd_analyze(args: argparse.Namespace) -> None:
         g0 = [e["anti_hn"] / max(e["eps"], 1e-30) for e in e0]
         g0_med = float(np.median(g0))
         g2 = float(np.mean(np.array(g0) ** 2))
-        snr = float(np.median([e["anti_ln"] for e in e0]) / max(noise, 1e-30))
+        snr = (float("inf") if noise == 0
+               else float(np.median([e["anti_ln"] for e in e0]) / noise))
         base = {e["cp"]: e["anti_ln"] / max(e["eps"], 1e-30) for e in e0}
         astar = float("nan")
         for a in alphas[1:]:
@@ -902,13 +907,24 @@ def cmd_analyze(args: argparse.Namespace) -> None:
                     for e in ea if e["cp"] in base]
             if devs and float(np.median(devs)) > 0.25 and math.isnan(astar):
                 astar = a
+
+        def _corr(pairs_xy):
+            if len(pairs_xy) < 4:
+                return float("nan")
+            x = np.array([q[0] for q in pairs_xy])
+            ydat = np.array([q[1] for q in pairs_xy])
+            if x.std() == 0 or ydat.std() == 0:
+                return float("nan")
+            return float(np.corrcoef(x, ydat)[0, 1])
+
+        a_mid = alphas[min(2, len(alphas) - 1)]
+        corr_lin = _corr([(base[e["cp"]], e["anti_ln"] / max(e["eps"], 1e-30))
+                          for e in by_a.get(a_mid, []) if e["cp"] in base])
         abig = alphas[-1]
-        xy = [(base[e["cp"]], e["raw_ln"]) for e in by_a.get(abig, []) if e["cp"] in base]
-        corr = float("nan")
-        if len(xy) >= 4:
-            x, ydat = np.array([q[0] for q in xy]), np.array([q[1] for q in xy])
-            if x.std() > 0 and ydat.std() > 0:
-                corr = float(np.corrcoef(x, ydat)[0, 1])
+        corr = _corr([(base[e["cp"]], e["raw_ln"]) for e in by_a.get(abig, [])
+                      if e["cp"] in base])
+        gt = [e["tail_n"] / max(e["eps"], 1e-30) for e in e0]
+        gt2 = float(np.mean(np.array(gt) ** 2)) if gt else float("nan")
         sks = [e["anti_l"] / max(e["anti_ln"], 1e-30) for e in e0 if e["anti_ln"] > 3 * noise]
         stab = float("nan")
         if len(sks) >= 2:
@@ -922,7 +938,8 @@ def cmd_analyze(args: argparse.Namespace) -> None:
             "gamma_J": m.get("gamma_J"), "fSf_J": m.get("fSf_J"), "inv_J": m.get("inv_J"),
             "gamma_R": m.get("gamma_R"), "g0_med": g0_med, "g0sq_over_fSf":
                 (g2 / m["fSf_J"] if m.get("fSf_J") else float("nan")),
-            "snr_a0": snr, "alpha_star": astar, "corr_pred": corr,
+            "gtail_sq_over_fSf": (gt2 / m["fSf_J"] if m.get("fSf_J") else float("nan")),
+            "snr_a0": snr, "alpha_star": astar, "corr_lin": corr_lin, "corr_pred": corr,
             "template_stability": stab,
             "flip_frac": (float(np.mean(flips)) if flips else float("nan")),
         })
@@ -935,15 +952,16 @@ def cmd_analyze(args: argparse.Namespace) -> None:
             w.writerows(dir_rows)
     for layer in layers:
         emit(f"\n  L{layer:02d} set medians "
-             f"(gamma_J | g0 | g0^2/fSf | alpha* | corr_pred | stability | SNR):")
+             f"(gamma_J | g0 | g0^2/fSf | tail^2/fSf | alpha* | corr_lin | corr_sat | stability):")
         for s in sorted({r["set"] for r in dir_rows if r["layer"] == layer}):
             rs = [r for r in dir_rows if r["layer"] == layer and r["set"] == s]
             def med(key):
                 vals = [r[key] for r in rs if r[key] is not None and not (isinstance(r[key], float) and math.isnan(r[key]))]
                 return float(np.median(vals)) if vals else float("nan")
             emit(f"    {s:>8}: {med('gamma_J'):8.2f} | {med('g0_med'):9.3g} | "
-                 f"{med('g0sq_over_fSf'):7.2f} | {med('alpha_star'):6.3g} | "
-                 f"{med('corr_pred'):6.2f} | {med('template_stability'):6.2f} | {med('snr_a0'):6.1f}")
+                 f"{med('g0sq_over_fSf'):7.2f} | {med('gtail_sq_over_fSf'):7.2f} | "
+                 f"{med('alpha_star'):6.3g} | {med('corr_lin'):6.2f} | "
+                 f"{med('corr_pred'):6.2f} | {med('template_stability'):6.2f}")
 
     # ---- decodability ---------------------------------------------------------
     emit("\nDecodability (nearest-centroid on antisym dlogit sketches, chance = 1/K over")
